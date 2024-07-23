@@ -16,7 +16,7 @@ public class FestivalServiceTest {
     private String apiKey;
 
     private String eventStartDate = "20240504";
-    private String eventEndDate = "20240902";
+    private String eventEndDate = "20240901";
 
     @Test
     public void testUpdateFestivalList() {
