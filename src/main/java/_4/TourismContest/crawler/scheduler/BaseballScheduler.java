@@ -20,6 +20,7 @@ public class BaseballScheduler {
 
     @Scheduled(cron = "0 */30 * * * *") // 매 30분마다 실행
     public void scrapeGames() {
+        System.out.println("BaseballScheduler.scrapeGames");
         baseballService.scrapeTodayGame();
     }
 }

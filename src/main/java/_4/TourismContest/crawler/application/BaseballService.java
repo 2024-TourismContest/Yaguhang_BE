@@ -244,7 +244,7 @@ public class BaseballService {
     }
 
     @Transactional
-    public List<Baseball> scrapeTodayGame() {
+    public void scrapeTodayGame() {
         setUpWebDriver();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -540,7 +540,6 @@ public class BaseballService {
         } finally {
             driver.quit();
         }
-        return schedules;
     }
 
 
