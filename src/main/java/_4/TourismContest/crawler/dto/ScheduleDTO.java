@@ -10,8 +10,8 @@ import lombok.ToString;
 public class ScheduleDTO {
     private String day;
     private String time;
-    private String team1;
+    private String homeTeam;
     private String vs;
-    private String team2;
+    private String awayTeam;
     private String location;
 }
