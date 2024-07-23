@@ -23,9 +23,9 @@ public class BaseballController {
         return crawlingService.scrapeAllSchedule();
     }
     // 특정 날짜 조회
-    @GetMapping("/update2")
-    public List<Baseball> getSchedule2() {
-        return crawlingService.scrapeTodayGame();
-    }
+//    @GetMapping("/update2")
+//    public List<Baseball> getSchedule2() {
+//        return crawlingService.scrapeTodayGame();
+//    }
 
 }
