@@ -1,0 +1,49 @@
+name: String2024 Deploy
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Convert line endings for gradlew
+        run: dos2unix gradlew
+
+      - name: Ensure gradlew has execute permission
+        run: chmod +x gradlew
+
+      - name: Copy application.yml
+        run: cp /home/mschoi/Desktop/tourismContest/String-BE/application.yml ./src/main/resources/application.yml
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Copy JAR file to target directory
+        run: |
+          if [ -f /home/mschoi/Desktop/tourismContest/String-BE/app.jar ]; then
+            rm /home/mschoi/Desktop/tourismContest/String-BE/app.jar
+          fi
+          cp build/libs/$(ls build/libs | grep '\.jar$') /home/mschoi/Desktop/tourismContest/String-BE/app.jar
+
+      - name: Execute remote commands
+        run: |
+          echo "Stopping any running instance on port 8080"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 "fuser -k 8080/tcp" || echo "Failed to stop existing application"
+          echo "Starting the new application"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 "nohup java -jar /home/mschoi/Desktop/tourismContest/String-BE/app.jar > /home/mschoi/Desktop/tourismContest/String-BE/app.log 2>&1 &" || echo "Failed to start new application"
+          echo "Waiting for the application to start"
+          sleep 10
+          echo "Checking application logs"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 "cat /home/mschoi/Desktop/tourismContest/String-BE/app.log" || echo "Failed to retrieve application logs"
+
+      - name: Clean up unused Docker images
+        run: docker image prune -f
