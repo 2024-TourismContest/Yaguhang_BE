@@ -529,10 +529,10 @@ public class BaseballService {
                             baseball.setHomePitcher(homePitcher);
                             baseball.setStatus(status);
                             baseballRepository.save(baseball);
-                                    schedules.add(baseball);
-                                    break;
+                            schedules.add(baseball);
                         }
                     }
+                    break;
                 }
             }
         } catch (Exception e) {
