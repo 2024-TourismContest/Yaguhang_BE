@@ -34,6 +34,13 @@ dependencies {
 	implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.22.0'
 	implementation 'io.github.bonigarcia:webdrivermanager:5.9.1' // Add this line
 
+	// queryDsl 관련 코드생성 기능 제공
+	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+	// queryDsl 라이브러리
+	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.4'

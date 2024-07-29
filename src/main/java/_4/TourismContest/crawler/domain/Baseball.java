@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-@EqualsAndHashCode(of = {"date", "month", "home", "away", "time"})
+//@EqualsAndHashCode(of = {"month", "home", "away", "time"})
 @Table(name = "Baseball")
 public class Baseball {
     @Id
