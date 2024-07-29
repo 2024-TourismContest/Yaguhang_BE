@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-//@EqualsAndHashCode(of = {"month", "home", "away", "time"})
+@EqualsAndHashCode(of = {"home", "away", "time"})
 @Table(name = "Baseball")
 public class Baseball {
     @Id
@@ -22,6 +22,8 @@ public class Baseball {
     private LocalDateTime time;
     private int month;
     private String weekDay;
+    private String home;
+    private String away;
     private String location;
     private String status;
     private String homePitcher;
