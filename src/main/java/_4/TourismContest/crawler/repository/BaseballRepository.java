@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface BaseballRepository extends JpaRepository<Baseball,Long> {
-//    Optional<List<Baseball>> findAllByMonthAndDate(int month, int date);
-
     @Query("SELECT b FROM Baseball b WHERE b.time = :time AND b.home = :home AND b.away = :away AND b.location = :location")
     Optional<Baseball> findByTimeAndHomeAndAwayAndLocation(@Param("time") LocalDateTime time, @Param("home") String home, @Param("away") String away, @Param("location") String location);
 }
