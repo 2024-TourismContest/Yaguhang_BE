@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -163,7 +164,6 @@ public class BaseballService {
                             }
                             if (status.equals("취소")) {    //경기가 취소될 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
                                         .month(month)
                                         .weekDay(weekday)
                                         .time(time)
@@ -174,7 +174,6 @@ public class BaseballService {
                                         .build();
                             } else if(status.equals("종료")){    //경기가 종룓될 경우
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
                                             .month(month)
                                             .weekDay(weekday)
                                             .time(time)
@@ -190,7 +189,6 @@ public class BaseballService {
                             }else if(status.equals("예정")){
                                 if(!isPitcherNull){
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
                                             .month(month)
                                             .weekDay(weekday)
                                             .time(time)
@@ -203,7 +201,6 @@ public class BaseballService {
                                             .build();
                                 }else{
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
                                             .month(month)
                                             .weekDay(weekday)
                                             .time(time)
@@ -215,7 +212,6 @@ public class BaseballService {
                                 }
                             }else{  //경기가 진행중일 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
                                         .month(month)
                                         .weekDay(weekday)
                                         .time(time)

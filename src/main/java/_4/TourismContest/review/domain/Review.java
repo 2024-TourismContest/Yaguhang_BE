@@ -34,7 +34,7 @@ public class Review {
     @Min(1)
     @Max(5)
     @Column(name = "rating", nullable = false)
-    private int rating;
+    private float star;
 
     @Column(name = "content", nullable = false)
     private String content;

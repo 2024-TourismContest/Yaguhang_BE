@@ -4,6 +4,8 @@ package _4.TourismContest.crawler.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -17,20 +19,13 @@ public class Baseball {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String time;
-    private String home;
-    private String away;
+    private LocalDateTime time;
+    private int month;
+    private String weekDay;
     private String location;
     private String status;
-    @Column(nullable = true)
     private String homePitcher;
-    @Column(nullable = true)
     private String awayPitcher;
-    private int month;
-    private int date;
-    @Column(nullable = true)
     private int homeScore;
-    @Column(nullable = true)
     private int awayScore;
-    private String weekDay;
 }
