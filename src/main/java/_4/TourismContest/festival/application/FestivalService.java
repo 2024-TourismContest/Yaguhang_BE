@@ -29,7 +29,7 @@ public class FestivalService {
     private final FestivalScrapRepository festivalScrapRepository;
     private final RestTemplate restTemplate;
 
-    @Value("${API.festival.key}")
+    @Value("${tour_api.secret.KorService1}")
     private String apiKey;
 
     /**

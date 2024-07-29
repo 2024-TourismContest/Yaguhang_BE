@@ -30,16 +30,16 @@ spring:
   #    port: 6379
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/tourismContest?characterEncoding=UTF-8&serverTimezone=UTC
-    username: root
-    password: 1234
+    url: jdbc:mariadb://string2024.kro.kr:3306/TourismContest_Test?characterEncoding=UTF-8&serverTimezone=UTC
+    username: string2024
+    password: string2024!
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         hbm2ddl:
-          auto: create
+          auto: update
 app:
   cors:
     allowedOrigins:
@@ -57,6 +57,9 @@ app:
       - https://string2024.kro.kr:8443/oauth2/redirect
       - myandroidapp://oauth2/redirect
       - myiosapp://oauth2/redirect
+tour_api:
+  secret:
+    KorService1: HdI3AuEi9LTwWZOuy%2Fjg6AZG%2Bjn8tUxLHK01DzSA24nLvwRSqwrrq8kjLaagm7eARg%2Fg8MQ3CYplpJT3Nbipaw%3D%3D
 
 logging:
   level:
