@@ -25,9 +25,9 @@ spring:
             user-name-attribute: id
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/string
+    url: jdbc:mariadb://localhost:3306/tourismContest
     username: root
-    password: yang326591
+    password: 1234
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
