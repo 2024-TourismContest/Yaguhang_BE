@@ -16,10 +16,9 @@ public class BaseballScheduler {
     @PostConstruct
     public void init() {
         baseballService.scrapeAllSchedule();
-        System.out.println("BaseballScheduler.init");
     }
 
-    @Scheduled(cron = "0 */30 * * * *") // 매 30분마다 실행
+    @Scheduled(cron = "0 0,30 0,13-23 * * *") // 매 30분마다 실행하되 01시~12시 제외
     public void scrapeGames() {
         System.out.println("BaseballScheduler.scrapeGames");
         baseballService.scrapeTodayGame();

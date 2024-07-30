@@ -1,17 +1,11 @@
 package _4.TourismContest.user.domain;
 
-import _4.TourismContest.festival.domain.FestivalScrap;
 import _4.TourismContest.oauth.domain.AuthProvider;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -42,9 +36,6 @@ public class User {
 
     @Column(name = "provider_id")
     private String providerId;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<FestivalScrap> festivalScrapList = new ArrayList<>();
 
 
     @Builder

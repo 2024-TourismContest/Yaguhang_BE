@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -40,8 +41,9 @@ public class BaseballService {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         ArrayList<Baseball> schedules = new ArrayList<>();
         try {
+            LocalDate today = LocalDate.now();
             for (int i = 1; i <= 12; i++) {
-                LocalDate firstDayOfMonth = LocalDate.of(2024, i, 1);
+                LocalDate firstDayOfMonth = LocalDate.of(today.getYear(), i, 1);
                 String formattedDate = firstDayOfMonth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 String url = "https://m.sports.naver.com/kbaseball/schedule/index?category=kbo&date=" + formattedDate;
 
@@ -70,6 +72,10 @@ public class BaseballService {
                             String time = game.select(".MatchBox_time__nIEfd").text().replace("경기 시간", "").trim();
                             String status = game.select(".MatchBox_status__2pbzi").text();
 
+                            String[] timeParts = time.split(":");
+                            int hour = Integer.parseInt(timeParts[0]);
+                            int minute = Integer.parseInt(timeParts[1]);
+                            LocalDateTime gameTime = LocalDateTime.of(firstDayOfMonth.getYear(),month,dayOfMonth,hour,minute);
                             // Home, Away team 요소가 로드될 때까지 기다립니다.
                             wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".MatchBoxTeamArea_team_item__3w5mq")));
                             Element homeEle = game.select(".MatchBoxTeamArea_team_item__3w5mq").last();
@@ -85,7 +91,7 @@ public class BaseballService {
                             Baseball schedule = null;
 
                             boolean checkTieGame = false;
-                            boolean isPitcherNull = true;
+                            boolean isPitcherNull = false;
 
                             if (status.equals("종료")) {
                                 boolean isHomeTeamWinner= false;    //홈팀이 이겼는지, 졌는지, 무승부인지
@@ -147,8 +153,8 @@ public class BaseballService {
                                         .select(".MatchBoxTeamArea_item__11GUB").text();
                                 homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
                                         .select(".MatchBoxTeamArea_item__11GUB").text();
-                                if(awayPitcher != null && homePitcher != null){
-                                    isPitcherNull = false;
+                                if(awayPitcher.equals("") && homePitcher.equals("")){
+                                    isPitcherNull = true;
                                 }
                             }else{  //경기가 진행중일 경우
                                 awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
@@ -163,10 +169,8 @@ public class BaseballService {
                             }
                             if (status.equals("취소")) {    //경기가 취소될 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
-                                        .month(month)
+                                        .time(gameTime)
                                         .weekDay(weekday)
-                                        .time(time)
                                         .home(homeTeam)
                                         .away(awayTeam)
                                         .location(location)
@@ -174,10 +178,8 @@ public class BaseballService {
                                         .build();
                             } else if(status.equals("종료")){    //경기가 종룓될 경우
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
-                                            .month(month)
+                                            .time(gameTime)
                                             .weekDay(weekday)
-                                            .time(time)
                                             .home(homeTeam)
                                             .away(awayTeam)
                                             .homeScore(Integer.parseInt(homeScore))
@@ -190,10 +192,8 @@ public class BaseballService {
                             }else if(status.equals("예정")){
                                 if(!isPitcherNull){
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
-                                            .month(month)
+                                            .time(gameTime)
                                             .weekDay(weekday)
-                                            .time(time)
                                             .home(homeTeam)
                                             .away(awayTeam)
                                             .location(location)
@@ -203,10 +203,8 @@ public class BaseballService {
                                             .build();
                                 }else{
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
-                                            .month(month)
                                             .weekDay(weekday)
-                                            .time(time)
+                                            .time(gameTime)
                                             .home(homeTeam)
                                             .away(awayTeam)
                                             .location(location)
@@ -215,10 +213,8 @@ public class BaseballService {
                                 }
                             }else{  //경기가 진행중일 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
-                                        .month(month)
                                         .weekDay(weekday)
-                                        .time(time)
+                                        .time(gameTime)
                                         .home(homeTeam)
                                         .away(awayTeam)
                                         .homeScore(Integer.parseInt(homeScore))
@@ -284,6 +280,12 @@ public class BaseballService {
                     for (Element game : games) {
                         String time = game.select(".MatchBox_time__nIEfd").text().replace("경기 시간", "").trim();
                         String status = game.select(".MatchBox_status__2pbzi").text();
+
+                        String[] timeParts = time.split(":");
+                        int hour = Integer.parseInt(timeParts[0]);
+                        int minute = Integer.parseInt(timeParts[1]);
+                        LocalDateTime gameTime = LocalDateTime.of(today.getYear(),month,dayOfMonth,hour,minute);
+
                         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".MatchBoxTeamArea_team__3aB4O")));
                         Thread.sleep(2000);
 
@@ -293,8 +295,8 @@ public class BaseballService {
                         String awayTeam = awayEle.select(".MatchBoxTeamArea_team__3aB4O").text();
                         String location = game.select(".MatchBox_stadium__13gft").text().replace("경기장", "").trim();
 
-                        Optional<Baseball> findByMonthAndDateAndTimeAndAwayAndHomeAndLocation = baseballRepository.findByMonthAndDateAndTimeAndAwayAndHomeAndLocation(month, dayOfMonth,time,homeTeam, awayTeam, location);
-                        if(!findByMonthAndDateAndTimeAndAwayAndHomeAndLocation.isPresent()){
+                        Optional<Baseball> findByTimeAndHomeAndAwayAndLocation = baseballRepository.findByTimeAndHomeAndAwayAndLocation(gameTime,homeTeam, awayTeam, location);
+                        if(!findByTimeAndHomeAndAwayAndLocation.isPresent()){
                             //기존 DB에 없는 경기가 추가될 경우
                             //새로운 경기 일정 추가
                             Baseball schedule = null;
@@ -304,7 +306,7 @@ public class BaseballService {
                             String awayPitcher = null;
 
                             boolean checkTieGame = false;
-                            boolean isPitcherNull = true;
+                            boolean isPitcherNull = false;
                             if (status.equals("종료")) {
                                 boolean isHomeTeamWinner= false;    //홈팀이 이겼는지, 졌는지, 무승부인지
                                 if(homeEle.className().contains("winner")){
@@ -365,10 +367,9 @@ public class BaseballService {
                                         .select(".MatchBoxTeamArea_item__11GUB").text();
                                 homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
                                         .select(".MatchBoxTeamArea_item__11GUB").text();
-                                if(awayPitcher != null && homePitcher != null){
-                                    isPitcherNull = false;
+                                if(awayPitcher.equals("") && homePitcher.equals("")){
+                                    isPitcherNull = true;
                                 }
-                                isPitcherNull = true;
                             }else{  //경기가 진행중일 경우
                                 awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
                                         .select(".MatchBoxTeamArea_item__11GUB").text();
@@ -382,10 +383,8 @@ public class BaseballService {
                             }
                             if (status.equals("취소")) {    //경기가 취소될 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
-                                        .month(month)
                                         .weekDay(weekday)
-                                        .time(time)
+                                        .time(gameTime)
                                         .home(homeTeam)
                                         .away(awayTeam)
                                         .location(location)
@@ -393,10 +392,8 @@ public class BaseballService {
                                         .build();
                             } else if(status.equals("종료")){    //경기가 종룓될 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
-                                        .month(month)
                                         .weekDay(weekday)
-                                        .time(time)
+                                        .time(gameTime)
                                         .home(homeTeam)
                                         .away(awayTeam)
                                         .homeScore(Integer.parseInt(homeScore))
@@ -409,10 +406,8 @@ public class BaseballService {
                             }else if(status.equals("예정")){
                                 if(!isPitcherNull){
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
-                                            .month(month)
                                             .weekDay(weekday)
-                                            .time(time)
+                                            .time(gameTime)
                                             .home(homeTeam)
                                             .away(awayTeam)
                                             .location(location)
@@ -422,10 +417,8 @@ public class BaseballService {
                                             .build();
                                 }else{
                                     schedule = Baseball.builder()
-                                            .date(dayOfMonth)
-                                            .month(month)
                                             .weekDay(weekday)
-                                            .time(time)
+                                            .time(gameTime)
                                             .home(homeTeam)
                                             .away(awayTeam)
                                             .location(location)
@@ -434,10 +427,8 @@ public class BaseballService {
                                 }
                             }else{  //경기가 진행중일 경우
                                 schedule = Baseball.builder()
-                                        .date(dayOfMonth)
-                                        .month(month)
                                         .weekDay(weekday)
-                                        .time(time)
+                                        .time(gameTime)
                                         .home(homeTeam)
                                         .away(awayTeam)
                                         .homeScore(Integer.parseInt(homeScore))
@@ -451,7 +442,7 @@ public class BaseballService {
                             schedules.add(schedule);
                         }else{
                             //기존에 DB에 데이터가 있는 경우
-                            Baseball baseball = findByMonthAndDateAndTimeAndAwayAndHomeAndLocation.get();
+                            Baseball baseball = findByTimeAndHomeAndAwayAndLocation.get();
                             String homeScore = null;
                             String awayScore = null;
                             String homePitcher = null;
