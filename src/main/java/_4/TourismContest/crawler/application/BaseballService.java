@@ -13,12 +13,15 @@ import org.jsoup.select.Elements;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -29,6 +32,7 @@ public class BaseballService {
     private final String os = System.getProperty("os.name").toLowerCase();
     private final BaseballRepository baseballRepository;
 
+    @Transactional
     public List<Baseball> scrapeAllSchedule() {
         setUpWebDriver();
         ChromeOptions options = new ChromeOptions();
@@ -543,6 +547,17 @@ public class BaseballService {
             System.setProperty("webdriver.chrome.driver", "/Users/minseok/chromedriver-mac-arm64/chromedriver");
         } else if (os.contains("linux")) {
             System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
+        }
+    }
+
+    public Page<Baseball> getGamesByTeamAndDate(String team, int page, int size) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
+
+        if ("전체".equals(team)) {
+            return baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+        } else {
+            return baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
         }
     }
 }
