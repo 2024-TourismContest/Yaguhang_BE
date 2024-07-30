@@ -20,7 +20,6 @@ public class Baseball {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime time;
-    private int month;
     private String weekDay;
     private String home;
     private String away;
