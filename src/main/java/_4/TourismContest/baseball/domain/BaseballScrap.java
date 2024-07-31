@@ -1,4 +1,4 @@
-package _4.TourismContest.spot.domain;
+package _4.TourismContest.baseball.domain;
 
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
@@ -6,12 +6,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "spot_scrap")
-public class SpotScrap {
+@Table(name = "baseball_scrap")
+public class BaseballScrap {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,5 +19,5 @@ public class SpotScrap {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Spot spot;
+    private Baseball baseball;
 }

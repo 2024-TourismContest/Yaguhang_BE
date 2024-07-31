@@ -1,6 +1,5 @@
-package _4.TourismContest.spot.domain;
+package _4.TourismContest.stadium.domain;
 
-import _4.TourismContest.stadium.domain.Stadium;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,15 +8,14 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "spot")
-public class Spot {
+@Table(name = "stadium")
+public class Stadium {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contentId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Stadium stadium;
+    private float x;
+    private float y;
     private String name;
+    private String team;
     private String image;
-
 }
