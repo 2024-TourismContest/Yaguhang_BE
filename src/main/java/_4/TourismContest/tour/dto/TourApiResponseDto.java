@@ -8,22 +8,22 @@ import java.util.List;
 public class TourApiResponseDto {
     private Response response;
     @Getter
-    public class Response {
+    public static class Response {
         @JsonProperty("body")
         private Body body;
     }
     @Getter
-    public class Body {
+    public static class Body {
         @JsonProperty("items")
         private Items items;
     }
     @Getter
-    public class Items {
+    public static class Items {
         @JsonProperty("item")
         private List<Item> item;
     }
     @Getter
-    public class Item {
+    public static class Item {
         @JsonProperty("addr1")
         private String addr1;
         @JsonProperty("addr2")

@@ -19,10 +19,9 @@ public class SpotService {
     }
 
     public MapXY getCoordinate(String stadium){
-        MapXY mapXY = new MapXY(129.061794, 35.1936215);
-
-        // TODO:각 구장 좌표값 가져오는 로직 필요
+        MapXY mapXY = new MapXY(129.061794, 35.1936215);    // TODO:각 구장 좌표값 가져오는 로직 필요
         return mapXY;
     }
+
 
 }

@@ -59,7 +59,7 @@ app:
       - myiosapp://oauth2/redirect
 tour_api:
   secret:
-    KorService1: HdI3AuEi9LTwWZOuy%2Fjg6AZG%2Bjn8tUxLHK01DzSA24nLvwRSqwrrq8kjLaagm7eARg%2Fg8MQ3CYplpJT3Nbipaw%3D%3D
+    KorService1: HdI3AuEi9LTwWZOuy/jg6AZG+jn8tUxLHK01DzSA24nLvwRSqwrrq8kjLaagm7eARg/g8MQ3CYplpJT3Nbipaw==
 
 logging:
   level:
