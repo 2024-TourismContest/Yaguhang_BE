@@ -4,6 +4,7 @@ import _4.TourismContest.weather.domain.WeatherForecast;
 import _4.TourismContest.weather.dto.WeatherApiResponse;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +19,9 @@ import java.util.stream.Collectors;
 @Service
 public class WeatherForecastService {
     private static final String API_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
-    private static final String SERVICE_KEY = "bVOtrbHSQn25yctAurf54tQzh8L4pOxJk8cwYn6enkB/d2vGg9VybbOg3sEghdcqGRZuTUbpt5vBqXXWazAP1g==";
+    
+    @Value("${API.weather.key}")
+    private String SERVICE_KEY;
 
     @Autowired
     private RestTemplate restTemplate;
