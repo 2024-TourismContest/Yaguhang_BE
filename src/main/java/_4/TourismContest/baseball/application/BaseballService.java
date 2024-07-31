@@ -1,7 +1,9 @@
-package _4.TourismContest.crawler.application;
+package _4.TourismContest.baseball.application;
 
-import _4.TourismContest.crawler.domain.Baseball;
-import _4.TourismContest.crawler.repository.BaseballRepository;
+import _4.TourismContest.baseball.domain.Baseball;
+import _4.TourismContest.baseball.dto.BaseBallDTO;
+import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
+import _4.TourismContest.baseball.repository.BaseballRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -13,14 +15,15 @@ import org.jsoup.select.Elements;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class BaseballService {
     private final String os = System.getProperty("os.name").toLowerCase();
     private final BaseballRepository baseballRepository;
 
+    @Transactional
     public List<Baseball> scrapeAllSchedule() {
         setUpWebDriver();
         ChromeOptions options = new ChromeOptions();
@@ -543,6 +547,79 @@ public class BaseballService {
             System.setProperty("webdriver.chrome.driver", "/Users/minseok/chromedriver-mac-arm64/chromedriver");
         } else if (os.contains("linux")) {
             System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
+        }
+    }
+
+    /**
+     * 각 팀의 경기 일정 가져오기
+     * @param team (팀명 or 전체)
+     * @param page (원하는 날짜 인덱스, 0 부터 시작...)
+     * @param size (데이터 요청 크기)
+     */
+    public BaseballScheduleDTO getGamesByTeamAndDate(String team, int page, int size) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
+
+        if ("전체".equals(team)) {
+                Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+                List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
+                        .id(baseball.getId())
+                        .home(baseball.getHome())
+                        .away(baseball.getAway())
+                        .stadium(baseball.getLocation())
+                        .date(baseball.getTime().toLocalDate().toString())
+                        .time(baseball.getTime().toLocalTime().toString())
+//                        .weather(baseball.getWeather())
+//                        .isScraped(baseball.getIsScraped())
+                        .build()).collect(Collectors.toList());
+
+                return BaseballScheduleDTO.builder()
+                        .team(team)
+                        .pageIndex(page)
+                        .date(formatLocalDateTime(startOfDay))
+                        .schedules(baseballSchedules)
+                        .build();
+        } else {
+            Page<Baseball> byTimeIsAfterAndHomeOrAway = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
+            List<BaseBallDTO> baseballSchedules = byTimeIsAfterAndHomeOrAway.getContent().stream().map(baseball -> BaseBallDTO.builder()
+                    .id(baseball.getId())
+                    .home(baseball.getHome())
+                    .away(baseball.getAway())
+                    .stadium(baseball.getLocation())
+                    .date(baseball.getTime().toLocalDate().toString())
+                    .time(baseball.getTime().toLocalTime().toString())
+//                    .weather(baseball.getWeather())
+//                    .isScraped(baseball.getIsScraped())
+                    .build()).collect(Collectors.toList());
+            return BaseballScheduleDTO.builder()
+                    .team(team)
+                    .pageIndex(page)
+                    .date(formatLocalDateTime(startOfDay))
+                    .schedules(baseballSchedules)
+                    .build();
+        }
+    }
+
+    private String formatLocalDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.KOREAN);
+        String formattedDate = dateTime.format(dateFormatter);
+
+        DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
+        String dayOfWeekKorean = getKoreanDayOfWeek(dayOfWeek);
+
+        return formattedDate + "-" + dayOfWeekKorean;
+    }
+
+    private String getKoreanDayOfWeek(DayOfWeek dayOfWeek) {
+        switch (dayOfWeek) {
+            case MONDAY: return "월요일";
+            case TUESDAY: return "화요일";
+            case WEDNESDAY: return "수요일";
+            case THURSDAY: return "목요일";
+            case FRIDAY: return "금요일";
+            case SATURDAY: return "토요일";
+            case SUNDAY: return "일요일";
+            default: throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
     }
 }

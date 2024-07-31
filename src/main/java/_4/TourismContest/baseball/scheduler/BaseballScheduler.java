@@ -1,11 +1,10 @@
-package _4.TourismContest.crawler.scheduler;
+package _4.TourismContest.baseball.scheduler;
 
-import _4.TourismContest.crawler.application.BaseballService;
+import _4.TourismContest.baseball.application.BaseballService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class BaseballScheduler {

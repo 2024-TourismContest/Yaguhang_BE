@@ -29,13 +29,12 @@ spring:
     username: root
     password: 1234
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
-    hibernate:
-      ddl-auto: create
     properties:
       hibernate:
-        format_sql: true #To beautify or pretty print the SQL
-        show_sql: true #show sql
+        show_sql: true
+        format_sql: true
+        hbm2ddl:
+          auto: update
 app:
   cors:
     allowedOrigins:
