@@ -65,8 +65,8 @@ public class WeatherForecastService {
 
             // 데이터베이스에서 기존 데이터 조회
             for (WeatherForecast forecast : forecasts) {
-                List<WeatherForecast> existingForecasts = weatherForecastRepository.findByFcstDateAndFcstTimeAndCategory(
-                        forecast.getFcstDate(), forecast.getFcstTime(), forecast.getCategory());
+                List<WeatherForecast> existingForecasts = weatherForecastRepository.findByNxAndNyAndFcstDateAndFcstTimeAndCategory(
+                        forecast.getNx(), forecast.getNy(), forecast.getFcstDate(), forecast.getFcstTime(), forecast.getCategory());
 
                 if (!existingForecasts.isEmpty()) {
                     // 기존 데이터가 있는 경우, 비교 후 변경된 부분만 업데이트

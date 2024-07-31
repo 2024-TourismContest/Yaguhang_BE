@@ -17,7 +17,7 @@ public class WeatherForecastScheduler {
     @Autowired
     private WeatherForecastService weatherForecastService;
 
-    @Scheduled(cron = "0 0/30 * * * ?")
+    @Scheduled(cron = "10 10 2,5,8,11,14,17,20,23 * * ?")
     public void fetchForecastData() throws IOException {
 
         int[][] stadium = new int[13][2];
@@ -38,13 +38,12 @@ public class WeatherForecastScheduler {
         stadium[12] = new int[]{Math.round(36.6431f), Math.round(127.4917f)}; // 청주 야구장
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime previousHour = now.minusHours(1);
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH00");
 
-        String baseDate = previousHour.format(dateFormatter);
-        String baseTime = previousHour.format(timeFormatter);
+        String baseDate = now.format(dateFormatter);
+        String baseTime = now.format(timeFormatter);
 
         for (int[] point : stadium) {
             int nx = point[0]; // 경기장 X 좌표
