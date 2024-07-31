@@ -17,6 +17,8 @@ import lombok.*;
                 @UniqueConstraint(
                         name = "category, fcstDate, fcstTime 조합은 단일이어야함",
                         columnNames = {
+                                "nx",
+                                "ny",
                                 "fcstDate",
                                 "fcstTime",
                                 "category"
