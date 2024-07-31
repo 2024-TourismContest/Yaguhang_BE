@@ -1,17 +1,19 @@
-//package _4.TourismContest.crawler.dto;
-//
-//import lombok.Getter;
-//import lombok.Setter;
-//import lombok.ToString;
-//
-//@Getter
-//@Setter
-//@ToString
-//public class ScheduleDTO {
-//    private String day;
-//    private String time;
-//    private String homeTeam;
-//    private String vs;
-//    private String awayTeam;
-//    private String location;
-//}
+package _4.TourismContest.crawler.dto;
+
+import lombok.*;
+
+@Getter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class BaseBallDTO {
+    private Long id;
+    private String home;
+    private String away;
+    private String stadium;
+    private String date;
+    private String time;
+    private String weather;
+    private Boolean isScraped;
+}

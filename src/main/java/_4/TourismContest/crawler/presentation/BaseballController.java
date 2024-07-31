@@ -2,6 +2,7 @@ package _4.TourismContest.crawler.presentation;
 
 import _4.TourismContest.crawler.application.BaseballService;
 import _4.TourismContest.crawler.domain.Baseball;
+import _4.TourismContest.crawler.dto.BaseballScheduleDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -22,15 +23,14 @@ public class BaseballController {
     private final BaseballService baseballService;
 
     @GetMapping("/")
-    public ResponseEntity<PagedModel<Baseball>> getGames(
+    public ResponseEntity<BaseballScheduleDTO> getGames(
             @RequestParam String team,
             @RequestParam int page,
-            @RequestParam(defaultValue = "10") int size,
-            PagedResourcesAssembler assembler
+            @RequestParam(defaultValue = "10") int size
             ) {
         // JWT 토큰 검증 (토큰 유효성 검증 코드 생략)
-        Page<Baseball> games = baseballService.getGamesByTeamAndDate(team, page, size);
-        return ResponseEntity.ok(assembler.toModel(games));
+        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(team, page, size);
+        return ResponseEntity.ok(games);
     }
 
     @GetMapping("/update")

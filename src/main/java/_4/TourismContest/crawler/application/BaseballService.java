@@ -1,6 +1,8 @@
 package _4.TourismContest.crawler.application;
 
 import _4.TourismContest.crawler.domain.Baseball;
+import _4.TourismContest.crawler.dto.BaseBallDTO;
+import _4.TourismContest.crawler.dto.BaseballScheduleDTO;
 import _4.TourismContest.crawler.repository.BaseballRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
@@ -18,12 +20,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -550,14 +550,70 @@ public class BaseballService {
         }
     }
 
-    public Page<Baseball> getGamesByTeamAndDate(String team, int page, int size) {
+    public BaseballScheduleDTO getGamesByTeamAndDate(String team, int page, int size) {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
 
         if ("전체".equals(team)) {
-            return baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+                Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+                List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
+                        .id(baseball.getId())
+                        .home(baseball.getHome())
+                        .away(baseball.getAway())
+                        .stadium(baseball.getLocation())
+                        .date(baseball.getTime().toLocalDate().toString())
+                        .time(baseball.getTime().toLocalTime().toString())
+//                        .weather(baseball.getWeather())
+//                        .isScraped(baseball.getIsScraped())
+                        .build()).collect(Collectors.toList());
+
+                return BaseballScheduleDTO.builder()
+                        .team(team)
+                        .pageIndex(page)
+                        .date(formatLocalDateTime(startOfDay))
+                        .schedules(baseballSchedules)
+                        .build();
         } else {
-            return baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
+            Page<Baseball> byTimeIsAfterAndHomeOrAway = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
+            List<BaseBallDTO> baseballSchedules = byTimeIsAfterAndHomeOrAway.getContent().stream().map(baseball -> BaseBallDTO.builder()
+                    .id(baseball.getId())
+                    .home(baseball.getHome())
+                    .away(baseball.getAway())
+                    .stadium(baseball.getLocation())
+                    .date(baseball.getTime().toLocalDate().toString())
+                    .time(baseball.getTime().toLocalTime().toString())
+//                    .weather(baseball.getWeather())
+//                    .isScraped(baseball.getIsScraped())
+                    .build()).collect(Collectors.toList());
+            return BaseballScheduleDTO.builder()
+                    .team(team)
+                    .pageIndex(page)
+                    .date(formatLocalDateTime(startOfDay))
+                    .schedules(baseballSchedules)
+                    .build();
+        }
+    }
+
+    private String formatLocalDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.KOREAN);
+        String formattedDate = dateTime.format(dateFormatter);
+
+        DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
+        String dayOfWeekKorean = getKoreanDayOfWeek(dayOfWeek);
+
+        return formattedDate + "-" + dayOfWeekKorean;
+    }
+
+    private String getKoreanDayOfWeek(DayOfWeek dayOfWeek) {
+        switch (dayOfWeek) {
+            case MONDAY: return "월요일";
+            case TUESDAY: return "화요일";
+            case WEDNESDAY: return "수요일";
+            case THURSDAY: return "목요일";
+            case FRIDAY: return "금요일";
+            case SATURDAY: return "토요일";
+            case SUNDAY: return "일요일";
+            default: throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
     }
 }
