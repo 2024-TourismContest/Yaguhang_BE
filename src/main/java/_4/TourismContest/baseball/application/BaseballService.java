@@ -1,9 +1,9 @@
-package _4.TourismContest.crawler.application;
+package _4.TourismContest.baseball.application;
 
-import _4.TourismContest.crawler.domain.Baseball;
-import _4.TourismContest.crawler.dto.BaseBallDTO;
-import _4.TourismContest.crawler.dto.BaseballScheduleDTO;
-import _4.TourismContest.crawler.repository.BaseballRepository;
+import _4.TourismContest.baseball.domain.Baseball;
+import _4.TourismContest.baseball.dto.BaseBallDTO;
+import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
+import _4.TourismContest.baseball.repository.BaseballRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;

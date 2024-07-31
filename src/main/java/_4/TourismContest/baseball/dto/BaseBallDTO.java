@@ -1,4 +1,4 @@
-package _4.TourismContest.crawler.dto;
+package _4.TourismContest.baseball.dto;
 
 import lombok.*;
 

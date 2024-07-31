@@ -1,12 +1,9 @@
-package _4.TourismContest.crawler.presentation;
+package _4.TourismContest.baseball.presentation;
 
-import _4.TourismContest.crawler.application.BaseballService;
-import _4.TourismContest.crawler.domain.Baseball;
-import _4.TourismContest.crawler.dto.BaseballScheduleDTO;
+import _4.TourismContest.baseball.application.BaseballService;
+import _4.TourismContest.baseball.domain.Baseball;
+import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

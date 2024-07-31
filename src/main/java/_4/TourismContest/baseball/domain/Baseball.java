@@ -1,4 +1,4 @@
-package _4.TourismContest.crawler.domain;
+package _4.TourismContest.baseball.domain;
 
 
 import jakarta.persistence.*;
