@@ -550,6 +550,12 @@ public class BaseballService {
         }
     }
 
+    /**
+     * 각 팀의 경기 일정 가져오기
+     * @param team (팀명 or 전체)
+     * @param page (원하는 날짜 인덱스, 0 부터 시작...)
+     * @param size (데이터 요청 크기)
+     */
     public BaseballScheduleDTO getGamesByTeamAndDate(String team, int page, int size) {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
