@@ -5,6 +5,7 @@ import _4.TourismContest.weather.dto.WeatherApiResponse;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -25,6 +26,7 @@ public class WeatherForecastService {
     @Autowired
     private WeatherForecastRepository weatherForecastRepository;
 
+    @Transactional
     public void fetchAndSaveForecastData(String baseDate, String baseTime, int nx, int ny) throws IOException {
         URI uri = UriComponentsBuilder.fromHttpUrl(API_URL)
                 .queryParam("serviceKey", SERVICE_KEY)
