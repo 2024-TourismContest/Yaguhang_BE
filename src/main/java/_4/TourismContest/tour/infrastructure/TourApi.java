@@ -1,7 +1,9 @@
 package _4.TourismContest.tour.infrastructure;
 
+import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.spot.dto.event.MapXY;
 import _4.TourismContest.spot.dto.event.SpotCategoryResponse;
+import _4.TourismContest.tour.dto.Enum.ContentType;
 import _4.TourismContest.tour.dto.TourApiResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Random;
 
 
 import static _4.TourismContest.spot.dto.event.SpotCategoryResponse.tourApiToSpotCategoryResponse;
@@ -29,12 +32,12 @@ public class TourApi {
     private static final String TOUR_API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1";
     @Value("${tour_api.secret.KorService1}")
     private String korService1_secret;
-    public TourApiResponseDto getSpot(double x, double y, int radius, int contentTypeId) throws IOException {
+    public TourApiResponseDto getSpot(float x, float y, int radius, int contentTypeId) throws IOException {
 
         String ENDPOINT = "/locationBasedList1";
         String url = TOUR_API_BASE_URL + ENDPOINT;
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(url)
+        URI getPageuri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
@@ -45,10 +48,30 @@ public class TourApi {
                 .queryParam("_type", URLEncoder.encode("json", StandardCharsets.UTF_8))
                 .build(true)
                 .toUri();
+        //
+        TourApiResponseDto tempTARD = restTemplate.getForObject(getPageuri, TourApiResponseDto.class);
+        int randomPageMax = tempTARD.getResponse().getBody().getTotalCount() / 5;
+        Random random = new Random();
+        int randomPage = random.nextInt(randomPageMax);
 
-        String responseEntity = restTemplate.getForObject(uri, String.class);
+        URI uri = UriComponentsBuilder.fromHttpUrl(url)
+                .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
+                .queryParam("numOfRows" , 5)
+                .queryParam("pageNo",randomPage)
+                .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
+                .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
+                .queryParam("mapX", URLEncoder.encode(String.valueOf(x), StandardCharsets.UTF_8))
+                .queryParam("mapY", URLEncoder.encode(String.valueOf(y), StandardCharsets.UTF_8))
+                .queryParam("radius", URLEncoder.encode(String.valueOf(radius), StandardCharsets.UTF_8))
+                .queryParam("contentTypeId", URLEncoder.encode(String.valueOf(contentTypeId), StandardCharsets.UTF_8))
+                .queryParam("_type", URLEncoder.encode("json", StandardCharsets.UTF_8))
+                .build(true)
+                .toUri();
 
-        TourApiResponseDto tourApiResponseDto = parseResponse(responseEntity);
+//        String responseEntity = restTemplate.getForObject(uri, String.class);
+//        TourApiResponseDto tourApiResponseDto = parseResponse(responseEntity);   // xml -> json으로 파싱이 필요한 경우
+        TourApiResponseDto tourApiResponseDto = restTemplate.getForObject(uri, TourApiResponseDto.class);
+
         return tourApiResponseDto;
     }
 
@@ -59,16 +82,25 @@ public class TourApi {
     }
 
     public SpotCategoryResponse getMainSpot(MapXY mapXY, int radius, String category){
-        int contentTypeId = 39;   // TODO: category로 contentTypeId 값 가져오는 로직
         try {
-            // responseString이 JSON 형식이어야 합니다.
-            TourApiResponseDto tourApiResponseDto = getSpot(mapXY.x(), mapXY.y(), radius, contentTypeId);
+            TourApiResponseDto tourApiResponseDto = getSpot(mapXY.x(), mapXY.y(), radius, getContentTypeId(category));
             return tourApiToSpotCategoryResponse(tourApiResponseDto, category);
         } catch (IOException e) {
-            // 예외가 발생한 경우 처리할 로직
-            e.printStackTrace(); // 예외의 스택 트레이스를 출력
-            return null; // 오류가 발생하면 null을 반환하거나 다른 대체 로직
+            return null;
         }
+    }
+
+    public int getContentTypeId(String category){ // 카테고리 값으로 contentTypeId 가져오기
+        if(category.equals("문화"))
+            return ContentType.문화.getValue();
+        if(category.equals("숙소"))
+            return ContentType.숙소.getValue();
+        if(category.equals("쇼핑"))
+            return ContentType.쇼핑.getValue();
+        if(category.equals("맛집"))
+            return ContentType.맛집.getValue();
+
+        throw new BadRequestException("category 값을 확인해주세요");
     }
 }
 

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "stadium")
 public class Stadium {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contentId;
     private float x;
