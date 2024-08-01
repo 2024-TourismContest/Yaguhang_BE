@@ -567,8 +567,8 @@ public class BaseballService {
                 Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
                 List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
                         .id(baseball.getId())
-                        .home(baseball.getHome())
-                        .away(baseball.getAway())
+                        .home(exchangeTeamName(baseball.getHome()))
+                        .away(exchangeTeamName(baseball.getAway()))
                         .stadium(baseball.getLocation())
                         .date(baseball.getTime().toLocalDate().toString())
                         .time(baseball.getTime().toLocalTime().toString())
@@ -586,8 +586,8 @@ public class BaseballService {
             Page<Baseball> byTimeIsAfterAndHomeOrAway = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
             List<BaseBallDTO> baseballSchedules = byTimeIsAfterAndHomeOrAway.getContent().stream().map(baseball -> BaseBallDTO.builder()
                     .id(baseball.getId())
-                    .home(baseball.getHome())
-                    .away(baseball.getAway())
+                    .home(exchangeTeamName(baseball.getHome()))
+                    .away(exchangeTeamName(baseball.getAway()))
                     .stadium(baseball.getLocation())
                     .date(baseball.getTime().toLocalDate().toString())
                     .time(baseball.getTime().toLocalTime().toString())
@@ -623,6 +623,21 @@ public class BaseballService {
             case SATURDAY: return "토요일";
             case SUNDAY: return "일요일";
             default: throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
+        }
+    }
+    private String exchangeTeamName(String teamName){
+        switch (teamName){
+            case "LG" : return "LG 트윈스";
+            case "KT" : return "KT 위즈";
+            case "SSG" : return "SSG 랜더스";
+            case "NC" : return "NC 다이노스";
+            case "두산" : return "두산 베어스";
+            case "KIA" : return "KIA 타이거즈";
+            case "롯데" : return "롯데 자이언츠";
+            case "삼성" : return "삼성 라이온즈";
+            case "한화" : return "한화 이글스";
+            case "키움" : return "키움 히어로즈";
+            default: throw new IllegalArgumentException("Invalid team name: "+ teamName);
         }
     }
 }
