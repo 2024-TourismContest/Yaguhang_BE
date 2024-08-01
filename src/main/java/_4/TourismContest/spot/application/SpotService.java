@@ -21,7 +21,7 @@ public class SpotService {
         int radius = 10000; // 10km로 고정
         return tourApi.getMainSpot(getCoordinate(stadium), radius, category);
     }
-
+    
     public MapXY getCoordinate(String stadiumName){
         Stadium stadium = stadiumRepository.findByName(stadiumName)
                 .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
