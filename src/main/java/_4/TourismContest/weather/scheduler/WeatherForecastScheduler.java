@@ -18,6 +18,7 @@ public class WeatherForecastScheduler {
     private WeatherForecastService weatherForecastService;
 
     @Scheduled(cron = "10 10 2,5,8,11,14,17,20,23 * * ?")
+//    @Scheduled(cron = "0 * * * * ?")
     public void fetchForecastData() throws IOException {
 
         int[][] stadium = new int[13][2];

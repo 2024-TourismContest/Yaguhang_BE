@@ -3,6 +3,8 @@ package _4.TourismContest.weather.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -15,11 +17,10 @@ import lombok.*;
 @Table(name = "Weather",
         uniqueConstraints= {
                 @UniqueConstraint(
-                        name = "category, fcstDate, fcstTime 조합은 단일이어야함",
+                        name = "category, fcstTime 조합은 단일이어야함",
                         columnNames = {
                                 "nx",
                                 "ny",
-                                "fcstDate",
                                 "fcstTime",
                                 "category"
                         }
@@ -34,8 +35,7 @@ public class WeatherForecast {
     private String baseDate;
     private String baseTime;
     private String category;
-    private String fcstDate;
-    private String fcstTime;
+    private LocalDateTime fcstTime;
     private String fcstValue;
     private int nx;
     private int ny;

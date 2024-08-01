@@ -5,6 +5,8 @@ import _4.TourismContest.weather.dto.WeatherApiResponse;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +14,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +33,21 @@ public class WeatherForecastService {
     @Autowired
     private WeatherForecastRepository weatherForecastRepository;
 
+    /**
+     * 조회하는 시간 기준으로, 1시간 단위의 날씨 데이터 조회
+     * @param fcstTime
+     * @param stadium
+     * @return
+     */
+    public Page<WeatherForecast> findWeatherForecastDataPerHour(String stadium, int page, int size){
+        int nx = 62;
+        int ny = 125;
+
+        LocalDateTime now = LocalDateTime.now();
+        Page<WeatherForecast> allByNxAndNyAndCategoryAndFcstTimeIsAfter = weatherForecastRepository.findByNxAndNyAndCategoryAndFcstTimeIsAfter(nx, ny, "SKY",now, PageRequest.of(page,size));
+
+        return allByNxAndNyAndCategoryAndFcstTimeIsAfter;
+    }
     @Transactional
     public void fetchAndSaveForecastData(String baseDate, String baseTime, int nx, int ny) throws IOException {
         URI uri = UriComponentsBuilder.fromHttpUrl(API_URL)
@@ -45,28 +64,31 @@ public class WeatherForecastService {
                 .toUri();
 
         WeatherApiResponse response = restTemplate.getForObject(uri, WeatherApiResponse.class);
-
         if (response != null && response.getResponse() != null &&
                 response.getResponse().getBody() != null &&
                 response.getResponse().getBody().getItems() != null) {
 
             List<WeatherForecast> forecasts = response.getResponse().getBody().getItems().getItem().stream()
-                    .map(item -> WeatherForecast.builder()
-                            .baseDate(item.getBaseDate())
-                            .baseTime(item.getBaseTime())
-                            .category(item.getCategory())
-                            .fcstDate(item.getFcstDate())
-                            .fcstTime(item.getFcstTime())
-                            .fcstValue(item.getFcstValue())
-                            .nx(item.getNx())
-                            .ny(item.getNy())
-                            .build())
+                    .map(item -> {
+                        LocalDateTime fcstDateTime = LocalDateTime.parse(item.getFcstDate() + item.getFcstTime(),
+                                DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
+                        return WeatherForecast.builder()
+                                .baseDate(item.getBaseDate())
+                                .baseTime(item.getBaseTime())
+                                .category(item.getCategory())
+                                .fcstTime(fcstDateTime)
+                                .fcstValue(item.getFcstValue())
+                                .nx(item.getNx())
+                                .ny(item.getNy())
+                                .build();
+                    })
                     .collect(Collectors.toList());
+
 
             // 데이터베이스에서 기존 데이터 조회
             for (WeatherForecast forecast : forecasts) {
-                List<WeatherForecast> existingForecasts = weatherForecastRepository.findByNxAndNyAndFcstDateAndFcstTimeAndCategory(
-                        forecast.getNx(), forecast.getNy(), forecast.getFcstDate(), forecast.getFcstTime(), forecast.getCategory());
+                List<WeatherForecast> existingForecasts = weatherForecastRepository.findByNxAndNyAndFcstTimeAndCategory(
+                        forecast.getNx(), forecast.getNy(), forecast.getFcstTime(), forecast.getCategory());
 
                 if (!existingForecasts.isEmpty()) {
                     // 기존 데이터가 있는 경우, 비교 후 변경된 부분만 업데이트

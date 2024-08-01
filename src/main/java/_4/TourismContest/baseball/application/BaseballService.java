@@ -4,6 +4,8 @@ import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
+import _4.TourismContest.weather.domain.WeatherForecast;
+import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -34,6 +36,7 @@ public class BaseballService {
     private final BaseballRepository scheduleRepository;
     private final String os = System.getProperty("os.name").toLowerCase();
     private final BaseballRepository baseballRepository;
+    private final WeatherForecastRepository weatherForecastRepository;
 
     @Transactional
     public List<Baseball> scrapeAllSchedule() {
