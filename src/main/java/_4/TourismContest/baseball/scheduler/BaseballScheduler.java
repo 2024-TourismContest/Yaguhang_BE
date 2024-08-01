@@ -12,10 +12,10 @@ public class BaseballScheduler {
     @Autowired
     private BaseballService baseballService;
 
-    @PostConstruct
-    public void init() {
-        baseballService.scrapeAllSchedule();
-    }
+//    @PostConstruct
+//    public void init() {
+//        baseballService.scrapeAllSchedule();
+//    }
 
     @Scheduled(cron = "0 0,30 0,13-23 * * *") // 매 30분마다 실행하되 01시~12시 제외
     public void scrapeGames() {

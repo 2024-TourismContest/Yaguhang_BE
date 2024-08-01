@@ -46,7 +46,15 @@ app:
   oauth2:
     authorizedRedirectUris:
       - http://localhost:3000/oauth2/redirect
-      - http://string2024.kro.kr/oauth2/redirect # 프론트 url 설정하쇼
+      - http://string2024.kro.kr/oauth2/redirect
+      - https://string2024.kro.kr:7443/oauth2/redirect
+      - https://string2024.kro.kr:8443/oauth2/redirect
+      - myandroidapp://oauth2/redirect
+      - myiosapp://oauth2/redirect
+tour_api:
+  secret:
+    KorService1: HdI3AuEi9LTwWZOuy/jg6AZG+jn8tUxLHK01DzSA24nLvwRSqwrrq8kjLaagm7eARg/g8MQ3CYplpJT3Nbipaw==
+
 logging:
   level:
     org.hibernate.SQL: debug
