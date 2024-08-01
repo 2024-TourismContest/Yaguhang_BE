@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/main")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class SpotGetController {
     private final SpotService spotService;
