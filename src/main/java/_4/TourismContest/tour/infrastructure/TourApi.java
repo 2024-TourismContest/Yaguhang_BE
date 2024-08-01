@@ -81,10 +81,9 @@ public class TourApi {
         return objectMapper.readValue(responseString, TourApiResponseDto.class);
     }
 
-    public SpotCategoryResponse getMainSpot(MapXY mapXY, int radius, String category){
+    public TourApiResponseDto getMainSpot(MapXY mapXY, int radius, String category){
         try {
-            TourApiResponseDto tourApiResponseDto = getSpot(mapXY.x(), mapXY.y(), radius, getContentTypeId(category));
-            return tourApiToSpotCategoryResponse(tourApiResponseDto, category);
+            return getSpot(mapXY.x(), mapXY.y(), radius, getContentTypeId(category));
         } catch (IOException e) {
             return null;
         }
