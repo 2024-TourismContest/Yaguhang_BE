@@ -83,7 +83,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/", "/error", "/favicon.ico", "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js").permitAll() // 특정 경로 허용
-                                .requestMatchers("/auth/**", "/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/v1/**").permitAll() // 인증 관련 경로 허용
+                                .requestMatchers("/auth/**", "/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/**").permitAll() // 인증 관련 경로 허용
                                 .anyRequest().authenticated()) // 나머지 모든 요청은 인증 필요
                 .oauth2Login(oauth2Login ->
                         oauth2Login
