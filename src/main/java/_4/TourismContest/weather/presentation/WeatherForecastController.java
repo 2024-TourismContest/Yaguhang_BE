@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-@RequestMapping("/api/v1/schedule")
+@RequestMapping("/api/schedule")
 @RequiredArgsConstructor
 public class WeatherForecastController {
 
