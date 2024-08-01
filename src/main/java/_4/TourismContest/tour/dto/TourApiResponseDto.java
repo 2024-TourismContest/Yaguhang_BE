@@ -16,6 +16,7 @@ public class TourApiResponseDto {
     public static class Body {
         @JsonProperty("items")
         private Items items;
+        private int totalCount;
     }
     @Getter
     public static class Items {
