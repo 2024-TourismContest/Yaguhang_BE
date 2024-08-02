@@ -2,6 +2,7 @@ package _4.TourismContest.stadium.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +22,15 @@ public class Stadium {
     private String image;
     private int nx;
     private int ny;
+
+    @Builder
+    public Stadium(float x, float y, String name, String team, String image, int nx, int ny) {
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.team = team;
+        this.image = image;
+        this.nx = nx;
+        this.ny = ny;
+    }
 }

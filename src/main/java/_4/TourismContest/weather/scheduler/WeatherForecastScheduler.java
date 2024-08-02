@@ -36,7 +36,7 @@ public class WeatherForecastScheduler {
         String baseDate = now.format(dateFormatter);
         String baseTime = now.format(timeFormatter);
 //        baseTime = "1400";
-        System.out.println("baseTime = " + baseTime);
+//        System.out.println("baseTime = " + baseTime);
 
         for (Stadium stadium : stadiumList) {
             int nx = stadium.getNx(); // 경기장 X 좌표
