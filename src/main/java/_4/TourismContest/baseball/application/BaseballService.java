@@ -189,18 +189,18 @@ public class BaseballService {
                                         .status(status)
                                         .build();
                             } else if(status.equals("종료")){    //경기가 종룓될 경우
-                                    schedule = Baseball.builder()
-                                            .time(gameTime)
-                                            .weekDay(weekday)
-                                            .home(homeTeam)
-                                            .away(awayTeam)
-                                            .homeScore(Integer.parseInt(homeScore))
-                                            .awayScore(Integer.parseInt(awayScore))
-                                            .homePitcher(homePitcher)
-                                            .awayPitcher(awayPitcher)
-                                            .location(location)
-                                            .status(status)
-                                            .build();
+                                schedule = Baseball.builder()
+                                        .time(gameTime)
+                                        .weekDay(weekday)
+                                        .home(homeTeam)
+                                        .away(awayTeam)
+                                        .homeScore(Integer.parseInt(homeScore))
+                                        .awayScore(Integer.parseInt(awayScore))
+                                        .homePitcher(homePitcher)
+                                        .awayPitcher(awayPitcher)
+                                        .location(location)
+                                        .status(status)
+                                        .build();
                             }else if(status.equals("예정")){
                                 if(!isPitcherNull){
                                     schedule = Baseball.builder()
@@ -569,24 +569,24 @@ public class BaseballService {
         LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
 
         if ("전체".equals(team)) {
-                Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
-                List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
-                                .id(baseball.getId())
-                                .home(exchangeTeamName(baseball.getHome()))
-                                .away(exchangeTeamName(baseball.getAway()))
-                                .stadium(baseball.getLocation())
-                                .date(baseball.getTime().toLocalDate().toString())
-                                .time(baseball.getTime().toLocalTime().toString())
-                                .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
+            Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+            List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
+                            .id(baseball.getId())
+                            .home(exchangeTeamName(baseball.getHome()))
+                            .away(exchangeTeamName(baseball.getAway()))
+                            .stadium(baseball.getLocation())
+                            .date(baseball.getTime().toLocalDate().toString())
+                            .time(baseball.getTime().toLocalTime().toString())
+                            .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
 //                                .isScraped(false)
-                                .build())
-                        .collect(Collectors.toList());
-                return BaseballScheduleDTO.builder()
-                        .team(team)
-                        .pageIndex(page)
-                        .date(formatLocalDateTime(startOfDay))
-                        .schedules(baseballSchedules)
-                        .build();
+                            .build())
+                    .collect(Collectors.toList());
+            return BaseballScheduleDTO.builder()
+                    .team(team)
+                    .pageIndex(page)
+                    .date(formatLocalDateTime(startOfDay))
+                    .schedules(baseballSchedules)
+                    .build();
         } else {
             Page<Baseball> byTimeIsAfterAndHomeOrAway = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
             List<BaseBallDTO> baseballSchedules = byTimeIsAfterAndHomeOrAway.getContent().stream().map(baseball -> BaseBallDTO.builder()

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WeatherForecastService {
     private static final String API_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
-    
+
     @Value("${API.weather.key}")
     private String SERVICE_KEY;
 
@@ -86,6 +86,11 @@ public class WeatherForecastService {
                 gameTime,
                 pageable
         );
+
+        if (weatherForecastPage.isEmpty()) {
+            // No data found
+            return null;
+        }
 
         List<WeatherForecastPerHourDTO> weatherForecastDTOs = weatherForecastPage.stream().map(sky -> {
             String ptyValue = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(
@@ -144,11 +149,16 @@ public class WeatherForecastService {
 
         WeatherForecast sky = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(
                         stadium.getNx(), stadium.getNy(), "SKY", gameTime)
-                .orElseThrow(() -> new IllegalStateException("No data found in weatherRepository"));
+                .orElse(null);
 
         WeatherForecast pty = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(
                         stadium.getNx(), stadium.getNy(), "PTY", gameTime)
-                .orElseThrow(() -> new IllegalStateException("No data found in weatherRepository"));
+                .orElse(null);
+
+        if (sky == null || pty == null) {
+            // No data found
+            return null;
+        }
 
         // 날씨 상태 결정
         if ("1".equals(sky.getFcstValue())) {
