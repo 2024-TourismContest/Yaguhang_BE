@@ -38,7 +38,9 @@ public class WebConfig implements WebMvcConfigurer {
 
         // 구단 로고 경로 설정
         registry.addResourceHandler("/teamLogos/**")
-//                .addResourceLocations("file:/Users/minseok/Desktop/");
                 .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/teamLogos/");
+        // 경기장 경로 설정
+        registry.addResourceHandler("/stadiums/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/stadiumImgs/");
     }
 }
