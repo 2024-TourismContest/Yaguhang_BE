@@ -1,5 +1,7 @@
 package _4.TourismContest.spot.presentation;
 
+import _4.TourismContest.oauth.application.CurrentUser;
+import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.spot.application.SpotService;
 import _4.TourismContest.spot.dto.event.SpotCategoryResponse;
 import _4.TourismContest.user.domain.User;
@@ -14,15 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/main")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class SpotGetController {
     private final SpotService spotService;
 
     @GetMapping("/place/{stadium}/{category}")
-    public ResponseEntity<SpotCategoryResponse> getMainSpot(@PathVariable String stadium, @PathVariable String category) {
-
-        return new ResponseEntity<>(spotService.getMainSpot(stadium, category), HttpStatus.OK);
+    public ResponseEntity<SpotCategoryResponse> getMainSpot(@PathVariable String stadium, @PathVariable String category, @CurrentUser UserPrincipal userPrincipal) {
+        SpotCategoryResponse spotCategoryResponse = spotService.getMainSpot(stadium, category, userPrincipal);
+        return new ResponseEntity<>(spotCategoryResponse, HttpStatus.OK);
     }
 
 }

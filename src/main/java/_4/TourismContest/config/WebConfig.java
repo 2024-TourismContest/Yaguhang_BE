@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -28,5 +29,19 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(MAX_AGE_SECS);
+    }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 사용자 프로필 이미지 경로 설정
+        registry.addResourceHandler("/profileImages/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/profileImages/");
+
+        // 구단 로고 경로 설정
+        registry.addResourceHandler("/teamLogos/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/teamLogos/");
+
+        // 경기장 경로 설정
+        registry.addResourceHandler("/stadiums/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/stadiumImgs/");
     }
 }
