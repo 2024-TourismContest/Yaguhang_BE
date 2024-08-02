@@ -7,6 +7,7 @@ public record SpotBasicPreviewDto(
         Long contentId,
         String name,
         String address,
-        String imageUrl
+        String imageUrl,
+        boolean isScraped
 ) {
 }

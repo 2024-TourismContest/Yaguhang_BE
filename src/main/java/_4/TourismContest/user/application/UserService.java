@@ -1,14 +1,15 @@
 package _4.TourismContest.user.application;
 
-import org.springframework.stereotype.Service;
-
+import _4.TourismContest.exception.BadRequestException;
+import _4.TourismContest.exception.ResourceNotFoundException;
 import _4.TourismContest.user.domain.User;
+import _4.TourismContest.user.dto.UserProfileResponse;
 import _4.TourismContest.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -28,8 +29,18 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public String createUser(User user) {
+        if(userRepository.existsByEmail(user.getEmail())) {
+            throw new BadRequestException("Email address already in use.");
+        }
+        userRepository.save(user);
+        return "success create user";
+    }
+
+    public UserProfileResponse getCurrentUser(Long uid){
+        User user = userRepository.findById(uid)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", uid));
+        return UserProfileResponse.of(user);
     }
 
     public Optional<User> updateUser(Long id, User updatedUser) {

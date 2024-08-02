@@ -1,25 +1,31 @@
 package _4.TourismContest.user.presentation;
 
-import _4.TourismContest.user.domain.User;
+import _4.TourismContest.oauth.application.CurrentUser;
+import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.user.application.UserService;
-import _4.TourismContest.user.dto.UserResisterDto;
-import jakarta.validation.Valid;
+import _4.TourismContest.user.domain.User;
+import _4.TourismContest.user.dto.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Configuration
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<UserProfileResponse> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
+        UserProfileResponse currentUser = userService.getCurrentUser(userPrincipal.getId());
+        return ResponseEntity.ok(currentUser);
+    }
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -31,20 +37,6 @@ public class UserController {
         Optional<User> user = userService.getUserById(id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-    @PostMapping("/registers")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody UserResisterDto registrationDto) {
-        User newUser = User.builder()
-                .email(registrationDto.email())
-                .password(registrationDto.password())
-                .nickname(registrationDto.nickname())
-                .profileImg(registrationDto.profileImg())
-                .build();
-
-        User createdUser = userService.createUser(newUser);
-        return ResponseEntity.ok(createdUser);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
         Optional<User> user = userService.updateUser(id, updatedUser);

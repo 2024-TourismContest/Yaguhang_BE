@@ -51,10 +51,6 @@ app:
       - https://string2024.kro.kr:8443/oauth2/redirect
       - myandroidapp://oauth2/redirect
       - myiosapp://oauth2/redirect
-tour_api:
-  secret:
-    KorService1: HdI3AuEi9LTwWZOuy/jg6AZG+jn8tUxLHK01DzSA24nLvwRSqwrrq8kjLaagm7eARg/g8MQ3CYplpJT3Nbipaw==
-
 logging:
   level:
     org.hibernate.SQL: debug
