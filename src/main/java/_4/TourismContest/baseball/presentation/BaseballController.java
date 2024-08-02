@@ -3,6 +3,7 @@ package _4.TourismContest.baseball.presentation;
 import _4.TourismContest.baseball.application.BaseballService;
 import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ public class BaseballController {
     private final BaseballService baseballService;
 
     @GetMapping("/")
+    @Operation(summary = "각 팀별 경기 일정 가져오기",description = "조회하는 날짜 기준으로 각 팀별 경기 일정을 가져옵니다. (전체) 입력 가능")
     public ResponseEntity<BaseballScheduleDTO> getGames(
             @RequestParam String team,
             @RequestParam int page,
@@ -31,6 +33,7 @@ public class BaseballController {
     }
 
     @GetMapping("/update")
+    @Operation(summary = "경기 크롤링 기능 API 형태로 해놓은 것...사용X")
     public List<Baseball> getSchedule() {
         return baseballService.scrapeAllSchedule();
     }
