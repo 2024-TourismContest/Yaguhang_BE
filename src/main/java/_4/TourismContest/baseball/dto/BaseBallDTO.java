@@ -1,6 +1,7 @@
 package _4.TourismContest.baseball.dto;
 
 import _4.TourismContest.weather.domain.WeatherForecast;
+import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
 import lombok.*;
 
 @Getter
@@ -15,6 +16,6 @@ public class BaseBallDTO {
     private String stadium;
     private String date;
     private String time;
-    private String weather;
+    private WeatherForecastEnum weather;
     private Boolean isScraped;
 }
