@@ -14,7 +14,19 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 @EqualsAndHashCode(of = {"home", "away", "time"})
-@Table(name = "Baseball")
+@Table(name = "Baseball",
+        uniqueConstraints= {
+                @UniqueConstraint(
+                        name = "home, away, time, location 조합은 단일이어야함",
+                        columnNames = {
+                                "home",
+                                "away",
+                                "time",
+                                "location"
+                        }
+                )
+        }
+)
 public class Baseball {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
