@@ -1,8 +1,15 @@
 package _4.TourismContest.weather.application;
 
+import _4.TourismContest.baseball.domain.Baseball;
+import _4.TourismContest.stadium.domain.Stadium;
+import _4.TourismContest.stadium.repository.StadiumRepository;
 import _4.TourismContest.weather.domain.WeatherForecast;
 import _4.TourismContest.weather.dto.WeatherApiResponse;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class WeatherForecastService {
     private static final String API_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
     
@@ -30,23 +38,70 @@ public class WeatherForecastService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    private WeatherForecastRepository weatherForecastRepository;
-
+    private final WeatherForecastRepository weatherForecastRepository;
+    private final StadiumRepository stadiumRepository;
     /**
      * 조회하는 시간 기준으로, 1시간 단위의 날씨 데이터 조회
-     * @param fcstTime
      * @param stadium
      * @return
      */
     public Page<WeatherForecast> findWeatherForecastDataPerHour(String stadium, int page, int size){
-        int nx = 62;
-        int ny = 125;
+        Optional<Stadium> optionalStadium = stadiumRepository.findByName(stadium);
+        if(optionalStadium.isEmpty()){
+            throw new IllegalArgumentException("Illegal Stadium Name");
+        }else{
+            Stadium stadium1 = optionalStadium.get();
+            LocalDateTime now = LocalDateTime.now();
+            Page<WeatherForecast> allByNxAndNyAndCategoryAndFcstTimeIsAfter = weatherForecastRepository.findByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "SKY", now, PageRequest.of(page,size));
 
-        LocalDateTime now = LocalDateTime.now();
-        Page<WeatherForecast> allByNxAndNyAndCategoryAndFcstTimeIsAfter = weatherForecastRepository.findByNxAndNyAndCategoryAndFcstTimeIsAfter(nx, ny, "SKY",now, PageRequest.of(page,size));
+            return allByNxAndNyAndCategoryAndFcstTimeIsAfter;
+        }
+    }
 
-        return allByNxAndNyAndCategoryAndFcstTimeIsAfter;
+    /**
+     * 야구 경기 일정에 들어가는 날씨값 반환
+     * @param game
+     * @return
+     */
+    public String getWeatherForecastDataWithGame(Baseball game){
+        String stadium = game.getLocation();
+        LocalDateTime gameTime = game.getTime();
+        Optional<Stadium> optionalStadium = stadiumRepository.findByName(stadium);
+        if(optionalStadium.isEmpty()){
+            throw new IllegalArgumentException("Illegal Stadium Name");
+        }else{
+            Stadium stadium1 = optionalStadium.get();
+            Optional<WeatherForecast> pcpOptional = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "PCP", gameTime);   //1시간 강수량
+            Optional<WeatherForecast> popOptional = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "POP", gameTime);   //강수확률
+            Optional<WeatherForecast> ptyOptional = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "PTY", gameTime);   //강수형태
+            Optional<WeatherForecast> skyOptional = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "SKY", gameTime);   //하늘형태
+            Optional<WeatherForecast> tmpOptional = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "TMP", gameTime);   //1시간 기온
+            if(pcpOptional.isEmpty() || popOptional.isEmpty() || ptyOptional.isEmpty() || skyOptional.isEmpty() || tmpOptional.isEmpty()){
+                throw new IllegalStateException("No data found in weatherRepositoy");
+            }else{
+                WeatherForecast pcp = pcpOptional.get();
+                //비가 안오는 경우
+                if(pcp.getFcstValue().equals("강수없음")){
+                    return null;
+                }else{
+                    //비가 오는 경우
+                    return null;
+                }
+//                return pcp.get().toString();
+            }
+//            Optional<WeatherForecast> PCP = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "PCP" ,gameTime);
+//            Optional<WeatherForecast> SKY = weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(stadium1.getNx(), stadium1.getNy(), "SKY" ,gameTime);
+//            if(PTY.isEmpty()){
+//                throw new IllegalStateException("No data found");
+//            }else{
+//                WeatherForecast weatherForecast = PCP.get();
+//                if(!weatherForecast.getFcstValue().equals("강수없음")){
+//                    //비가 오는 경우
+//
+//                }
+//                return weatherForecast.toString();
+//            }
+        }
     }
     @Transactional
     public void fetchAndSaveForecastData(String baseDate, String baseTime, int nx, int ny) throws IOException {

@@ -19,4 +19,6 @@ public class Stadium {
     private String name;
     private String team;
     private String image;
+    private int nx;
+    private int ny;
 }

@@ -4,6 +4,8 @@ import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
+import _4.TourismContest.stadium.repository.StadiumRepository;
+import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +35,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BaseballService {
-    private final BaseballRepository scheduleRepository;
     private final String os = System.getProperty("os.name").toLowerCase();
     private final BaseballRepository baseballRepository;
     private final WeatherForecastRepository weatherForecastRepository;
+    private final StadiumRepository stadiumRepository;
+    private final WeatherForecastService weatherForecastService;
 
     @Transactional
     public List<Baseball> scrapeAllSchedule() {
@@ -240,7 +243,7 @@ public class BaseballService {
                     }
                 }
             }
-            scheduleRepository.saveAll(schedules);
+            baseballRepository.saveAll(schedules);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -569,16 +572,16 @@ public class BaseballService {
         if ("전체".equals(team)) {
                 Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
                 List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
-                        .id(baseball.getId())
-                        .home(exchangeTeamName(baseball.getHome()))
-                        .away(exchangeTeamName(baseball.getAway()))
-                        .stadium(baseball.getLocation())
-                        .date(baseball.getTime().toLocalDate().toString())
-                        .time(baseball.getTime().toLocalTime().toString())
-//                        .weather(baseball.getWeather())
-//                        .isScraped(baseball.getIsScraped())
-                        .build()).collect(Collectors.toList());
-
+                                .id(baseball.getId())
+                                .home(exchangeTeamName(baseball.getHome()))
+                                .away(exchangeTeamName(baseball.getAway()))
+                                .stadium(baseball.getLocation())
+                                .date(baseball.getTime().toLocalDate().toString())
+                                .time(baseball.getTime().toLocalTime().toString())
+                                .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
+//                                .isScraped(false)
+                                .build())
+                        .collect(Collectors.toList());
                 return BaseballScheduleDTO.builder()
                         .team(team)
                         .pageIndex(page)
@@ -594,7 +597,7 @@ public class BaseballService {
                     .stadium(baseball.getLocation())
                     .date(baseball.getTime().toLocalDate().toString())
                     .time(baseball.getTime().toLocalTime().toString())
-//                    .weather(baseball.getWeather())
+                    .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
 //                    .isScraped(baseball.getIsScraped())
                     .build()).collect(Collectors.toList());
             return BaseballScheduleDTO.builder()

@@ -1,5 +1,6 @@
 package _4.TourismContest.baseball.dto;
 
+import _4.TourismContest.weather.domain.WeatherForecast;
 import lombok.*;
 
 @Getter
