@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class WeatherForecastController {
 

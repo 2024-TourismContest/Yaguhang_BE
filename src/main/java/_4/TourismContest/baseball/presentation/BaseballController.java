@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class BaseballController {
 
     private final BaseballService baseballService;
 
-    @GetMapping("/")
+    @GetMapping("/schedule/")
     @Operation(summary = "각 팀별 경기 일정 가져오기",description = "조회하는 날짜 기준으로 각 팀별 경기 일정을 가져옵니다. (전체) 입력 가능")
     public ResponseEntity<BaseballScheduleDTO> getGames(
             @RequestParam String team,
