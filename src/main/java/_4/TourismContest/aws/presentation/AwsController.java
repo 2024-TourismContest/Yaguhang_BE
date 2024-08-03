@@ -23,4 +23,6 @@ public class AwsController {
         // 이미지 저장 후 url 리턴 받는 컨트롤러
         return new ResponseEntity<>(awsUtils.upload(multipartFile, "dir").getPath(), HttpStatus.OK);
     }
+
+    // awsUtils.upload(multipartFile, "dir").getPath() 쓰면 저장하고 이미지 url 리턴 받음. "dir"에 원하는 폴더명 쓰면 됨.
 }

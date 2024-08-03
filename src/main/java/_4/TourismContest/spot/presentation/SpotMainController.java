@@ -4,7 +4,6 @@ import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.spot.application.SpotService;
 import _4.TourismContest.spot.dto.event.SpotCategoryResponse;
-import _4.TourismContest.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/main")
 @RequiredArgsConstructor
-public class SpotGetController {
+public class SpotMainController {
     private final SpotService spotService;
 
     @GetMapping("/place/{stadium}/{category}")
