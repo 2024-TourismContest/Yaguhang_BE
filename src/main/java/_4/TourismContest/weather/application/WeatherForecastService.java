@@ -8,6 +8,7 @@ import _4.TourismContest.weather.domain.WeatherForecast;
 import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
 import _4.TourismContest.weather.dto.WeatherApiResponse;
 import _4.TourismContest.weather.dto.WeatherForecastDTO;
+import _4.TourismContest.weather.dto.WeatherForecastPerDayDTO;
 import _4.TourismContest.weather.dto.WeatherForecastPerHourDTO;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -137,6 +139,73 @@ public class WeatherForecastService {
     }
 
     /**
+     * 특정 경기장의 하루 날씨 조회
+     */
+    public WeatherForecastPerDayDTO findWeatherForecastDataPerDay(Long baseBallId) {
+        Baseball game = getBaseballGameById(baseBallId);
+        Stadium stadium = getStadiumByName(game.getLocation());
+
+        LocalDateTime gameTime = game.getTime().minusHours(1L);
+        LocalDateTime startOfDay = gameTime.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = gameTime.toLocalDate().atTime(LocalTime.MAX);
+
+        double minTemp = getWeatherDataForCategory(stadium, "TMN", gameTime);
+        double maxTemp = getWeatherDataForCategory(stadium, "TMX", gameTime);
+        double humidity = getWeatherDataForCategory(stadium, "REH", gameTime);
+        double temp = getWeatherDataForCategory(stadium, "TMP", gameTime);
+        double totalRainfall = calculateTotalRainfall(stadium, startOfDay, endOfDay);
+
+        return buildWeatherForecastPerDayDTO(minTemp, maxTemp, humidity, totalRainfall, temp, game.getLocation(),game);
+    }
+
+    private Baseball getBaseballGameById(Long baseBallId) {
+        return baseballRepository.findById(baseBallId)
+                .orElseThrow(() -> new IllegalArgumentException("Illegal Baseball ID"));
+    }
+
+    private Stadium getStadiumByName(String location) {
+        return stadiumRepository.findByName(location)
+                .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
+    }
+
+    private double getWeatherDataForCategory(Stadium stadium, String category, LocalDateTime gameTime) {
+        return weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(
+                        stadium.getNx(), stadium.getNy(), category, gameTime)
+                .map(weather -> Double.parseDouble(weather.getFcstValue()))
+                .orElseThrow(() -> new IllegalStateException("No data found in WeatherRepository"));
+    }
+
+    private double calculateTotalRainfall(Stadium stadium, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+        List<WeatherForecast> rainyList = weatherForecastRepository.findAllByNxAndNyAndCategoryAndFcstTimeBetween(
+                stadium.getNx(), stadium.getNy(), "PCP", startOfDay, endOfDay);
+
+        double totalRainfall = 0;
+        for (WeatherForecast forecast : rainyList) {
+            totalRainfall += parseRainfall(forecast.getFcstValue());
+        }
+        return totalRainfall;
+    }
+
+    private double parseRainfall(String fcstValue) {
+        if ("강수없음".equals(fcstValue)) {
+            return 0.0;
+        }
+        return fcstValue.endsWith("mm") ? Double.parseDouble(fcstValue.replace("mm", "").trim()) : 0.0;
+    }
+
+    private WeatherForecastPerDayDTO buildWeatherForecastPerDayDTO(double minTemp, double maxTemp, double humidity, double rainFall, double temp, String stadiumLocation, Baseball baseball) {
+        return WeatherForecastPerDayDTO.builder()
+                .minTemp(minTemp)
+                .maxTemp(maxTemp)
+                .humidity(humidity)
+                .rainFall(rainFall)
+                .temp(temp)
+                .sky(getWeatherForecastDataWithGame(baseball))
+                .stadium(stadiumLocation)
+                .build();
+    }
+
+    /**
      * 경기 카드에 들어갈 날씨 조회
      * @param game
      * @return
@@ -211,7 +280,7 @@ public class WeatherForecastService {
      * @throws IOException
      */
     @Transactional
-    public void fetchAndSaveForecastData(String baseDate, String baseTime, int nx, int ny) throws IOException {
+    public void fetchAndSaveShortTermForecastData(String baseDate, String baseTime, int nx, int ny) throws IOException {
         URI uri = UriComponentsBuilder.fromHttpUrl(API_URL)
                 .queryParam("serviceKey", SERVICE_KEY)
                 .queryParam("base_date", baseDate)

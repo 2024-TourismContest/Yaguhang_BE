@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,7 @@ public class WeatherForecastScheduler {
 
     @Scheduled(cron = "10 10 2,5,8,11,14,17,20,23 * * ?")
 //    @Scheduled(cron = "0 * * * * ?")
-    public void fetchForecastData() throws IOException {
+    public void fetchShortTermWeatherForecastData() throws IOException {
 
         List<Stadium> stadiumList = stadiumRepository.findAll();
 
@@ -41,7 +42,7 @@ public class WeatherForecastScheduler {
         for (Stadium stadium : stadiumList) {
             int nx = stadium.getNx(); // 경기장 X 좌표
             int ny = stadium.getNy(); // 경기장 Y 좌표
-            weatherForecastService.fetchAndSaveForecastData(baseDate, baseTime, nx, ny);
+            weatherForecastService.fetchAndSaveShortTermForecastData(baseDate, baseTime, nx, ny);
         }
     }
 }
