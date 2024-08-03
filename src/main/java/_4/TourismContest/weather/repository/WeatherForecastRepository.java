@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface WeatherForecastRepository extends JpaRepository<WeatherForecast, Long> {
     List<WeatherForecast> findByNxAndNyAndFcstTimeAndCategory(int nx, int ny, LocalDateTime fcstTime, String category);
 
-    List<WeatherForecast> findAllByNxAndNyAndFcstTimeIsAfter(int nx, int ny, LocalDateTime fcstTime);
+    List<WeatherForecast> findAllByNxAndNyAndCategoryAndFcstTimeBetween(int nx, int ny, String category, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
     Page<WeatherForecast> findByNxAndNyAndCategoryAndFcstTimeIsAfter(int nx, int ny, String category ,LocalDateTime time, Pageable pageable);
 
