@@ -11,6 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface SpotScrapRepository extends JpaRepository <SpotScrap,Long>{
-    @Query("SELECT ss FROM SpotScrap ss WHERE ss.spot.contentId=:contentid AND ss.user=:user")
+    @Query("SELECT ss FROM SpotScrap ss WHERE ss.spot.id=:contentid AND ss.user=:user")
     Optional<SpotScrap> findByUserAndContentId(User user, @Param("contentid")Long contentid);
 }
