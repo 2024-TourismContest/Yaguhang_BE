@@ -1,6 +1,6 @@
-package _4.TourismContest.spot.domain;
+package _4.TourismContest.recommand.domain;
 
-import _4.TourismContest.stadium.domain.Stadium;
+import _4.TourismContest.spot.domain.Spot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,16 +9,15 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "spot")
-public class Spot {
+@Table(name = "recommand_spot")
+public class RecommandSpot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="contentId")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Stadium stadium;
-    private String name;
-    private String image;
+    private Spot spot;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Recommand recommand;
 }
