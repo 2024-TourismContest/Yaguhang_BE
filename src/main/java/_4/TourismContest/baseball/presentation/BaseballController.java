@@ -26,8 +26,8 @@ public class BaseballController {
     @GetMapping("/schedule/")
     @Operation(summary = "각 팀별 경기 일정 가져오기",description = "조회하는 날짜 기준으로 각 팀별 경기 일정을 가져옵니다. (전체) 입력 가능")
     public ResponseEntity<BaseballScheduleDTO> getGames(
-            @RequestParam String team,
-            @RequestParam int page,
+            @RequestParam (defaultValue = "전체") String team,
+            @RequestParam (defaultValue = "0") int page,
             @RequestParam(required = false) LocalDate gameDate,
             @RequestParam(defaultValue = "10") int size
             ) {
@@ -39,8 +39,8 @@ public class BaseballController {
     @GetMapping("/schedule/dayOfGameIsNull/")
     @Operation(summary = "경기가 없는 날짜 조회", description = "년,월을 입력 시 각 팀별 경기가 없는 날을 조회합니다.(전체) 입력 가능")
     public ResponseEntity<BaseBallSchedulePerMonthDTO> getScheduleWithNullOfGame(
-            @RequestParam String team,
-            @RequestParam YearMonth yearMonth
+            @RequestParam(defaultValue = "전체") String team,
+            @RequestParam(defaultValue = "2024-07") YearMonth yearMonth
             ){
         BaseBallSchedulePerMonthDTO dayOfGameIsNull = baseballService.getDayOfGameIsNull(team, yearMonth);
         return ResponseEntity.ok(dayOfGameIsNull);
