@@ -5,6 +5,7 @@ import _4.TourismContest.baseball.dto.BaseBallDTO;
 import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
+import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.stadium.repository.StadiumRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
@@ -39,6 +40,7 @@ public class BaseballService {
     private final BaseballRepository baseballRepository;
     private final WeatherForecastRepository weatherForecastRepository;
     private final StadiumRepository stadiumRepository;
+    private final BaseballScrapService baseballScrapService;
     private final WeatherForecastService weatherForecastService;
 
     @Transactional
@@ -565,7 +567,7 @@ public class BaseballService {
      * @param page (원하는 날짜 인덱스, 0 부터 시작...)
      * @param size (데이터 요청 크기)
      */
-    public BaseballScheduleDTO getGamesByTeamAndDate(String team, LocalDate gameDate , int page, int size) {
+    public BaseballScheduleDTO getGamesByTeamAndDate(UserPrincipal userPrincipal, String team, LocalDate gameDate , int page, int size) {
         LocalDate today = null;
         LocalDateTime startOfDay = null;
         if(gameDate!=null){
@@ -587,7 +589,7 @@ public class BaseballService {
                             .date(baseball.getTime().toLocalDate().toString())
                             .time(baseball.getTime().toLocalTime().toString())
                             .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-//                                .isScraped(false)
+                            .isScraped(baseballScrapService.getIsScrapped(userPrincipal,baseball.getId()))
                             .build())
                     .collect(Collectors.toList());
             return BaseballScheduleDTO.builder()
@@ -606,7 +608,7 @@ public class BaseballService {
                     .date(baseball.getTime().toLocalDate().toString())
                     .time(baseball.getTime().toLocalTime().toString())
                     .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-//                    .isScraped(baseball.getIsScraped())
+                    .isScraped(baseballScrapService.getIsScrapped(userPrincipal,baseball.getId()))
                     .build()).collect(Collectors.toList());
             return BaseballScheduleDTO.builder()
                     .team(team)

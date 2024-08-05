@@ -3,6 +3,7 @@ package _4.TourismContest.baseball.domain;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,4 +21,10 @@ public class BaseballScrap {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Baseball baseball;
+
+    @Builder
+    public BaseballScrap(User user, Baseball baseball) {
+        this.user = user;
+        this.baseball = baseball;
+    }
 }
