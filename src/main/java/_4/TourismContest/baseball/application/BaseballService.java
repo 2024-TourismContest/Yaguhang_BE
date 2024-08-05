@@ -2,6 +2,7 @@ package _4.TourismContest.baseball.application;
 
 import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallDTO;
+import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
 import _4.TourismContest.stadium.repository.StadiumRepository;
@@ -614,6 +615,47 @@ public class BaseballService {
                     .schedules(baseballSchedules)
                     .build();
         }
+    }
+
+    /**
+     * 1달 간 경기가 없는 날짜 반환
+     * @param gameTime
+     * @return
+     */
+    public BaseBallSchedulePerMonthDTO getDayOfGameIsNull(String team, YearMonth gameTime){
+        LocalDate startOfMonth = gameTime.atDay(1);  // 월 초
+        LocalDate endOfMonth = gameTime.atEndOfMonth();  // 월 말
+
+        List<LocalDate> dayOfGameIsNull = new ArrayList<>();
+
+        if(team.equals("전체")){
+            // 월의 각 날짜를 반복하면서 경기가 없는 날짜를 찾음
+            for (LocalDate date = startOfMonth; !date.isAfter(endOfMonth); date = date.plusDays(1)) {
+                // 특정 날짜에 경기가 있는지 확인
+                boolean isGameOnDate = baseballRepository.existsByTimeBetween(date.atStartOfDay(), date.atTime(23, 59, 59));
+
+                // 경기가 없는 날짜를 리스트에 추가
+                if (!isGameOnDate) {
+                    dayOfGameIsNull.add(date);
+                }
+            }
+        }else {
+            // 특정 팀의 경기 일정이 없는 날짜를 찾음
+            for (LocalDate date = startOfMonth; !date.isAfter(endOfMonth); date = date.plusDays(1)) {
+                // 특정 날짜에 해당 팀이 홈팀 또는 원정팀으로 경기 중인지 확인
+                boolean isTeamPlayingAsHome = baseballRepository.existsByHomeAndTimeBetween(team, date.atStartOfDay(), date.atTime(23, 59, 59));
+                boolean isTeamPlayingAsAway = baseballRepository.existsByAwayAndTimeBetween(team, date.atStartOfDay(), date.atTime(23, 59, 59));
+
+                // 해당 팀의 경기가 없는 날짜를 리스트에 추가
+                if (!isTeamPlayingAsHome && !isTeamPlayingAsAway) {
+                    dayOfGameIsNull.add(date);
+                }
+            }
+        }
+        return BaseBallSchedulePerMonthDTO.builder()
+                .team(team)
+                .dayOfGameIsNull(dayOfGameIsNull)
+                .build();
     }
 
     private String getTeamLogoUrl(String team) {
