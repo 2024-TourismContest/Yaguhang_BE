@@ -2,6 +2,7 @@
 
     import com.fasterxml.jackson.annotation.JsonProperty;
     import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+    import lombok.AllArgsConstructor;
     import lombok.Getter;
     import lombok.Setter;
 
@@ -23,15 +24,16 @@
         }
 
         @Getter
+        @Setter
         public static class Items {
             @JsonProperty("item")
             private List<Item> item;
 
-            public void setItem(List<Item> item) {
-                this.item = item;
-            }
         }
+
+
         @Getter
+        @AllArgsConstructor
         public static class Item {
             @JsonProperty("originimgurl")
             private String originimgurl;

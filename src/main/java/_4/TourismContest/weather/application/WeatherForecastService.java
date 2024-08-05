@@ -211,7 +211,7 @@ public class WeatherForecastService {
      * @return
      */
     public WeatherForecastEnum getWeatherForecastDataWithGame(Baseball game) {
-        Stadium stadium = stadiumRepository.findByName(game.getLocation())
+        Stadium stadium = stadiumRepository.findTopByName(game.getLocation())
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         LocalDateTime gameTime = game.getTime();
