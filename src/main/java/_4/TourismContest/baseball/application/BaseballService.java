@@ -574,6 +574,8 @@ public class BaseballService {
                             .id(baseball.getId())
                             .home(exchangeTeamName(baseball.getHome()))
                             .away(exchangeTeamName(baseball.getAway()))
+                            .homeTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getHome())))
+                            .awayTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getAway())))
                             .stadium(baseball.getLocation())
                             .date(baseball.getTime().toLocalDate().toString())
                             .time(baseball.getTime().toLocalTime().toString())
@@ -605,6 +607,35 @@ public class BaseballService {
                     .date(formatLocalDateTime(startOfDay))
                     .schedules(baseballSchedules)
                     .build();
+        }
+    }
+
+    private String getTeamLogoUrl(String team) {
+        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+
+        switch (team) {
+            case "두산 베어스":
+                return baseUrl + "Doosan.png";
+            case "LG 트윈스":
+                return baseUrl + "LGTwins.png";
+            case "KT 위즈":
+                return baseUrl + "KtWizs.png";
+            case "SSG 랜더스":
+                return baseUrl + "SSGLanders.png";
+            case "NC 다이노스":
+                return baseUrl + "NCDinos.png";
+            case "KIA 타이거즈":
+                return baseUrl + "KIA.png";
+            case "롯데 자이언츠":
+                return baseUrl + "Lotte.png";
+            case "삼성 라이온즈":
+                return baseUrl + "Samsung.png";
+            case "한화 이글스":
+                return baseUrl + "Hanwha.png";
+            case "키움 히어로즈":
+                return baseUrl + "Kiwoom.png";
+            default:
+                throw new IllegalArgumentException("Unknown team: " + team);
         }
     }
 
