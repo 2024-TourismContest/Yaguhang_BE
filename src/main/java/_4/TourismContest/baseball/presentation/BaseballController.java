@@ -4,9 +4,12 @@ import _4.TourismContest.baseball.application.BaseballService;
 import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
+import _4.TourismContest.oauth.application.CurrentUser;
+import _4.TourismContest.oauth.application.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,10 +32,10 @@ public class BaseballController {
             @RequestParam (defaultValue = "전체") String team,
             @RequestParam (defaultValue = "0") int page,
             @RequestParam(required = false) LocalDate gameDate,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @CurrentUser UserPrincipal userPrincipal
             ) {
-        // JWT 토큰 검증 (토큰 유효성 검증 코드 생략)
-        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(team,gameDate, page, size);
+        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(userPrincipal,team,gameDate, page, size);
         return ResponseEntity.ok(games);
     }
 
@@ -51,10 +54,4 @@ public class BaseballController {
     public List<Baseball> getSchedule() {
         return baseballService.scrapeAllSchedule();
     }
-//    // 특정 날짜 조회
-//    @GetMapping("/update2")
-//    public void getSchedule2() {
-//        crawlingService.scrapeTodayGame();
-//    }
-
 }
