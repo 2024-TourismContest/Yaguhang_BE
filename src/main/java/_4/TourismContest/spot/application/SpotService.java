@@ -5,6 +5,7 @@ import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.spot.dto.event.MapXY;
 import _4.TourismContest.spot.dto.event.SpotBasicPreviewDto;
 import _4.TourismContest.spot.dto.event.SpotCategoryResponse;
+import _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse;
 import _4.TourismContest.spot.repository.SpotRepository;
 import _4.TourismContest.spot.repository.SpotScrapRepository;
 import _4.TourismContest.stadium.domain.Stadium;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static _4.TourismContest.spot.dto.event.SpotCategoryResponse.tourApiToSpotCategoryResponse;
+import static _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse.tourApiToSpotStadiumPreviewResponse;
 
 @AllArgsConstructor
 @Service
@@ -30,9 +32,14 @@ public class SpotService {
     private final TourApi tourApi;
 
     public SpotCategoryResponse getMainSpot(String stadium, String category, UserPrincipal userPrincipal){
-        int radius = 10000; // 10km로 고정
-        TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadium), radius, category);
+        TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadium), 10000, category); // radius 10km
         return tourApiToSpotCategoryResponse(tourApiResponseDto, category, getIsScraped(userPrincipal, tourApiResponseDto));
+    }
+
+    public SpotStadiumPreviewResponse getStadiumSpot(String stadium, String category,Integer pagesize, Integer pageindex,UserPrincipal userPrincipal){
+        TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium), 20000, category, pagesize); // radius 20km
+
+        return tourApiToSpotStadiumPreviewResponse(tourApiResponseDto, category, pagesize, pageindex, getIsScraped(userPrincipal, tourApiResponseDto));
     }
 
     public List<Boolean> getIsScraped(UserPrincipal userPrincipal, TourApiResponseDto tourApiResponseDto ){

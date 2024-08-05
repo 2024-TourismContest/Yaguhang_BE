@@ -29,6 +29,7 @@ dependencies {
 	implementation 'com.googlecode.json-simple:json-simple:1.1'
 	implementation 'org.jsoup:jsoup:1.13.1'
 	implementation 'io.github.bonigarcia:webdrivermanager:5.3.0'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 	// Selenium
 	implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.22.0'

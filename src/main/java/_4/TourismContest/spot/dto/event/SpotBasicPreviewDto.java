@@ -8,6 +8,6 @@ public record SpotBasicPreviewDto(
         String name,
         String address,
         String imageUrl,
-        boolean isScraped
+        Boolean isScraped
 ) {
 }
