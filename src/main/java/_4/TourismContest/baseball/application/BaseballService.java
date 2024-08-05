@@ -564,10 +564,16 @@ public class BaseballService {
      * @param page (원하는 날짜 인덱스, 0 부터 시작...)
      * @param size (데이터 요청 크기)
      */
-    public BaseballScheduleDTO getGamesByTeamAndDate(String team, int page, int size) {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
-
+    public BaseballScheduleDTO getGamesByTeamAndDate(String team, LocalDate gameDate , int page, int size) {
+        LocalDate today = null;
+        LocalDateTime startOfDay = null;
+        if(gameDate!=null){
+            today = gameDate;
+            startOfDay = LocalDateTime.of(today,LocalTime.MIDNIGHT);
+        }else{
+            today = LocalDate.now();
+            startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
+        }
         if ("전체".equals(team)) {
             Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
             List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()

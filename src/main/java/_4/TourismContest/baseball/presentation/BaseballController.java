@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,10 +26,11 @@ public class BaseballController {
     public ResponseEntity<BaseballScheduleDTO> getGames(
             @RequestParam String team,
             @RequestParam int page,
+            @RequestParam(required = false) LocalDate gameDate,
             @RequestParam(defaultValue = "10") int size
             ) {
         // JWT 토큰 검증 (토큰 유효성 검증 코드 생략)
-        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(team, page, size);
+        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(team,gameDate, page, size);
         return ResponseEntity.ok(games);
     }
 
