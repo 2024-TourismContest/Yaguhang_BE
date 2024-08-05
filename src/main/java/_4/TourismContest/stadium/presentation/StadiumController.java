@@ -24,6 +24,10 @@ public class StadiumController {
                         .image("https://yaguhang.kro.kr:8443/stadiums/jamsilStadium.jpeg").nx(62).ny(125)
                         .build(),
                 Stadium.builder()
+                        .y(37.5156f).x(127.0730f).name("잠실").team("두산 베어스")
+                        .image("https://yaguhang.kro.kr:8443/stadiums/jamsilStadium.jpeg").nx(62).ny(125)
+                        .build(),
+                Stadium.builder()
                         .y(37.2859f).x(127.0464f).name("수원").team("KT 위즈")
                         .image("https://yaguhang.kro.kr:8443/stadiums/suwonStadium.jpeg").nx(61).ny(121)
                         .build(),

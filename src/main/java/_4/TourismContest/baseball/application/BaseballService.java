@@ -2,8 +2,10 @@ package _4.TourismContest.baseball.application;
 
 import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallDTO;
+import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
+import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.stadium.repository.StadiumRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
@@ -38,6 +40,7 @@ public class BaseballService {
     private final BaseballRepository baseballRepository;
     private final WeatherForecastRepository weatherForecastRepository;
     private final StadiumRepository stadiumRepository;
+    private final BaseballScrapService baseballScrapService;
     private final WeatherForecastService weatherForecastService;
 
     @Transactional
@@ -564,21 +567,29 @@ public class BaseballService {
      * @param page (원하는 날짜 인덱스, 0 부터 시작...)
      * @param size (데이터 요청 크기)
      */
-    public BaseballScheduleDTO getGamesByTeamAndDate(String team, int page, int size) {
-        LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
-
+    public BaseballScheduleDTO getGamesByTeamAndDate(UserPrincipal userPrincipal, String team, LocalDate gameDate , int page, int size) {
+        LocalDate today = null;
+        LocalDateTime startOfDay = null;
+        if(gameDate!=null){
+            today = gameDate;
+            startOfDay = LocalDateTime.of(today,LocalTime.MIDNIGHT);
+        }else{
+            today = LocalDate.now();
+            startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
+        }
         if ("전체".equals(team)) {
             Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
             List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
                             .id(baseball.getId())
                             .home(exchangeTeamName(baseball.getHome()))
                             .away(exchangeTeamName(baseball.getAway()))
+                            .homeTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getHome())))
+                            .awayTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getAway())))
                             .stadium(baseball.getLocation())
                             .date(baseball.getTime().toLocalDate().toString())
                             .time(baseball.getTime().toLocalTime().toString())
                             .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-//                                .isScraped(false)
+                            .isScraped(baseballScrapService.getIsScrapped(userPrincipal,baseball.getId()))
                             .build())
                     .collect(Collectors.toList());
             return BaseballScheduleDTO.builder()
@@ -597,7 +608,7 @@ public class BaseballService {
                     .date(baseball.getTime().toLocalDate().toString())
                     .time(baseball.getTime().toLocalTime().toString())
                     .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-//                    .isScraped(baseball.getIsScraped())
+                    .isScraped(baseballScrapService.getIsScrapped(userPrincipal,baseball.getId()))
                     .build()).collect(Collectors.toList());
             return BaseballScheduleDTO.builder()
                     .team(team)
@@ -605,6 +616,76 @@ public class BaseballService {
                     .date(formatLocalDateTime(startOfDay))
                     .schedules(baseballSchedules)
                     .build();
+        }
+    }
+
+    /**
+     * 1달 간 경기가 없는 날짜 반환
+     * @param gameTime
+     * @return
+     */
+    public BaseBallSchedulePerMonthDTO getDayOfGameIsNull(String team, YearMonth gameTime){
+        LocalDate startOfMonth = gameTime.atDay(1);  // 월 초
+        LocalDate endOfMonth = gameTime.atEndOfMonth();  // 월 말
+
+        List<LocalDate> dayOfGameIsNull = new ArrayList<>();
+
+        if(team.equals("전체")){
+            // 월의 각 날짜를 반복하면서 경기가 없는 날짜를 찾음
+            for (LocalDate date = startOfMonth; !date.isAfter(endOfMonth); date = date.plusDays(1)) {
+                // 특정 날짜에 경기가 있는지 확인
+                boolean isGameOnDate = baseballRepository.existsByTimeBetween(date.atStartOfDay(), date.atTime(23, 59, 59));
+
+                // 경기가 없는 날짜를 리스트에 추가
+                if (!isGameOnDate) {
+                    dayOfGameIsNull.add(date);
+                }
+            }
+        }else {
+            // 특정 팀의 경기 일정이 없는 날짜를 찾음
+            for (LocalDate date = startOfMonth; !date.isAfter(endOfMonth); date = date.plusDays(1)) {
+                // 특정 날짜에 해당 팀이 홈팀 또는 원정팀으로 경기 중인지 확인
+                boolean isTeamPlayingAsHome = baseballRepository.existsByHomeAndTimeBetween(team, date.atStartOfDay(), date.atTime(23, 59, 59));
+                boolean isTeamPlayingAsAway = baseballRepository.existsByAwayAndTimeBetween(team, date.atStartOfDay(), date.atTime(23, 59, 59));
+
+                // 해당 팀의 경기가 없는 날짜를 리스트에 추가
+                if (!isTeamPlayingAsHome && !isTeamPlayingAsAway) {
+                    dayOfGameIsNull.add(date);
+                }
+            }
+        }
+        return BaseBallSchedulePerMonthDTO.builder()
+                .team(team)
+                .dayOfGameIsNull(dayOfGameIsNull)
+                .build();
+    }
+
+    private String getTeamLogoUrl(String team) {
+        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+
+        switch (team) {
+            case "두산 베어스":
+                return baseUrl + "Doosan.png";
+            case "LG 트윈스":
+                return baseUrl + "LGTwins.png";
+            case "KT 위즈":
+                return baseUrl + "KtWizs.png";
+            case "SSG 랜더스":
+                return baseUrl + "SSGLanders.png";
+            case "NC 다이노스":
+                return baseUrl + "NCDinos.png";
+            case "KIA 타이거즈":
+                return baseUrl + "KIA.png";
+            case "롯데 자이언츠":
+                return baseUrl + "Lotte.png";
+            case "삼성 라이온즈":
+                return baseUrl + "Samsung.png";
+            case "한화 이글스":
+                return baseUrl + "Hanwha.png";
+            case "키움 히어로즈":
+                return baseUrl + "Kiwoom.png";
+            default:
+                throw new IllegalArgumentException("Unknown team: " + team);
         }
     }
 

@@ -32,6 +32,11 @@
         }
         @Getter
         @AllArgsConstructor
+            public void setItem(List<Item> item) {
+                this.item = item;
+            }
+        }
+        @Getter
         public static class Item {
             @JsonProperty("originimgurl")
             private String originimgurl;

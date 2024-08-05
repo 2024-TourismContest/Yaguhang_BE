@@ -20,15 +20,6 @@ public class ItemsDeserializer extends JsonDeserializer<TourApiDetailImageRespon
         JsonNode node = p.getCodec().readTree(p);
         TourApiDetailImageResponseDto.Items items = new TourApiDetailImageResponseDto.Items();
 
-//        if (node.isTextual() && node.asText().isEmpty()) {
-//            items.setItem(Collections.emptyList());
-//        } else if (node.has("item")) {
-//            items.setItem(ctxt.readValue(node.get("item").traverse(p.getCodec()),
-//                    ctxt.getTypeFactory().constructCollectionType(List.class,
-//                            TourApiDetailImageResponseDto.Item.class)));
-//        } else {
-//            items.setItem(Collections.emptyList());
-//        }
         if (node.isTextual() && node.asText().isEmpty()) {
             // Handle the case where items is an empty string
             items.setItem(Collections.emptyList());
