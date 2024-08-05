@@ -17,9 +17,9 @@ public class BaseballScheduler {
 
     @Autowired
     private BaseballService baseballService;
-
     @PostConstruct
     public void init() {
+
         try {
             baseballService.scrapeAllSchedule();
         } catch (DataIntegrityViolationException e) {

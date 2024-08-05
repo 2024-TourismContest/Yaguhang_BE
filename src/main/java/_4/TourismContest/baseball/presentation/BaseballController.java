@@ -11,24 +11,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class BaseballController {
 
     private final BaseballService baseballService;
 
-    @GetMapping("/")
+    @GetMapping("/schedule/")
     @Operation(summary = "각 팀별 경기 일정 가져오기",description = "조회하는 날짜 기준으로 각 팀별 경기 일정을 가져옵니다. (전체) 입력 가능")
     public ResponseEntity<BaseballScheduleDTO> getGames(
             @RequestParam String team,
             @RequestParam int page,
+            @RequestParam(required = false) LocalDate gameDate,
             @RequestParam(defaultValue = "10") int size
             ) {
         // JWT 토큰 검증 (토큰 유효성 검증 코드 생략)
-        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(team, page, size);
+        BaseballScheduleDTO games = baseballService.getGamesByTeamAndDate(team,gameDate, page, size);
         return ResponseEntity.ok(games);
     }
 

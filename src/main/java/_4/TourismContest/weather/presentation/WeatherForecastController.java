@@ -3,6 +3,7 @@ package _4.TourismContest.weather.presentation;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
 import _4.TourismContest.weather.dto.WeatherForecastDTO;
+import _4.TourismContest.weather.dto.WeatherForecastPerDayDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/api/main")
 @RequiredArgsConstructor
 public class WeatherForecastController {
 
@@ -30,7 +31,7 @@ public class WeatherForecastController {
     @Operation(summary = "날씨 업데이트 API, 사용하지 말것")
     public void fetchForecast(@RequestParam String baseDate, @RequestParam String baseTime,
                               @RequestParam int nx, @RequestParam int ny) throws IOException {
-        weatherForecastService.fetchAndSaveForecastData(baseDate, baseTime, nx, ny);
+        weatherForecastService.fetchAndSaveShortTermForecastData(baseDate, baseTime, nx, ny);
     }
 //    @GetMapping("/weatherOfStadium")
 //    @Operation(summary = "구장 날씨 조회", description = "구장 이름을 입력 시 현재 시간부터 size만큼의 날씨 데이터 출력(페이지네이션 적용)")
@@ -39,8 +40,13 @@ public class WeatherForecastController {
 //    }
 
     @GetMapping("/weatherOfGame")
-    @Operation(summary = "경기 날씨 조회",description = "경기 ID를 입력 시 경기 시작 시간 기준으로 1시간 기준 날씨 데이터 출력")
+    @Operation(summary = "1시간 단위 날씨 조회",description = "경기 ID를 입력 시 경기 시작 시간 기준으로 1시간 기준 날씨 데이터 출력")
     public WeatherForecastDTO getWeatherForecastDataPerHourByGame(@RequestParam Long gameId, int page, @RequestParam(defaultValue = "24") int size){
         return weatherForecastService.findWeatherForecastDataPerHourByGame(gameId,page,size);
+    }
+    @GetMapping("/weatherCardOfGame")
+    @Operation(summary = "경기 날씨 조회", description = "경기 ID를 입력 시 경기 당일의 날씨 데이터 출력")
+    public WeatherForecastPerDayDTO getWeatherForecastDataPerDayByGame(@RequestParam Long gameId){
+        return weatherForecastService.findWeatherForecastDataPerDay(gameId);
     }
 }

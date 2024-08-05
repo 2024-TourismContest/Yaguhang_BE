@@ -12,7 +12,9 @@ import lombok.*;
 public class BaseBallDTO {
     private Long id;
     private String home;
+    private String homeTeamLogo;
     private String away;
+    private String awayTeamLogo;
     private String stadium;
     private String date;
     private String time;
