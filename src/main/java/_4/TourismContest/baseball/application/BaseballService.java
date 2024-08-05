@@ -5,8 +5,12 @@ import _4.TourismContest.baseball.dto.BaseBallDTO;
 import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
+import _4.TourismContest.baseball.repository.BaseballScrapRepository;
+import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.stadium.repository.StadiumRepository;
+import _4.TourismContest.user.domain.User;
+import _4.TourismContest.user.repository.UserRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
@@ -40,7 +44,9 @@ public class BaseballService {
     private final BaseballRepository baseballRepository;
     private final WeatherForecastRepository weatherForecastRepository;
     private final StadiumRepository stadiumRepository;
+    private final BaseballScrapRepository baseballScrapRepository;
     private final BaseballScrapService baseballScrapService;
+    private final UserRepository userRepository;
     private final WeatherForecastService weatherForecastService;
 
     @Transactional
@@ -595,6 +601,7 @@ public class BaseballService {
             return BaseballScheduleDTO.builder()
                     .team(team)
                     .pageIndex(page)
+                    .pageSize(size)
                     .date(formatLocalDateTime(startOfDay))
                     .schedules(baseballSchedules)
                     .build();
@@ -615,6 +622,7 @@ public class BaseballService {
             return BaseballScheduleDTO.builder()
                     .team(team)
                     .pageIndex(page)
+                    .pageSize(size)
                     .date(formatLocalDateTime(startOfDay))
                     .schedules(baseballSchedules)
                     .build();
@@ -661,7 +669,6 @@ public class BaseballService {
                 .dayOfGameIsNull(dayOfGameIsNull)
                 .build();
     }
-
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
 
