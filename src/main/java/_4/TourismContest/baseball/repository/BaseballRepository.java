@@ -19,6 +19,8 @@ public interface BaseballRepository extends JpaRepository<Baseball,Long> {
 
     Page<Baseball> findByTimeIsAfter(LocalDateTime start, Pageable pageable);
 
+    Optional<Baseball> findFirstByTimeIsAfterOrderByTimeAsc(LocalDateTime start);
+
     @Query("SELECT b FROM Baseball b WHERE b.time > :start AND (b.home = :team OR b.away = :team)")
     Page<Baseball> findByTimeIsAfterAndHomeOrAway(@Param("start") LocalDateTime start, @Param("team") String team, Pageable pageable);
 
