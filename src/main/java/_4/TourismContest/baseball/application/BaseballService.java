@@ -13,6 +13,7 @@ import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
+import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
@@ -42,12 +43,21 @@ import java.util.stream.Collectors;
 public class BaseballService {
     private final String os = System.getProperty("os.name").toLowerCase();
     private final BaseballRepository baseballRepository;
-    private final WeatherForecastRepository weatherForecastRepository;
-    private final StadiumRepository stadiumRepository;
-    private final BaseballScrapRepository baseballScrapRepository;
     private final BaseballScrapService baseballScrapService;
-    private final UserRepository userRepository;
     private final WeatherForecastService weatherForecastService;
+
+    private final Map<String, String> teamLogoMap = Map.of(
+            "두산 베어스", "Doosan.png",
+            "LG 트윈스", "LGTwins.png",
+            "KT 위즈", "KtWizs.png",
+            "SSG 랜더스", "SSGLanders.png",
+            "NC 다이노스", "NCDinos.png",
+            "KIA 타이거즈", "KIA.png",
+            "롯데 자이언츠", "Lotte.png",
+            "삼성 라이온즈", "Samsung.png",
+            "한화 이글스", "Hanwha.png",
+            "키움 히어로즈", "Kiwoom.png"
+    );
 
     @Transactional
     public List<Baseball> scrapeAllSchedule() {
@@ -573,59 +583,75 @@ public class BaseballService {
      * @param page (원하는 날짜 인덱스, 0 부터 시작...)
      * @param size (데이터 요청 크기)
      */
-    public BaseballScheduleDTO getGamesByTeamAndDate(UserPrincipal userPrincipal, String team, LocalDate gameDate , int page, int size) {
-        LocalDate today = null;
-        LocalDateTime startOfDay = null;
-        if(gameDate!=null){
-            today = gameDate;
-            startOfDay = LocalDateTime.of(today,LocalTime.MIDNIGHT);
-        }else{
-            today = LocalDate.now();
-            startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
-        }
+    public BaseballScheduleDTO getGamesByTeamAndDate(UserPrincipal userPrincipal, String team, LocalDate gameDate, int page, int size) {
+        LocalDate today = (gameDate != null) ? gameDate : LocalDate.now();
+        LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
+
+        Page<Baseball> baseballPage;
         if ("전체".equals(team)) {
-            Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
-            List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
+            baseballPage = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+        } else {
+            baseballPage = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
+        }
+
+        List<BaseBallDTO> baseballSchedules = baseballPage.getContent().stream()
+                .map(baseball -> {
+                    String homeTeam = exchangeTeamName(baseball.getHome());
+                    String awayTeam = exchangeTeamName(baseball.getAway());
+                    WeatherForecastEnum weatherForecast = weatherForecastService.getWeatherForecastDataWithGame(baseball);
+
+                    return BaseBallDTO.builder()
                             .id(baseball.getId())
-                            .home(exchangeTeamName(baseball.getHome()))
-                            .away(exchangeTeamName(baseball.getAway()))
-                            .homeTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getHome())))
-                            .awayTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getAway())))
+                            .home(homeTeam)
+                            .away(awayTeam)
+                            .homeTeamLogo(getTeamLogoUrl(homeTeam))
+                            .awayTeamLogo(getTeamLogoUrl(awayTeam))
                             .stadium(baseball.getLocation())
                             .date(baseball.getTime().toLocalDate().toString())
                             .time(baseball.getTime().toLocalTime().toString())
-                            .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-                            .isScraped(baseballScrapService.getIsScrapped(userPrincipal,baseball.getId()))
-                            .build())
-                    .collect(Collectors.toList());
-            return BaseballScheduleDTO.builder()
-                    .team(team)
-                    .pageIndex(page)
-                    .pageSize(size)
-                    .date(formatLocalDateTime(startOfDay))
-                    .schedules(baseballSchedules)
-                    .build();
-        } else {
-            Page<Baseball> byTimeIsAfterAndHomeOrAway = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
-            List<BaseBallDTO> baseballSchedules = byTimeIsAfterAndHomeOrAway.getContent().stream().map(baseball -> BaseBallDTO.builder()
-                    .id(baseball.getId())
-                    .home(exchangeTeamName(baseball.getHome()))
-                    .homeTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getHome())))
-                    .away(exchangeTeamName(baseball.getAway()))
-                    .awayTeamLogo(getTeamLogoUrl(exchangeTeamName(baseball.getAway())))
-                    .stadium(baseball.getLocation())
-                    .date(baseball.getTime().toLocalDate().toString())
-                    .time(baseball.getTime().toLocalTime().toString())
-                    .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-                    .isScraped(baseballScrapService.getIsScrapped(userPrincipal,baseball.getId()))
-                    .build()).collect(Collectors.toList());
-            return BaseballScheduleDTO.builder()
-                    .team(team)
-                    .pageIndex(page)
-                    .pageSize(size)
-                    .date(formatLocalDateTime(startOfDay))
-                    .schedules(baseballSchedules)
-                    .build();
+                            .weather(weatherForecast)
+                            .weatherUrl(getWeatherUrl(weatherForecast))
+                            .isScraped(baseballScrapService.getIsScrapped(userPrincipal, baseball.getId()))
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return BaseballScheduleDTO.builder()
+                .team(team)
+                .pageIndex(page)
+                .pageSize(size)
+                .date(formatLocalDateTime(startOfDay))
+                .schedules(baseballSchedules)
+                .build();
+    }
+
+    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.png";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.png";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.png";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.png";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.png";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.png";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
         }
     }
 
@@ -671,31 +697,13 @@ public class BaseballService {
     }
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+        String logoFileName = teamLogoMap.get(team);
 
-        switch (team) {
-            case "두산 베어스":
-                return baseUrl + "Doosan.png";
-            case "LG 트윈스":
-                return baseUrl + "LGTwins.png";
-            case "KT 위즈":
-                return baseUrl + "KtWizs.png";
-            case "SSG 랜더스":
-                return baseUrl + "SSGLanders.png";
-            case "NC 다이노스":
-                return baseUrl + "NCDinos.png";
-            case "KIA 타이거즈":
-                return baseUrl + "KIA.png";
-            case "롯데 자이언츠":
-                return baseUrl + "Lotte.png";
-            case "삼성 라이온즈":
-                return baseUrl + "Samsung.png";
-            case "한화 이글스":
-                return baseUrl + "Hanwha.png";
-            case "키움 히어로즈":
-                return baseUrl + "Kiwoom.png";
-            default:
-                throw new IllegalArgumentException("Unknown team: " + team);
+        if (logoFileName == null) {
+            throw new IllegalArgumentException("Unknown team: " + team + ". Please check the team name.");
         }
+
+        return baseUrl + logoFileName;
     }
 
     private String formatLocalDateTime(LocalDateTime dateTime) {
