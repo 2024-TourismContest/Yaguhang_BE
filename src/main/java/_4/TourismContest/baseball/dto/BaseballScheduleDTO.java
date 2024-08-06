@@ -18,6 +18,7 @@ public class BaseballScheduleDTO {
     private String date;
 
     private Integer pageIndex;
+    private Integer pageSize;
 
     private List<BaseBallDTO> schedules;
 }
