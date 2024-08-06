@@ -12,6 +12,7 @@ import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
+import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -139,6 +140,8 @@ public class BaseballScrapService {
                     .sorted(Comparator.comparing(baseballScrap -> baseballScrap.getBaseball().getTime()))
                     .map(baseballScrap -> {
                         Baseball baseball = baseballScrap.getBaseball();
+                        WeatherForecastEnum weather = weatherForecastService.getWeatherForecastDataWithGame(baseball);
+
                         return BaseBallDTO.builder()
                                 .id(baseball.getId())
                                 .home(baseball.getHome())
@@ -148,7 +151,8 @@ public class BaseballScrapService {
                                 .stadium(baseball.getLocation())
                                 .date(baseball.getTime().toLocalDate().toString())
                                 .time(baseball.getTime().toLocalTime().toString())
-                                .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
+                                .weather(weather)
+                                .weatherUrl(getWeatherUrl(weather))
                                 .isScraped(true)
                                 .build();
                     }).collect(Collectors.toList());
@@ -160,6 +164,37 @@ public class BaseballScrapService {
                     .build();
         }
     }
+
+    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.png";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.png";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.png";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.png";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.png";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.png";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
+        }
+    }
+
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
 

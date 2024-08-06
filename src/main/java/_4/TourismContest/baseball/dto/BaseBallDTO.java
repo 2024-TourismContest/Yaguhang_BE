@@ -19,5 +19,6 @@ public class BaseBallDTO {
     private String date;
     private String time;
     private WeatherForecastEnum weather;
+    private String weatherUrl;
     private Boolean isScraped;
 }
