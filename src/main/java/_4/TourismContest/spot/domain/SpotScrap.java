@@ -1,8 +1,10 @@
 package _4.TourismContest.spot.domain;
 
+import _4.TourismContest.stadium.domain.Stadium;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,4 +23,10 @@ public class SpotScrap {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Spot spot;
+
+    @Builder
+    public SpotScrap(User user, Spot spot) {
+        this.user = user;
+        this.spot = spot;
+    }
 }
