@@ -6,7 +6,8 @@ import lombok.Builder;
 public record UserInfoDto(
         Long userId,
         String nickname,
-        String image
+        String image,
+        String fanTeam
 ) {
 
 }

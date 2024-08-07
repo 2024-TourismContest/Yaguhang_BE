@@ -37,6 +37,8 @@ public class User {
     @Column(name = "provider_id")
     private String providerId;
 
+    @Column(name = "fanTeam")
+    private String fanTeam;
 
     @Builder
     public User(String email, String password, String nickname, String profileImg) {
@@ -61,5 +63,10 @@ public class User {
 //        existingUser.nickname = nickname;   // 닉네임은 개별적으로 유지되게
         existingUser.profileImg = profileImg;
         return  existingUser;
+    }
+
+    public static User registerFanTeam(User user, String fanTeam){
+        user.fanTeam = fanTeam;
+        return user;
     }
 }
