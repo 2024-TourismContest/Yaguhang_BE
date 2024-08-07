@@ -6,8 +6,6 @@ import lombok.Builder;
 public record SpotMapResponseDto(
         Double mapX,
         Double mapY,
-        Integer contentId,
-        String name,
-        boolean isScrapped
+        Integer contentId
 ) {
 }

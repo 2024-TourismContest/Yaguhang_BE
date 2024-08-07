@@ -18,6 +18,4 @@ public interface SpotScrapRepository extends JpaRepository <SpotScrap,Long>{
 
     @Query("SELECT ss FROM SpotScrap ss WHERE ss.user.id=:userid AND ss.spot.stadium.name=:name")
     List<SpotScrap> findByUserIdAndName(@Param("userid")Long userid, @Param("name")String name);
-
-    Optional<List<SpotScrap>> findAllByUser(User user);
 }
