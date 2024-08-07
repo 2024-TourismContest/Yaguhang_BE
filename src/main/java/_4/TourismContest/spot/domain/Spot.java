@@ -19,11 +19,16 @@ public class Spot {
     private Stadium stadium;
     private String name;
     private String image;
+    private double mapX;    //X좌표
+    private double mapY;    //Y좌표
+
     @Builder
-    public Spot(Long contentId, Stadium stadium, String name, String image) {
+    public Spot(Long contentId, Stadium stadium, String name, String image, double mapX, double mapY) {
         this.contentId = contentId;
         this.stadium = stadium;
         this.name = name;
         this.image = image;
+        this.mapX = mapX;
+        this.mapY = mapY;
     }
 }
