@@ -597,13 +597,15 @@ public class BaseballService {
         List<BaseBallDTO> baseballSchedules = baseballPage.getContent().stream()
                 .map(baseball -> {
                     String homeTeam = exchangeTeamName(baseball.getHome());
+                    String homeTeamOut = homeTeam.replace(" ", "\n");
                     String awayTeam = exchangeTeamName(baseball.getAway());
+                    String awayTeamOut = awayTeam.replace(" ", "\n");
                     WeatherForecastEnum weatherForecast = weatherForecastService.getWeatherForecastDataWithGame(baseball);
 
                     return BaseBallDTO.builder()
                             .id(baseball.getId())
-                            .home(homeTeam)
-                            .away(awayTeam)
+                            .home(homeTeamOut)
+                            .away(awayTeamOut)
                             .homeTeamLogo(getTeamLogoUrl(homeTeam))
                             .awayTeamLogo(getTeamLogoUrl(awayTeam))
                             .stadium(baseball.getLocation())
