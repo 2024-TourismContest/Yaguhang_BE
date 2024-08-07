@@ -1,11 +1,19 @@
 package _4.TourismContest.spot.application;
 
 import _4.TourismContest.exception.BadRequestException;
+import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
+import _4.TourismContest.spot.domain.Spot;
+import _4.TourismContest.spot.domain.SpotScrap;
+import _4.TourismContest.spot.dto.command.ScrapResponseDto;
+import _4.TourismContest.spot.dto.command.ScrapSpot;
+import _4.TourismContest.spot.dto.command.ScrapStadium;
+import _4.TourismContest.spot.dto.command.ScrapStadiumSpot;
 import _4.TourismContest.spot.dto.event.MapXY;
 import _4.TourismContest.spot.dto.event.SpotCategoryResponse;
 import _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse;
 import _4.TourismContest.spot.dto.event.spotDetailResponse.*;
+import _4.TourismContest.spot.repository.SpotRepository;
 import _4.TourismContest.spot.repository.SpotScrapRepository;
 import _4.TourismContest.stadium.domain.Stadium;
 import _4.TourismContest.stadium.repository.StadiumRepository;
@@ -23,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static _4.TourismContest.spot.dto.event.SpotCategoryResponse.tourApiToSpotCategoryResponse;
 import static _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse.tourApiToSpotStadiumPreviewResponse;
@@ -33,6 +42,7 @@ import static _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse.tourAp
 public class SpotService {
     private final UserRepository userRepository;
     private final SpotScrapRepository spotScrapRepository;
+    private final SpotRepository spotRepository;
     private final StadiumRepository stadiumRepository;
     private final TourApi tourApi;
 
@@ -80,7 +90,7 @@ public class SpotService {
         else{ // 로그인 정보가 있을 시
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
-            if(spotScrapRepository.findByUserAndContentId(user, contentId).isEmpty())
+            if(spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId).isEmpty())
                 return false;
             else
                 return true;
@@ -99,7 +109,7 @@ public class SpotService {
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
             for(TourApiResponseDto.Item item : tourApiResponseDto.getResponse().getBody().getItems().getItem()){
-                if(spotScrapRepository.findByUserAndContentId(user, Long.parseLong(item.getContentid())).isEmpty())
+                if(spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), Long.parseLong(item.getContentid())).isEmpty())
                     scraped.add(false);
                 else
                     scraped.add(true);
@@ -114,6 +124,118 @@ public class SpotService {
         Stadium stadium = stadiumRepository.findByName(stadiumName)
                 .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
         return new MapXY(stadium.getX(), stadium.getY());
+    }
+
+    public String   scrapSpot(Long contentId, Long stadiumId, UserPrincipal userPrincipal){
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
+        Optional<SpotScrap> optionalSpotScrap = spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId);
+        if(optionalSpotScrap.isPresent()){
+            SpotScrap spotScrap = optionalSpotScrap.get();
+            spotScrapRepository.delete(spotScrap);
+            return "remove scrap";
+        }
+        else{
+            Stadium stadium = stadiumRepository.findById(stadiumId)
+                    .orElseThrow(() -> new BadRequestException("stadiumId를 다시 확인해주세요"));
+            TourApiDetailCommonResponseDto.Item tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId).getResponse().getBody().getItems().getItem().get(0);
+            Spot spot = Spot.builder()
+                    .contentId(contentId)
+                    .stadium(stadium)
+                    .name(tourApiDetailCommonResponseDto.getTitle())
+                    .image(tourApiDetailCommonResponseDto.getFirstimage())
+                    .build();
+            SpotScrap spotScrap = SpotScrap.builder()
+                    .user(user)
+                    .spot(spotRepository.save(spot))
+                    .build();
+            spotScrapRepository.save(spotScrap);
+            return "add scrap";
+        }
+    }
+
+    public ScrapResponseDto getMyScrap(UserPrincipal userPrincipal){
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
+
+        List<ScrapStadiumSpot> scrapStadiumSpots = new ArrayList<>();
+
+        ScrapStadiumSpot scrapStadiumSpot;
+        scrapStadiumSpot = getScrapStadiumSpot(user, "잠실");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "수원");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "문학");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "창원");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "광주");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "사직");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "대구");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "대전");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+        scrapStadiumSpot = getScrapStadiumSpot(user, "고척");
+        if(scrapStadiumSpot != null){
+            scrapStadiumSpots.add(scrapStadiumSpot);
+        }
+
+        ScrapResponseDto scrapResponseDto = ScrapResponseDto.builder()
+                .scrapStadiumSpots(scrapStadiumSpots)
+                .build();
+
+         return scrapResponseDto;
+    }
+
+    public ScrapStadiumSpot getScrapStadiumSpot(User user, String name){
+        List<SpotScrap> spotScraps = spotScrapRepository.findByUserIdAndName(user.getId(), name);
+        if (spotScraps == null || spotScraps.isEmpty()) {
+            return null;
+        }
+
+        Stadium stadium = spotScraps.get(0).getSpot().getStadium();
+
+        ScrapStadium scrapStadium = ScrapStadium.builder()
+                .stadiumId(stadium.getId())
+                .title(stadium.getName() + " 야구장")
+                .image(stadium.getImage())
+                .build();
+
+        List<ScrapSpot> scrapSpots = new ArrayList<>();
+
+        for(SpotScrap spotScrap : spotScraps){
+            ScrapSpot scrapSpot = ScrapSpot.builder()
+                    .contentId(spotScrap.getSpot().getContentId())
+                    .title(spotScrap.getSpot().getName())
+                    .image(spotScrap.getSpot().getImage())
+                    .build();
+            scrapSpots.add(scrapSpot);
+        }
+
+        ScrapStadiumSpot scrapStadiumSpot = ScrapStadiumSpot.builder()
+                .scrapStadium(scrapStadium)
+                .scrapSpots(scrapSpots)
+                .build();
+
+        return scrapStadiumSpot;
     }
 
 
