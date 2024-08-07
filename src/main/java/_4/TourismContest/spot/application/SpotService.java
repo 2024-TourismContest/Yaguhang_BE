@@ -238,7 +238,7 @@ public class SpotService {
     }
 
 
-    public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, String stadium, String category, int radius, UserPrincipal userPrincipal) throws IOException {
+ public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, String stadium, String category, int radius, UserPrincipal userPrincipal) throws IOException {
         // 시작 시간 측정
         long startTime = System.nanoTime();
 
