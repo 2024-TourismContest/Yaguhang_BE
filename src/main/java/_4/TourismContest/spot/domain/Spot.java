@@ -18,7 +18,9 @@ public class Spot {
     @ManyToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
     private String name;
+    @Column(length = 2500)
     private String image;
+    @Enumerated(EnumType.STRING)
     private SpotCategory category;
     private double mapX;    //X좌표
     private double mapY;    //Y좌표

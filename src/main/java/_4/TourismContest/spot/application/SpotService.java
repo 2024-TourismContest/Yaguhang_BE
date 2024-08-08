@@ -1,7 +1,6 @@
 package _4.TourismContest.spot.application;
 
 import _4.TourismContest.exception.BadRequestException;
-import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.repository.ReviewRepository;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -224,7 +222,7 @@ public class SpotService {
 
         List<ScrapSpot> scrapSpots = spotScraps.stream()
                 .map(spotScrap -> ScrapSpot.builder()
-                        .contentId(spotScrap.getSpot().getContentId())
+                        .contentId(spotScrap.getSpot().getId())
                         .title(spotScrap.getSpot().getName())
                         .image(spotScrap.getSpot().getImage())
                         .build())
@@ -288,7 +286,7 @@ public class SpotService {
 
             if (allByUser.isPresent()) {
                 Set<Long> contentSet = allByUser.get().stream()
-                        .map(scrap -> scrap.getSpot().getContentId())
+                        .map(scrap -> scrap.getSpot().getId())
                         .collect(Collectors.toSet());
 
                 // 기존 리스트를 새 리스트로 변환하면서 스크랩 여부 추가
@@ -386,7 +384,7 @@ public class SpotService {
                 .orElseThrow(() -> new BadRequestException("JWT 토큰을 확인해주세요"));
         return spotScrapRepository.findAllByUser(user)
                 .orElse(Collections.emptyList()).stream()
-                .anyMatch(scrap -> scrap.getSpot().getContentId().equals(contentId));
+                .anyMatch(scrap -> scrap.getSpot().getId().equals(contentId));
     }
 
     private SpotDetailInfoDto buildSpotDetailInfoDto(String stadium, Long contentId, TourApiDetailCommonResponseDto.Item item, int reviewCount, boolean isScrapped) {

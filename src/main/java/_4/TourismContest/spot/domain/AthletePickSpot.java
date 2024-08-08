@@ -15,10 +15,13 @@ public class AthletePickSpot {
     private Long id;
     private String athleteName;
     private String phoneNumber;
+    @Column(length = 1024)
     private String businessHour;
     private String closedDays;
     private String parkingFacilities;
+    @Column(length = 256)
     private String address;
+    @Column(length = 2500)
     private String introduce;
     @ManyToOne(fetch = FetchType.LAZY)
     private Spot spot;
