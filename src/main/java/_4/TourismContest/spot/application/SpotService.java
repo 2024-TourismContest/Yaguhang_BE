@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static _4.TourismContest.spot.dto.event.SpotCategoryResponse.tourApiToSpotCategoryResponse;
 import static _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse.tourApiToSpotStadiumPreviewResponse;
@@ -220,16 +221,13 @@ public class SpotService {
                 .image(stadium.getImage())
                 .build();
 
-        List<ScrapSpot> scrapSpots = new ArrayList<>();
-
-        for(SpotScrap spotScrap : spotScraps){
-            ScrapSpot scrapSpot = ScrapSpot.builder()
-                    .contentId(spotScrap.getSpot().getContentId())
-                    .title(spotScrap.getSpot().getName())
-                    .image(spotScrap.getSpot().getImage())
-                    .build();
-            scrapSpots.add(scrapSpot);
-        }
+        List<ScrapSpot> scrapSpots = spotScraps.stream()
+                .map(spotScrap -> ScrapSpot.builder()
+                        .contentId(spotScrap.getSpot().getContentId())
+                        .title(spotScrap.getSpot().getName())
+                        .image(spotScrap.getSpot().getImage())
+                        .build())
+                .collect(Collectors.toList());
 
         ScrapStadiumSpot scrapStadiumSpot = ScrapStadiumSpot.builder()
                 .scrapStadium(scrapStadium)
