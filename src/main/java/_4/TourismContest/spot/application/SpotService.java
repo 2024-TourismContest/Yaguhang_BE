@@ -28,9 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static _4.TourismContest.spot.dto.event.SpotCategoryResponse.tourApiToSpotCategoryResponse;
 import static _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse.tourApiToSpotStadiumPreviewResponse;
@@ -240,70 +238,213 @@ public class SpotService {
     }
 
 
-    public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, String stadium, String category, int radius) throws IOException {
+ public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, String stadium, String category, int radius, UserPrincipal userPrincipal) throws IOException {
         // 시작 시간 측정
         long startTime = System.nanoTime();
 
-        MapXY stadiumCoordinate = getCoordinate(stadium);   // 경기장 좌표
+        if(userPrincipal == null){
+            MapXY stadiumCoordinate = getCoordinate(stadium);   // 경기장 좌표
 
-        // 사용자와 경기장 간의 거리 계산 (단위: km)
-        double distanceToStadium = calculateDistance(nowY, nowX, stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue());
-        int pageSize = 30;
+            // 사용자와 경기장 간의 거리 계산 (단위: km)
+            double distanceToStadium = calculateDistance(nowY, nowX, stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue());
+            int pageSize = 30;
 
-        List<SpotMapResponseDto> filteredItems = new ArrayList<>();
+            List<SpotMapResponseDto> filteredItems = new ArrayList<>();
 
-        // 1. 두 원이 서로 밖에 있으며 만나지 않는 경우 -> API 호출 X
-        if (distanceToStadium > radius + 20) {
-            // Do nothing
-        }
-        // 2. 외접하는 경우 (하나의 점에서 만남) -> API 호출 X
-        else if (distanceToStadium == radius + 20) {
-            // Do nothing
-        }
-        // 3. 두 점에서 만나는 경우 -> 겹치는 부분만 API 호출하여 필터링
-        else if (distanceToStadium > Math.abs(radius - 20)) {
-            TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius, tourApi.getContentTypeId(category), pageSize)
-                    .getResponse().getBody().getItems();
+            // 1. 두 원이 서로 밖에 있으며 만나지 않는 경우 -> API 호출 X
+            if (distanceToStadium > radius + 20) {
+                // Do nothing
+            }
+            // 2. 외접하는 경우 (하나의 점에서 만남) -> API 호출 X
+            else if (distanceToStadium == radius + 20) {
+                // Do nothing
+            }
+            // 3. 두 점에서 만나는 경우 -> 겹치는 부분만 API 호출하여 필터링
+            else if (distanceToStadium > Math.abs(radius - 20)) {
+                TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius, tourApi.getContentTypeId(category), pageSize)
+                        .getResponse().getBody().getItems();
 
-            for (TourApiResponseDto.Item item : items.getItem()) {
-                double itemLatitude = Double.parseDouble(item.getMapy());
-                double itemLongitude = Double.parseDouble(item.getMapx());
+                for (TourApiResponseDto.Item item : items.getItem()) {
+                    double itemLatitude = Double.parseDouble(item.getMapy());
+                    double itemLongitude = Double.parseDouble(item.getMapx());
 
-                double distance = calculateDistance(stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue(), itemLatitude, itemLongitude);
+                    double distance = calculateDistance(stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue(), itemLatitude, itemLongitude);
 
-                if (distance <= 20) {
-                    SpotMapResponseDto build = SpotMapResponseDto.builder()
+                    if (distance <= 20) {
+                        SpotMapResponseDto build = SpotMapResponseDto.builder()
+                                .contentId(Integer.parseInt(item.getContentid()))
+                                .mapX(Double.parseDouble(item.getMapx()))
+                                .mapY(Double.parseDouble(item.getMapy()))
+                                .build();
+                        filteredItems.add(build);
+                    }
+                }
+            }
+            // 4. 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
+            else {
+                TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius * 1000, tourApi.getContentTypeId(category), pageSize)
+                        .getResponse().getBody().getItems();
+
+                for (TourApiResponseDto.Item item : items.getItem()) {
+                    SpotMapResponseDto dto = SpotMapResponseDto.builder()
                             .contentId(Integer.parseInt(item.getContentid()))
                             .mapX(Double.parseDouble(item.getMapx()))
                             .mapY(Double.parseDouble(item.getMapy()))
+                            .name(item.getTitle())
                             .build();
-                    filteredItems.add(build);
+                    filteredItems.add(dto);
                 }
             }
-        }
-        // 4. 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
-        else {
-            TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius * 1000, tourApi.getContentTypeId(category), pageSize)
-                    .getResponse().getBody().getItems();
 
-            for (TourApiResponseDto.Item item : items.getItem()) {
-                SpotMapResponseDto dto = SpotMapResponseDto.builder()
-                        .contentId(Integer.parseInt(item.getContentid()))
-                        .mapX(Double.parseDouble(item.getMapx()))
-                        .mapY(Double.parseDouble(item.getMapy()))
-                        .build();
-                filteredItems.add(dto);
+            // 끝 시간 측정
+            long endTime = System.nanoTime();
+
+            // 실행 시간 계산 (밀리초 단위로 변환)
+            long durationInMillis = (endTime - startTime) / 1_000_000;
+            System.out.println("Execution time: " + durationInMillis + " ms");
+
+            return filteredItems;
+        }else{
+            User user = userRepository.findById(userPrincipal.getId())
+                    .orElseThrow(() -> new BadRequestException("JWT 토큰을 확인하세요"));
+
+            Optional<List<SpotScrap>> allByUser = spotScrapRepository.findAllByUser(user);
+            if(allByUser.isEmpty()){
+                //스크랩 한 데이터가 없을 경우
+                MapXY stadiumCoordinate = getCoordinate(stadium);   // 경기장 좌표
+
+                // 사용자와 경기장 간의 거리 계산 (단위: km)
+                double distanceToStadium = calculateDistance(nowY, nowX, stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue());
+                int pageSize = 30;
+
+                List<SpotMapResponseDto> filteredItems = new ArrayList<>();
+
+                // 1. 두 원이 서로 밖에 있으며 만나지 않는 경우 -> API 호출 X
+                if (distanceToStadium > radius + 20) {
+                    // Do nothing
+                }
+                // 2. 외접하는 경우 (하나의 점에서 만남) -> API 호출 X
+                else if (distanceToStadium == radius + 20) {
+                    // Do nothing
+                }
+                // 3. 두 점에서 만나는 경우 -> 겹치는 부분만 API 호출하여 필터링
+                else if (distanceToStadium > Math.abs(radius - 20)) {
+                    TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius, tourApi.getContentTypeId(category), pageSize)
+                            .getResponse().getBody().getItems();
+
+                    for (TourApiResponseDto.Item item : items.getItem()) {
+                        double itemLatitude = Double.parseDouble(item.getMapy());
+                        double itemLongitude = Double.parseDouble(item.getMapx());
+
+                        double distance = calculateDistance(stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue(), itemLatitude, itemLongitude);
+
+                        if (distance <= 20) {
+                            SpotMapResponseDto build = SpotMapResponseDto.builder()
+                                    .contentId(Integer.parseInt(item.getContentid()))
+                                    .mapX(Double.parseDouble(item.getMapx()))
+                                    .mapY(Double.parseDouble(item.getMapy()))
+                                    .build();
+                            filteredItems.add(build);
+                        }
+                    }
+                }
+                // 4. 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
+                else {
+                    TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius * 1000, tourApi.getContentTypeId(category), pageSize)
+                            .getResponse().getBody().getItems();
+
+                    for (TourApiResponseDto.Item item : items.getItem()) {
+                        SpotMapResponseDto dto = SpotMapResponseDto.builder()
+                                .contentId(Integer.parseInt(item.getContentid()))
+                                .mapX(Double.parseDouble(item.getMapx()))
+                                .mapY(Double.parseDouble(item.getMapy()))
+                                .name(item.getTitle())
+                                .build();
+                        filteredItems.add(dto);
+                    }
+                }
+
+                // 끝 시간 측정
+                long endTime = System.nanoTime();
+
+                // 실행 시간 계산 (밀리초 단위로 변환)
+                long durationInMillis = (endTime - startTime) / 1_000_000;
+                System.out.println("Execution time: " + durationInMillis + " ms");
+
+                return filteredItems;
+            }else{
+                //스크랩 한 데이터가 있을 경우
+                List<SpotScrap> spotScraps = allByUser.get();
+                Set<Long> contentSet = new HashSet<>();
+                for (SpotScrap spotScrap : spotScraps) {
+                    contentSet.add(spotScrap.getSpot().getContentId());
+                }
+                MapXY stadiumCoordinate = getCoordinate(stadium);   // 경기장 좌표
+
+                // 사용자와 경기장 간의 거리 계산 (단위: km)
+                double distanceToStadium = calculateDistance(nowY, nowX, stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue());
+                int pageSize = 30;
+
+                List<SpotMapResponseDto> filteredItems = new ArrayList<>();
+
+                // 1. 두 원이 서로 밖에 있으며 만나지 않는 경우 -> API 호출 X
+                if (distanceToStadium > radius + 20) {
+                    // Do nothing
+                }
+                // 2. 외접하는 경우 (하나의 점에서 만남) -> API 호출 X
+                else if (distanceToStadium == radius + 20) {
+                    // Do nothing
+                }
+                // 3. 두 점에서 만나는 경우 -> 겹치는 부분만 API 호출하여 필터링
+                else if (distanceToStadium > Math.abs(radius - 20)) {
+                    TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius, tourApi.getContentTypeId(category), pageSize)
+                            .getResponse().getBody().getItems();
+
+                    for (TourApiResponseDto.Item item : items.getItem()) {
+                        double itemLatitude = Double.parseDouble(item.getMapy());
+                        double itemLongitude = Double.parseDouble(item.getMapx());
+
+                        double distance = calculateDistance(stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue(), itemLatitude, itemLongitude);
+
+                        if (distance <= 20) {
+                            SpotMapResponseDto build = SpotMapResponseDto.builder()
+                                    .contentId(Integer.parseInt(item.getContentid()))
+                                    .mapX(Double.parseDouble(item.getMapx()))
+                                    .mapY(Double.parseDouble(item.getMapy()))
+                                    .name(item.getTitle())
+                                    .isScrapped(contentSet.contains(Long.parseLong(item.getContentid())))
+                                    .build();
+                            filteredItems.add(build);
+                        }
+                    }
+                }
+                // 4. 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
+                else {
+                    TourApiResponseDto.Items items = tourApi.getSpot((float) nowX, (float) nowY, radius * 1000, tourApi.getContentTypeId(category), pageSize)
+                            .getResponse().getBody().getItems();
+
+                    for (TourApiResponseDto.Item item : items.getItem()) {
+                        SpotMapResponseDto dto = SpotMapResponseDto.builder()
+                                .contentId(Integer.parseInt(item.getContentid()))
+                                .mapX(Double.parseDouble(item.getMapx()))
+                                .mapY(Double.parseDouble(item.getMapy()))
+                                .name(item.getTitle())
+                                .isScrapped(contentSet.contains(Long.parseLong(item.getContentid())))
+                                .build();
+                        filteredItems.add(dto);
+                    }
+                }
+
+                // 끝 시간 측정
+                long endTime = System.nanoTime();
+
+                // 실행 시간 계산 (밀리초 단위로 변환)
+                long durationInMillis = (endTime - startTime) / 1_000_000;
+                System.out.println("Execution time: " + durationInMillis + " ms");
+
+                return filteredItems;
             }
         }
-
-        // 끝 시간 측정
-        long endTime = System.nanoTime();
-
-        // 실행 시간 계산 (밀리초 단위로 변환)
-        long durationInMillis = (endTime - startTime) / 1_000_000;
-        System.out.println("Execution time: " + durationInMillis + " ms");
-
-        return filteredItems;
     }
 
     // Haversine formula를 사용하여 두 좌표 간의 거리를 계산하는 메서드
