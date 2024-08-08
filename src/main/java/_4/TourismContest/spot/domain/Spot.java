@@ -3,6 +3,7 @@ package _4.TourismContest.spot.domain;
 import _4.TourismContest.stadium.domain.Stadium;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,13 +13,23 @@ import lombok.NoArgsConstructor;
 @Table(name = "spot")
 public class Spot {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="contentId")
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
     private String name;
     private String image;
     private SpotCategory category;
+    private double mapX;    //X좌표
+    private double mapY;    //Y좌표
+
+    @Builder
+    public Spot(Long contentId, Stadium stadium, String name, String image, double mapX, double mapY) {
+        this.id = contentId;
+        this.stadium = stadium;
+        this.name = name;
+        this.image = image;
+        this.mapX = mapX;
+        this.mapY = mapY;
+    }
 }

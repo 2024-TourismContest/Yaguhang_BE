@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface StadiumRepository extends JpaRepository<Stadium, Long> {
     Optional<Stadium> findByName(String name);
+    Optional<Stadium> findTopByName(String name);
+    Optional<Stadium> findById(Long id);
 }
