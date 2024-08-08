@@ -3,6 +3,8 @@ package _4.TourismContest.spot.application;
 import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
+import _4.TourismContest.review.domain.Review;
+import _4.TourismContest.review.repository.ReviewRepository;
 import _4.TourismContest.spot.domain.Spot;
 import _4.TourismContest.spot.domain.SpotScrap;
 import _4.TourismContest.spot.dto.command.ScrapResponseDto;
@@ -42,6 +44,7 @@ public class SpotService {
     private final SpotScrapRepository spotScrapRepository;
     private final SpotRepository spotRepository;
     private final StadiumRepository stadiumRepository;
+    private final ReviewRepository reviewRepository;
     private final TourApi tourApi;
 
     public SpotCategoryResponse getMainSpot(String stadium, String category, UserPrincipal userPrincipal){
@@ -346,5 +349,58 @@ public class SpotService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return EARTH_RADIUS * c; // 두 좌표 간의 거리 반환
+    }
+
+    @Transactional
+    public SpotDetailInfoDto getNearSpotDetailInfo(Long stadiumId, Long contentId, UserPrincipal userPrincipal) {
+        TourApiDetailCommonResponseDto.Item item = tourApi.getSpotDetailCommon(contentId)
+                .getResponse().getBody().getItems().getItem().get(0);
+
+        Spot spot = spotRepository.findById(contentId)
+                .orElseGet(() -> createAndSaveSpot(contentId, stadiumId, item));
+
+        List<Review> reviews = reviewRepository.findAllBySpot(spot);
+        int reviewCount = reviews.size();
+
+        boolean isScrapped = userPrincipal != null && isSpotScrappedByUser(userPrincipal, contentId);
+
+        return buildSpotDetailInfoDto(stadiumId, contentId, item, reviewCount, isScrapped);
+    }
+
+    private Spot createAndSaveSpot(Long contentId, Long stadiumId, TourApiDetailCommonResponseDto.Item item) {
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 구장 명입니다."));
+        Spot spot = Spot.builder()
+                .contentId(contentId)
+                .stadium(stadium)
+                .name(item.getTitle())
+                .mapX(Double.parseDouble(item.getMapx()))
+                .mapY(Double.parseDouble(item.getMapy()))
+                .image(item.getFirstimage())
+                .build();
+        return spotRepository.save(spot);
+    }
+
+    private boolean isSpotScrappedByUser(UserPrincipal userPrincipal, Long contentId) {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new BadRequestException("JWT 토큰을 확인해주세요"));
+        return spotScrapRepository.findAllByUser(user)
+                .orElse(Collections.emptyList()).stream()
+                .anyMatch(scrap -> scrap.getSpot().getContentId().equals(contentId));
+    }
+
+    private SpotDetailInfoDto buildSpotDetailInfoDto(Long stadiumId, Long contentId, TourApiDetailCommonResponseDto.Item item, int reviewCount, boolean isScrapped) {
+        return SpotDetailInfoDto.builder()
+                .contentId(contentId)
+                .stadiumId(stadiumId)
+                .isScraped(isScrapped)
+                .title(item.getTitle())
+                .address(item.getAddr1() + item.getAddr2())
+                .mapX(Double.parseDouble(item.getMapx()))
+                .mapY(Double.parseDouble(item.getMapy()))
+                .image(item.getFirstimage())
+                .description(item.getOverview())
+                .reviewCount(reviewCount)
+                .build();
     }
 }
