@@ -41,4 +41,5 @@ public class SpotStadiumController {
         List<SpotMapResponseDto> nearSpot = spotService.getNearSpot(nowX, nowY, stadium, category, level, userPrincipal);
         return ResponseEntity.ok(nearSpot);
     }
+    }
 }
