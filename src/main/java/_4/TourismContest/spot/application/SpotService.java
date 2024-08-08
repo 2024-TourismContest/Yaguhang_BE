@@ -222,16 +222,13 @@ public class SpotService {
                 .image(stadium.getImage())
                 .build();
 
-        List<ScrapSpot> scrapSpots = new ArrayList<>();
-
-        for(SpotScrap spotScrap : spotScraps){
-            ScrapSpot scrapSpot = ScrapSpot.builder()
-                    .contentId(spotScrap.getSpot().getContentId())
-                    .title(spotScrap.getSpot().getName())
-                    .image(spotScrap.getSpot().getImage())
-                    .build();
-            scrapSpots.add(scrapSpot);
-        }
+        List<ScrapSpot> scrapSpots = spotScraps.stream()
+                .map(spotScrap -> ScrapSpot.builder()
+                        .contentId(spotScrap.getSpot().getContentId())
+                        .title(spotScrap.getSpot().getName())
+                        .image(spotScrap.getSpot().getImage())
+                        .build())
+                .collect(Collectors.toList());
 
         ScrapStadiumSpot scrapStadiumSpot = ScrapStadiumSpot.builder()
                 .scrapStadium(scrapStadium)
