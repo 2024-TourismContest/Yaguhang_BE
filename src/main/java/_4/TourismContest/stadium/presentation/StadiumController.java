@@ -58,18 +58,6 @@ public class StadiumController {
                 Stadium.builder()
                         .y(37.4971f).x(126.8679f).name("고척").team("키움 히어로즈")
                         .image("https://yaguhang.kro.kr:8443/stadiums/gocheokStadium.webp").nx(58).ny(125)
-                        .build(),
-                Stadium.builder()
-                        .y(35.5422f).x(129.2560f).name("울산").team("롯데 자이언츠")
-                        .image("https://yaguhang.kro.kr:8443/stadiums/ulsanMunsuStadium.webp").nx(101).ny(84)
-                        .build(),
-                Stadium.builder()
-                        .y(36.0190f).x(129.3715f).name("포항").team("삼성 라이온즈")
-                        .image("https://yaguhang.kro.kr:8443/stadiums/pohangStadium.webp").nx(102).ny(94)
-                        .build(),
-                Stadium.builder()
-                        .y(36.6431f).x(127.4917f).name("청주").team("한화 이글스")
-                        .image("https://yaguhang.kro.kr:8443/stadiums/cheongjuStadium.webp").nx(69).ny(107)
                         .build()
         );
         stadiumService.saveStadiums(stadiums);

@@ -238,7 +238,6 @@ public class SpotService {
         return scrapStadiumSpot;
     }
 
-
     public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, String stadium, String category, int level, UserPrincipal userPrincipal) throws IOException {
         long startTime = System.nanoTime();
 
