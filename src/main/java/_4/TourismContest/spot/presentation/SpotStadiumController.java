@@ -33,12 +33,12 @@ public class SpotStadiumController {
         return new ResponseEntity<>(spotStadiumPreviewResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/{stadium}/{category}/{radius}/{nowX}/{nowY}")
+    @GetMapping("/{stadium}/{category}/{level}/{nowX}/{nowY}")
     @Operation(summary = "구장 별 주변관광지에 대한 마커를 찍기 위한 정보 ", description = "구장, 카테고리 필터를 사용하여, 구장 근처의 각 카테고리에 맞는 주변 볼거리 정보를 제공합니다. \n" +
             "radius: (km 단위)")
-    public ResponseEntity<List<SpotMapResponseDto>> getStadiumNearSpot(@PathVariable String stadium, @PathVariable String category, @PathVariable int radius,
+    public ResponseEntity<List<SpotMapResponseDto>> getStadiumNearSpot(@PathVariable String stadium, @PathVariable String category, @PathVariable int level,
                                                        @PathVariable double nowX, @PathVariable double nowY, @CurrentUser UserPrincipal userPrincipal) throws IOException {
-        List<SpotMapResponseDto> nearSpot = spotService.getNearSpot(nowX, nowY, stadium, category, radius, userPrincipal);
+        List<SpotMapResponseDto> nearSpot = spotService.getNearSpot(nowX, nowY, stadium, category, level, userPrincipal);
         return ResponseEntity.ok(nearSpot);
     }
 }
