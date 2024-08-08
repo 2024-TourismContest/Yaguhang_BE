@@ -352,24 +352,24 @@ public class SpotService {
     }
 
     @Transactional
-    public SpotDetailInfoDto getNearSpotDetailInfo(Long stadiumId, Long contentId, UserPrincipal userPrincipal) {
+    public SpotDetailInfoDto getNearSpotDetailInfo(String stadium, Long contentId, UserPrincipal userPrincipal) {
         TourApiDetailCommonResponseDto.Item item = tourApi.getSpotDetailCommon(contentId)
                 .getResponse().getBody().getItems().getItem().get(0);
 
         Spot spot = spotRepository.findById(contentId)
-                .orElseGet(() -> createAndSaveSpot(contentId, stadiumId, item));
+                .orElseGet(() -> createAndSaveSpot(contentId, stadium, item));
 
         List<Review> reviews = reviewRepository.findAllBySpot(spot);
         int reviewCount = reviews.size();
 
         boolean isScrapped = userPrincipal != null && isSpotScrappedByUser(userPrincipal, contentId);
 
-        return buildSpotDetailInfoDto(stadiumId, contentId, item, reviewCount, isScrapped);
+        return buildSpotDetailInfoDto(stadium, contentId, item, reviewCount, isScrapped);
     }
 
-    private Spot createAndSaveSpot(Long contentId, Long stadiumId, TourApiDetailCommonResponseDto.Item item) {
-        Stadium stadium = stadiumRepository.findById(stadiumId)
-                .orElseThrow(() -> new IllegalArgumentException("잘못된 구장 명입니다."));
+    private Spot createAndSaveSpot(Long contentId, String stadiumName, TourApiDetailCommonResponseDto.Item item) {
+        Stadium stadium = stadiumRepository.findTopByName(stadiumName)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 구장명입니다."));
         Spot spot = Spot.builder()
                 .contentId(contentId)
                 .stadium(stadium)
@@ -389,10 +389,12 @@ public class SpotService {
                 .anyMatch(scrap -> scrap.getSpot().getContentId().equals(contentId));
     }
 
-    private SpotDetailInfoDto buildSpotDetailInfoDto(Long stadiumId, Long contentId, TourApiDetailCommonResponseDto.Item item, int reviewCount, boolean isScrapped) {
+    private SpotDetailInfoDto buildSpotDetailInfoDto(String stadium, Long contentId, TourApiDetailCommonResponseDto.Item item, int reviewCount, boolean isScrapped) {
+        Stadium stadium1 = stadiumRepository.findTopByName(stadium)
+                .orElseThrow(() -> new BadRequestException("구장 이름이 잘못 되어있습니다."));
         return SpotDetailInfoDto.builder()
                 .contentId(contentId)
-                .stadiumId(stadiumId)
+                .stadiumId(stadium1.getId())
                 .isScraped(isScrapped)
                 .title(item.getTitle())
                 .address(item.getAddr1() + item.getAddr2())
