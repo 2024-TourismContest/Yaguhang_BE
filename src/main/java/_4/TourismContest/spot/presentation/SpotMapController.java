@@ -33,10 +33,10 @@ public class SpotMapController {
         return ResponseEntity.ok(nearSpot);
     }
 
-    @GetMapping("/{stadiumId}/{contentId}")
-    @Operation(summary = "주변 관광지 마킹 클릭", description = "주변 관광지 마커를 클릭 시 상세 내용을 출력합니다.")
-    public ResponseEntity<SpotDetailInfoDto> getNearSpotDetailInfo(@PathVariable Long stadiumId , @PathVariable Long contentId, @CurrentUser UserPrincipal userPrincipal){
-        SpotDetailInfoDto nearSpotDetailInfo = spotService.getNearSpotDetailInfo(stadiumId, contentId, userPrincipal);
+    @GetMapping("/{stadium}/{contentId}")
+    @Operation(summary = "주변 관광지 마커 클릭", description = "주변 관광지 마커를 클릭 시 상세 내용을 출력합니다.")
+    public ResponseEntity<SpotDetailInfoDto> getNearSpotDetailInfo(@PathVariable String stadium , @PathVariable Long contentId, @CurrentUser UserPrincipal userPrincipal){
+        SpotDetailInfoDto nearSpotDetailInfo = spotService.getNearSpotDetailInfo(stadium, contentId, userPrincipal);
         return ResponseEntity.ok(nearSpotDetailInfo);
     }
 }
