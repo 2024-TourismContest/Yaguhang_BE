@@ -52,8 +52,8 @@ public class SpotService {
         return tourApiToSpotCategoryResponse(tourApiResponseDto, category, getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
 
-    public SpotStadiumPreviewResponse getStadiumSpot(String stadium, String category,Integer pagesize, Integer pageindex,UserPrincipal userPrincipal){
-        TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium), 20000, category, pagesize); // radius 20km
+    public SpotStadiumPreviewResponse getStadiumSpot(String stadium, String category,Integer pagesize, Integer pageindex, Integer radius,UserPrincipal userPrincipal){
+        TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium), radius * 1000, category, pagesize);
 
         return tourApiToSpotStadiumPreviewResponse(tourApiResponseDto, category, pagesize, pageindex, getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
