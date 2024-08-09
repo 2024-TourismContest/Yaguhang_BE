@@ -263,7 +263,6 @@ public class SpotService {
             double itemLongitude = Double.parseDouble(item.getMapx());
             double distance = calculateDistance(stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue(), itemLatitude, itemLongitude);
             if (distanceToStadium <= Math.abs(radius - 20)) {
-//                TourApiDetailCommonResponseDto spotDetailCommon = tourApi.getSpotDetailCommon(Long.parseLong(item.getContentid()));
 
                 Optional<Spot> spotOptional = spotRepository.findById(Long.parseLong(item.getContentid()));
                 Long reviewCount = 0L;
@@ -279,12 +278,10 @@ public class SpotService {
                         .address(item.getAddr1()+item.getAddr2())
                         .mapX(Double.parseDouble(item.getMapx()))
                         .mapY(Double.parseDouble(item.getMapy()))
-//                        .description(spotDetailCommon.getResponse().getBody().getItems().getItem().get(0).getOverview())
                         .reviewCount(reviewCount)
                         .image(item.getFirstimage())
                         .build());
             } else if (distance <= 20) {
-//                TourApiDetailCommonResponseDto spotDetailCommon = tourApi.getSpotDetailCommon(Long.parseLong(item.getContentid()));
 
                 Optional<Spot> spotOptional = spotRepository.findById(Long.parseLong(item.getContentid()));
                 Long reviewCount = 0L;
@@ -300,7 +297,6 @@ public class SpotService {
                         .address(item.getAddr1()+item.getAddr2())
                         .mapX(Double.parseDouble(item.getMapx()))
                         .mapY(Double.parseDouble(item.getMapy()))
-//                        .description(spotDetailCommon.getResponse().getBody().getItems().getItem().get(0).getOverview())
                         .reviewCount(reviewCount)
                         .image(item.getFirstimage())
                         .build());;
