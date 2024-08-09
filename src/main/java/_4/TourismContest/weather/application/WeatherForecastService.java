@@ -125,7 +125,7 @@ public class WeatherForecastService {
                     .fcstDate(sky.getFcstTime().toLocalDate().toString())
                     .fcstTime(String.format("%02d", sky.getFcstTime().getHour()))
                     .weatherForecast(weatherForecastEnum)
-                    .weatherImgUrl(getWeatherUrl(weatherForecastEnum))
+                    .weatherImgUrl(getColoredWeatherUrl(weatherForecastEnum))
                     .rainyPercent(popValue)
                     .temp(tmpValue)
                     .build();
@@ -144,29 +144,29 @@ public class WeatherForecastService {
      * @param weatherForecastDataWithGame
      * @return
      */
-    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+    private String getColoredWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
         if(weatherForecastDataWithGame == null){
             return null;
         }
-        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        String baseUrl = "https://yaguhang.kro.kr:8443/coloredWeatherImages/";
         switch (weatherForecastDataWithGame){
             case CLOUDY -> {
-                return baseUrl + "Cloudy.png";
+                return baseUrl + "Cloudy.svg";
             }
             case OVERCAST -> {
-                return baseUrl + "Overcast.png";
+                return baseUrl + "Overcast.svg";
             }
             case RAINY -> {
-                return baseUrl + "Rain.png";
+                return baseUrl + "Rain.svg";
             }
             case SHOWER -> {
-                return baseUrl + "Shower.png";
+                return baseUrl + "Shower.svg";
             }
             case SNOW -> {
-                return baseUrl + "Snow.png";
+                return baseUrl + "Snow.svg";
             }
             case SUNNY -> {
-                return baseUrl + "Sunny.png";
+                return baseUrl + "Sunny.svg";
             }
             default -> {
                 throw new IllegalArgumentException("Check Weather Status");
