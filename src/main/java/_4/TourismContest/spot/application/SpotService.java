@@ -50,8 +50,10 @@ public class SpotService {
         return tourApiToSpotCategoryResponse(tourApiResponseDto, category, getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
 
-    public SpotStadiumPreviewResponse getStadiumSpot(String stadium, String category,Integer pagesize, Integer pageindex, Integer radius,UserPrincipal userPrincipal){
-        TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium), radius * 1000, category, pagesize);
+    public SpotStadiumPreviewResponse getStadiumSpot(Long stadiumId, String category,Integer pagesize, Integer pageindex, Integer radius,UserPrincipal userPrincipal){
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다."));
+        TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium.getName()), radius * 1000, category, pagesize);
 
         return tourApiToSpotStadiumPreviewResponse(tourApiResponseDto, category, pagesize, pageindex, getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
@@ -203,7 +205,7 @@ public class SpotService {
                 .scrapStadiumSpots(scrapStadiumSpots)
                 .build();
 
-         return scrapResponseDto;
+        return scrapResponseDto;
     }
 
     public ScrapStadiumSpot getScrapStadiumSpot(User user, String name){
@@ -236,11 +238,13 @@ public class SpotService {
         return scrapStadiumSpot;
     }
 
-    public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, String stadium, String category, int level, UserPrincipal userPrincipal) throws IOException {
+    public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, Long stadiumId, String category, int level, UserPrincipal userPrincipal) throws IOException {
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 구장 ID 입니다."));
         long startTime = System.nanoTime();
 
         int radius = getRadius(level);
-        MapXY stadiumCoordinate = getCoordinate(stadium);  // 경기장 좌표
+        MapXY stadiumCoordinate = getCoordinate(stadium.getName());  // 경기장 좌표
         double distanceToStadium = calculateDistance(nowY, nowX, stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue());
         int pageSize = 30;
 
@@ -258,23 +262,48 @@ public class SpotService {
             double itemLatitude = Double.parseDouble(item.getMapy());
             double itemLongitude = Double.parseDouble(item.getMapx());
             double distance = calculateDistance(stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue(), itemLatitude, itemLongitude);
-
             if (distanceToStadium <= Math.abs(radius - 20)) {
+//                TourApiDetailCommonResponseDto spotDetailCommon = tourApi.getSpotDetailCommon(Long.parseLong(item.getContentid()));
+
+                Optional<Spot> spotOptional = spotRepository.findById(Long.parseLong(item.getContentid()));
+                Long reviewCount = 0L;
+                if(spotOptional.isPresent()){
+                    Spot spot = spotOptional.get();
+                    reviewCount = Long.valueOf(reviewRepository.findAllBySpot(spot).size());
+                }
                 // 두 원이 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
                 filteredItems.add(SpotMapResponseDto.builder()
-                        .contentId(Integer.parseInt(item.getContentid()))
+                        .contentId(Long.parseLong(item.getContentid()))
+                        .stadiumId(stadium.getId())
+                        .title(item.getTitle())
+                        .address(item.getAddr1()+item.getAddr2())
                         .mapX(Double.parseDouble(item.getMapx()))
                         .mapY(Double.parseDouble(item.getMapy()))
-                        .name(item.getTitle())
+//                        .description(spotDetailCommon.getResponse().getBody().getItems().getItem().get(0).getOverview())
+                        .reviewCount(reviewCount)
+                        .image(item.getFirstimage())
                         .build());
             } else if (distance <= 20) {
-                // 두 점에서 만나는 경우 -> 겹치는 부분만 API 호출하여 필터링
+//                TourApiDetailCommonResponseDto spotDetailCommon = tourApi.getSpotDetailCommon(Long.parseLong(item.getContentid()));
+
+                Optional<Spot> spotOptional = spotRepository.findById(Long.parseLong(item.getContentid()));
+                Long reviewCount = 0L;
+                if(spotOptional.isPresent()){
+                    Spot spot = spotOptional.get();
+                    reviewCount = Long.valueOf(reviewRepository.findAllBySpot(spot).size());
+                }
+                // 두 원이 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
                 filteredItems.add(SpotMapResponseDto.builder()
-                        .contentId(Integer.parseInt(item.getContentid()))
+                        .contentId(Long.parseLong(item.getContentid()))
+                        .stadiumId(stadium.getId())
+                        .title(item.getTitle())
+                        .address(item.getAddr1()+item.getAddr2())
                         .mapX(Double.parseDouble(item.getMapx()))
                         .mapY(Double.parseDouble(item.getMapy()))
-                        .name(item.getTitle())
-                        .build());
+//                        .description(spotDetailCommon.getResponse().getBody().getItems().getItem().get(0).getOverview())
+                        .reviewCount(reviewCount)
+                        .image(item.getFirstimage())
+                        .build());;
             }
         }
 
@@ -295,7 +324,7 @@ public class SpotService {
                                 .contentId(dto.contentId())
                                 .mapX(dto.mapX())
                                 .mapY(dto.mapY())
-                                .name(dto.name())
+                                .title(dto.title())
                                 .isScrapped(contentSet.contains(dto.contentId().longValue())) // 스크랩 여부 설정
                                 .build())
                         .collect(Collectors.toList());
@@ -350,19 +379,21 @@ public class SpotService {
     }
 
     @Transactional
-    public SpotDetailInfoDto getNearSpotDetailInfo(String stadium, Long contentId, UserPrincipal userPrincipal) {
+    public SpotDetailInfoDto getNearSpotDetailInfo(Long stadiumId, Long contentId, UserPrincipal userPrincipal) {
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 구장 ID입니다."));
         TourApiDetailCommonResponseDto.Item item = tourApi.getSpotDetailCommon(contentId)
                 .getResponse().getBody().getItems().getItem().get(0);
 
         Spot spot = spotRepository.findById(contentId)
-                .orElseGet(() -> createAndSaveSpot(contentId, stadium, item));
+                .orElseGet(() -> createAndSaveSpot(contentId, stadium.getName(), item));
 
         List<Review> reviews = reviewRepository.findAllBySpot(spot);
         int reviewCount = reviews.size();
 
         boolean isScrapped = userPrincipal != null && isSpotScrappedByUser(userPrincipal, contentId);
 
-        return buildSpotDetailInfoDto(stadium, contentId, item, reviewCount, isScrapped);
+        return buildSpotDetailInfoDto(stadium.getName(), contentId, item, reviewCount, isScrapped);
     }
 
     private Spot createAndSaveSpot(Long contentId, String stadiumName, TourApiDetailCommonResponseDto.Item item) {
@@ -403,4 +434,6 @@ public class SpotService {
                 .reviewCount(reviewCount)
                 .build();
     }
+
 }
+
