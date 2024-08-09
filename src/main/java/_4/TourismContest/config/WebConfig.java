@@ -44,8 +44,11 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/stadiums/**")
                 .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/stadiumImgs/");
 
-        // 날씨 로고 경로 설정 (URL과 로컬 경로 일치시키기)
+        // 날씨 로고 경로 설정
         registry.addResourceHandler("/weatherImages/**")
                 .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/weatherImgs/");
+        // 색상 있는 날씨 로고 경로 설정
+        registry.addResourceHandler("/coloredWeatherImages/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/coloredWeatherImgs/");
     }
 }
