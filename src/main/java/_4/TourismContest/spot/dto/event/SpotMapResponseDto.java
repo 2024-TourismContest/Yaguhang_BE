@@ -11,7 +11,6 @@ public record SpotMapResponseDto(
         Double mapX,
         Double mapY,
         String image,
-        String description,
         Long reviewCount,
         boolean isScrapped
 ) {
