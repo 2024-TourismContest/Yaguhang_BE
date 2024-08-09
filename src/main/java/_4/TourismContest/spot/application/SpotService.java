@@ -52,7 +52,7 @@ public class SpotService {
 
     public SpotStadiumPreviewResponse getStadiumSpot(Long stadiumId, String category,Integer pagesize, Integer pageindex, Integer radius,UserPrincipal userPrincipal){
         Stadium stadium = stadiumRepository.findById(stadiumId)
-                .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다."));
+                .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
         TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium.getName()), radius * 1000, category, pagesize);
 
         return tourApiToSpotStadiumPreviewResponse(tourApiResponseDto, category, pagesize, pageindex, getIsScrapedList(userPrincipal, tourApiResponseDto));
