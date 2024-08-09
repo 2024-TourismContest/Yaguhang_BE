@@ -725,8 +725,8 @@ public class BaseballService {
             case WEDNESDAY: return "(수)";
             case THURSDAY: return "(목)";
             case FRIDAY: return "(금)";
-            case SATURDAY: return "(토))";
-            case SUNDAY: return "(일))";
+            case SATURDAY: return "(토)";
+            case SUNDAY: return "(일)";
             default: throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
     }
