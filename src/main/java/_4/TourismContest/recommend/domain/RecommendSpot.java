@@ -1,4 +1,4 @@
-package _4.TourismContest.recommand.domain;
+package _4.TourismContest.recommend.domain;
 
 import _4.TourismContest.spot.domain.Spot;
 import jakarta.persistence.*;
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "recommand_spot")
-public class RecommandSpot {
+@Table(name = "recommend_spot")
+public class RecommendSpot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,5 +19,5 @@ public class RecommandSpot {
     private Spot spot;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Recommand recommand;
+    private Recommend recommend;
 }
