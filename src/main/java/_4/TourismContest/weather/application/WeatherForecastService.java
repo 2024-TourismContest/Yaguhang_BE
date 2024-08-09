@@ -140,7 +140,7 @@ public class WeatherForecastService {
     }
 
     /**
-     * 날씨에 따라 날씨 로고 URL을 반환하는 함수
+     * 날씨에 따라 색상이 있는 날씨 로고 URL을 반환하는 함수
      * @param weatherForecastDataWithGame
      * @return
      */
@@ -240,6 +240,41 @@ public class WeatherForecastService {
                 .skyUrl(getWeatherUrl(getWeatherForecastDataWithGame(baseball)))
                 .stadium(stadiumLocation)
                 .build();
+    }
+
+    /**
+     * 날씨에 따라 날씨 로고 URL을 반환하는 함수
+     * @param weatherForecastDataWithGame
+     * @return
+     */
+    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.svg";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.svg";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.svg";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.svg";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.svg";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.svg";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
+        }
     }
 
     /**
