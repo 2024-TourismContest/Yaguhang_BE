@@ -75,6 +75,7 @@ public class UserService {
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .image(user.getProfileImg())
+                .fanTeam(user.getFanTeam())
                 .build();
 
         return userInfoDto;
@@ -127,5 +128,13 @@ public class UserService {
         else{
             return "D-" + duration.toDays();
         }
+    }
+
+    public String registerFanTeam(UserPrincipal userPrincipal, String team){
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+        userRepository.save(User.registerFanTeam(user, team));
+
+        return "success register";
     }
 }

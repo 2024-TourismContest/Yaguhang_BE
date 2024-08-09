@@ -125,6 +125,7 @@ public class WeatherForecastService {
                     .fcstDate(sky.getFcstTime().toLocalDate().toString())
                     .fcstTime(String.format("%02d", sky.getFcstTime().getHour()))
                     .weatherForecast(weatherForecastEnum)
+                    .weatherImgUrl(getWeatherUrl(weatherForecastEnum))
                     .rainyPercent(popValue)
                     .temp(tmpValue)
                     .build();
@@ -136,6 +137,41 @@ public class WeatherForecastService {
                 .date(game.getTime().toLocalDate().toString())
                 .weathers(weatherForecastDTOs)
                 .build();
+    }
+
+    /**
+     * 날씨에 따라 날씨 로고 URL을 반환하는 함수
+     * @param weatherForecastDataWithGame
+     * @return
+     */
+    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.png";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.png";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.png";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.png";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.png";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.png";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
+        }
     }
 
     /**
@@ -201,6 +237,7 @@ public class WeatherForecastService {
                 .rainFall(rainFall)
                 .temp(temp)
                 .sky(getWeatherForecastDataWithGame(baseball))
+                .skyUrl(getWeatherUrl(getWeatherForecastDataWithGame(baseball)))
                 .stadium(stadiumLocation)
                 .build();
     }

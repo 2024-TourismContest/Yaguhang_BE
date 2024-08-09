@@ -39,7 +39,10 @@ public class TourApi {
         int randomPageMax = getTotalCount(x,y,radius,contentTypeId) / pageSize;
 
         Random random = new Random();
-        int randomPage = random.nextInt(randomPageMax);
+        int randomPage = 0;
+        if(randomPageMax != 0){
+            randomPage = random.nextInt(randomPageMax);
+        }
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
                 .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
