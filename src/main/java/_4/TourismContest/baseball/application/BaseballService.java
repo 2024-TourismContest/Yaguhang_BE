@@ -597,28 +597,19 @@ public class BaseballService {
         List<BaseBallDTO> baseballSchedules = baseballPage.getContent().stream()
                 .map(baseball -> {
                     String homeTeam = exchangeTeamName(baseball.getHome());
-<<<<<<< HEAD
-                    String awayTeam = exchangeTeamName(baseball.getAway());
-=======
                     String homeTeamOut = homeTeam.replace(" ", "\n");
                     String awayTeam = exchangeTeamName(baseball.getAway());
                     String awayTeamOut = awayTeam.replace(" ", "\n");
->>>>>>> 0a974b6f5f1d58c2edea8e12b38378f7a913008e
                     WeatherForecastEnum weatherForecast = weatherForecastService.getWeatherForecastDataWithGame(baseball);
 
                     return BaseBallDTO.builder()
                             .id(baseball.getId())
-<<<<<<< HEAD
-                            .home(homeTeam)
-                            .away(awayTeam)
-=======
                             .home(homeTeamOut)
                             .away(awayTeamOut)
->>>>>>> 0a974b6f5f1d58c2edea8e12b38378f7a913008e
                             .homeTeamLogo(getTeamLogoUrl(homeTeam))
                             .awayTeamLogo(getTeamLogoUrl(awayTeam))
                             .stadium(baseball.getLocation())
-                            .date(baseball.getTime().toLocalDate().toString())
+                            .date(formatLocalDateTime(baseball.getTime()))
                             .time(baseball.getTime().toLocalTime().toString())
                             .weather(weatherForecast)
                             .weatherUrl(getWeatherUrl(weatherForecast))
@@ -718,24 +709,24 @@ public class BaseballService {
     }
 
     private String formatLocalDateTime(LocalDateTime dateTime) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.KOREAN);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd", Locale.KOREAN);
         String formattedDate = dateTime.format(dateFormatter);
 
         DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
         String dayOfWeekKorean = getKoreanDayOfWeek(dayOfWeek);
 
-        return formattedDate + "-" + dayOfWeekKorean;
+        return formattedDate + "" +dayOfWeekKorean;
     }
 
     private String getKoreanDayOfWeek(DayOfWeek dayOfWeek) {
         switch (dayOfWeek) {
-            case MONDAY: return "월요일";
-            case TUESDAY: return "화요일";
-            case WEDNESDAY: return "수요일";
-            case THURSDAY: return "목요일";
-            case FRIDAY: return "금요일";
-            case SATURDAY: return "토요일";
-            case SUNDAY: return "일요일";
+            case MONDAY: return "(월))";
+            case TUESDAY: return "(화)";
+            case WEDNESDAY: return "(수)";
+            case THURSDAY: return "(목)";
+            case FRIDAY: return "(금)";
+            case SATURDAY: return "(토))";
+            case SUNDAY: return "(일))";
             default: throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
     }
