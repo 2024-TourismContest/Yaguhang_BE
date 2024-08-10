@@ -3,7 +3,7 @@ package _4.TourismContest.spot.presentation;
 import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.spot.application.SpotService;
-import _4.TourismContest.spot.dto.event.spotDetailResponse.SpotDetailResponse;
+import _4.TourismContest.spot.dto.spotDetailResponse.SpotDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

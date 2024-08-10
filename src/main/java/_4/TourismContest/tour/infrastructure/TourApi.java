@@ -1,7 +1,7 @@
 package _4.TourismContest.tour.infrastructure;
 
 import _4.TourismContest.exception.BadRequestException;
-import _4.TourismContest.spot.dto.event.MapXY;
+import _4.TourismContest.spot.dto.MapXY;
 import _4.TourismContest.tour.dto.Enum.ContentType;
 import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
 import _4.TourismContest.tour.dto.TourApiDetailImageResponseDto;

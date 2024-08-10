@@ -1,4 +1,4 @@
-package _4.TourismContest.spot.dto.event;
+package _4.TourismContest.spot.dto;
 
 public record MapXY(
         Float x,

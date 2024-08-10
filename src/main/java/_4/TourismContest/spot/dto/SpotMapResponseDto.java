@@ -1,18 +1,18 @@
-package _4.TourismContest.spot.dto.event;
+package _4.TourismContest.spot.dto;
 
 import lombok.Builder;
 
 @Builder
-public record SpotDetailInfoDto(
+public record SpotMapResponseDto(
         Long contentId,
         Long stadiumId,
-        boolean isScraped,
         String title,
         String address,
         Double mapX,
         Double mapY,
         String image,
-        String description,
-        int reviewCount
+        Long reviewCount,
+        boolean isScrapped
 ) {
 }
+
