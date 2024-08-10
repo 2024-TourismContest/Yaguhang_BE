@@ -12,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StadiumService {
     private final StadiumRepository stadiumRepository;
-
     @Transactional
     public void saveStadiums(List<Stadium> stadiums) {
         if (stadiumRepository.count() == 0) {

@@ -14,7 +14,7 @@ public class Stadium {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long contentId;
+    private Long id;
     private float x;
     private float y;
     private String name;

@@ -15,5 +15,6 @@ public class WeatherForecastPerDayDTO {
     private double temp;
     private double rainFall;
     private WeatherForecastEnum sky;
+    private String skyUrl;
     private String stadium;
 }

@@ -1,7 +1,6 @@
 package _4.TourismContest.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -12,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @PropertySource("classpath:application.yml")
 public class WebConfig implements WebMvcConfigurer {
 
-    private final long MAX_AGE_SECS = 3600;
+    private static final long MAX_AGE_SECS = 3600;
 
     private final CorsProperties corsProperties;
 
@@ -30,6 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .maxAge(MAX_AGE_SECS);
     }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 사용자 프로필 이미지 경로 설정
@@ -43,5 +43,12 @@ public class WebConfig implements WebMvcConfigurer {
         // 경기장 경로 설정
         registry.addResourceHandler("/stadiums/**")
                 .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/stadiumImgs/");
+
+        // 날씨 로고 경로 설정
+        registry.addResourceHandler("/weatherImages/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/weatherImgs/");
+        // 색상 있는 날씨 로고 경로 설정
+        registry.addResourceHandler("/coloredWeatherImages/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/coloredWeatherImgs/");
     }
 }

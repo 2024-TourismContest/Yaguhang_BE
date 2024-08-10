@@ -125,6 +125,7 @@ public class WeatherForecastService {
                     .fcstDate(sky.getFcstTime().toLocalDate().toString())
                     .fcstTime(String.format("%02d", sky.getFcstTime().getHour()))
                     .weatherForecast(weatherForecastEnum)
+                    .weatherImgUrl(getColoredWeatherUrl(weatherForecastEnum))
                     .rainyPercent(popValue)
                     .temp(tmpValue)
                     .build();
@@ -136,6 +137,41 @@ public class WeatherForecastService {
                 .date(game.getTime().toLocalDate().toString())
                 .weathers(weatherForecastDTOs)
                 .build();
+    }
+
+    /**
+     * 날씨에 따라 색상이 있는 날씨 로고 URL을 반환하는 함수
+     * @param weatherForecastDataWithGame
+     * @return
+     */
+    private String getColoredWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/coloredWeatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.svg";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.svg";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.svg";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.svg";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.svg";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.svg";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
+        }
     }
 
     /**
@@ -201,8 +237,44 @@ public class WeatherForecastService {
                 .rainFall(rainFall)
                 .temp(temp)
                 .sky(getWeatherForecastDataWithGame(baseball))
+                .skyUrl(getWeatherUrl(getWeatherForecastDataWithGame(baseball)))
                 .stadium(stadiumLocation)
                 .build();
+    }
+
+    /**
+     * 날씨에 따라 날씨 로고 URL을 반환하는 함수
+     * @param weatherForecastDataWithGame
+     * @return
+     */
+    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.svg";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.svg";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.svg";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.svg";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.svg";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.svg";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
+        }
     }
 
     /**
@@ -211,7 +283,7 @@ public class WeatherForecastService {
      * @return
      */
     public WeatherForecastEnum getWeatherForecastDataWithGame(Baseball game) {
-        Stadium stadium = stadiumRepository.findByName(game.getLocation())
+        Stadium stadium = stadiumRepository.findTopByName(game.getLocation())
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         LocalDateTime gameTime = game.getTime();

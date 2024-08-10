@@ -2,11 +2,18 @@ package _4.TourismContest.baseball.application;
 
 import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallDTO;
+import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.repository.BaseballRepository;
+import _4.TourismContest.baseball.repository.BaseballScrapRepository;
+import _4.TourismContest.exception.BadRequestException;
+import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.stadium.repository.StadiumRepository;
+import _4.TourismContest.user.domain.User;
+import _4.TourismContest.user.repository.UserRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.WeatherForecast;
+import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
 import _4.TourismContest.weather.repository.WeatherForecastRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
@@ -36,9 +43,21 @@ import java.util.stream.Collectors;
 public class BaseballService {
     private final String os = System.getProperty("os.name").toLowerCase();
     private final BaseballRepository baseballRepository;
-    private final WeatherForecastRepository weatherForecastRepository;
-    private final StadiumRepository stadiumRepository;
+    private final BaseballScrapService baseballScrapService;
     private final WeatherForecastService weatherForecastService;
+
+    private final Map<String, String> teamLogoMap = Map.of(
+            "두산 베어스", "Doosan.png",
+            "LG 트윈스", "LGTwins.png",
+            "KT 위즈", "KtWizs.png",
+            "SSG 랜더스", "SSGLanders.png",
+            "NC 다이노스", "NCDinos.png",
+            "KIA 타이거즈", "KIA.png",
+            "롯데 자이언츠", "Lotte.png",
+            "삼성 라이온즈", "Samsung.png",
+            "한화 이글스", "Hanwha.png",
+            "키움 히어로즈", "Kiwoom.png"
+    );
 
     @Transactional
     public List<Baseball> scrapeAllSchedule() {
@@ -564,69 +583,150 @@ public class BaseballService {
      * @param page (원하는 날짜 인덱스, 0 부터 시작...)
      * @param size (데이터 요청 크기)
      */
-    public BaseballScheduleDTO getGamesByTeamAndDate(String team, int page, int size) {
-        LocalDate today = LocalDate.now();
+    public BaseballScheduleDTO getGamesByTeamAndDate(UserPrincipal userPrincipal, String team, LocalDate gameDate, int page, int size) {
+        LocalDate today = (gameDate != null) ? gameDate : LocalDate.now();
         LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
 
+        Page<Baseball> baseballPage;
         if ("전체".equals(team)) {
-            Page<Baseball> byTimeIsAfter = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
-            List<BaseBallDTO> baseballSchedules = byTimeIsAfter.getContent().stream().map(baseball -> BaseBallDTO.builder()
-                            .id(baseball.getId())
-                            .home(exchangeTeamName(baseball.getHome()))
-                            .away(exchangeTeamName(baseball.getAway()))
-                            .stadium(baseball.getLocation())
-                            .date(baseball.getTime().toLocalDate().toString())
-                            .time(baseball.getTime().toLocalTime().toString())
-                            .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-//                                .isScraped(false)
-                            .build())
-                    .collect(Collectors.toList());
-            return BaseballScheduleDTO.builder()
-                    .team(team)
-                    .pageIndex(page)
-                    .date(formatLocalDateTime(startOfDay))
-                    .schedules(baseballSchedules)
-                    .build();
+            baseballPage = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
         } else {
-            Page<Baseball> byTimeIsAfterAndHomeOrAway = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
-            List<BaseBallDTO> baseballSchedules = byTimeIsAfterAndHomeOrAway.getContent().stream().map(baseball -> BaseBallDTO.builder()
-                    .id(baseball.getId())
-                    .home(exchangeTeamName(baseball.getHome()))
-                    .away(exchangeTeamName(baseball.getAway()))
-                    .stadium(baseball.getLocation())
-                    .date(baseball.getTime().toLocalDate().toString())
-                    .time(baseball.getTime().toLocalTime().toString())
-                    .weather(weatherForecastService.getWeatherForecastDataWithGame(baseball))
-//                    .isScraped(baseball.getIsScraped())
-                    .build()).collect(Collectors.toList());
-            return BaseballScheduleDTO.builder()
-                    .team(team)
-                    .pageIndex(page)
-                    .date(formatLocalDateTime(startOfDay))
-                    .schedules(baseballSchedules)
-                    .build();
+            baseballPage = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
+        }
+
+        List<BaseBallDTO> baseballSchedules = baseballPage.getContent().stream()
+                .map(baseball -> {
+                    String homeTeam = exchangeTeamName(baseball.getHome());
+                    String homeTeamOut = homeTeam.replace(" ", "\n");
+                    String awayTeam = exchangeTeamName(baseball.getAway());
+                    String awayTeamOut = awayTeam.replace(" ", "\n");
+                    WeatherForecastEnum weatherForecast = weatherForecastService.getWeatherForecastDataWithGame(baseball);
+
+                    return BaseBallDTO.builder()
+                            .id(baseball.getId())
+                            .home(homeTeamOut)
+                            .away(awayTeamOut)
+                            .homeTeamLogo(getTeamLogoUrl(homeTeam))
+                            .awayTeamLogo(getTeamLogoUrl(awayTeam))
+                            .stadium(baseball.getLocation())
+                            .date(formatLocalDateTime(baseball.getTime()))
+                            .time(baseball.getTime().toLocalTime().toString())
+                            .weather(weatherForecast)
+                            .weatherUrl(getWeatherUrl(weatherForecast))
+                            .isScraped(baseballScrapService.getIsScrapped(userPrincipal, baseball.getId()))
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return BaseballScheduleDTO.builder()
+                .team(team)
+                .pageIndex(page)
+                .pageSize(size)
+                .date(formatLocalDateTime(startOfDay))
+                .schedules(baseballSchedules)
+                .build();
+    }
+
+    private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
+        if(weatherForecastDataWithGame == null){
+            return null;
+        }
+        String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        switch (weatherForecastDataWithGame){
+            case CLOUDY -> {
+                return baseUrl + "Cloudy.svg";
+            }
+            case OVERCAST -> {
+                return baseUrl + "Overcast.svg";
+            }
+            case RAINY -> {
+                return baseUrl + "Rain.svg";
+            }
+            case SHOWER -> {
+                return baseUrl + "Shower.svg";
+            }
+            case SNOW -> {
+                return baseUrl + "Snow.svg";
+            }
+            case SUNNY -> {
+                return baseUrl + "Sunny.svg";
+            }
+            default -> {
+                throw new IllegalArgumentException("Check Weather Status");
+            }
         }
     }
 
+    /**
+     * 1달 간 경기가 없는 날짜 반환
+     * @param gameTime
+     * @return
+     */
+    public BaseBallSchedulePerMonthDTO getDayOfGameIsNull(String team, YearMonth gameTime){
+        LocalDate startOfMonth = gameTime.atDay(1);  // 월 초
+        LocalDate endOfMonth = gameTime.atEndOfMonth();  // 월 말
+
+        List<LocalDate> dayOfGameIsNull = new ArrayList<>();
+
+        if(team.equals("전체")){
+            // 월의 각 날짜를 반복하면서 경기가 없는 날짜를 찾음
+            for (LocalDate date = startOfMonth; !date.isAfter(endOfMonth); date = date.plusDays(1)) {
+                // 특정 날짜에 경기가 있는지 확인
+                boolean isGameOnDate = baseballRepository.existsByTimeBetween(date.atStartOfDay(), date.atTime(23, 59, 59));
+
+                // 경기가 없는 날짜를 리스트에 추가
+                if (!isGameOnDate) {
+                    dayOfGameIsNull.add(date);
+                }
+            }
+        }else {
+            // 특정 팀의 경기 일정이 없는 날짜를 찾음
+            for (LocalDate date = startOfMonth; !date.isAfter(endOfMonth); date = date.plusDays(1)) {
+                // 특정 날짜에 해당 팀이 홈팀 또는 원정팀으로 경기 중인지 확인
+                boolean isTeamPlayingAsHome = baseballRepository.existsByHomeAndTimeBetween(team, date.atStartOfDay(), date.atTime(23, 59, 59));
+                boolean isTeamPlayingAsAway = baseballRepository.existsByAwayAndTimeBetween(team, date.atStartOfDay(), date.atTime(23, 59, 59));
+
+                // 해당 팀의 경기가 없는 날짜를 리스트에 추가
+                if (!isTeamPlayingAsHome && !isTeamPlayingAsAway) {
+                    dayOfGameIsNull.add(date);
+                }
+            }
+        }
+        return BaseBallSchedulePerMonthDTO.builder()
+                .team(team)
+                .dayOfGameIsNull(dayOfGameIsNull)
+                .build();
+    }
+    private String getTeamLogoUrl(String team) {
+        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+        String logoFileName = teamLogoMap.get(team);
+
+        if (logoFileName == null) {
+            throw new IllegalArgumentException("Unknown team: " + team + ". Please check the team name.");
+        }
+
+        return baseUrl + logoFileName;
+    }
+
     private String formatLocalDateTime(LocalDateTime dateTime) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.KOREAN);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd", Locale.KOREAN);
         String formattedDate = dateTime.format(dateFormatter);
 
         DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
         String dayOfWeekKorean = getKoreanDayOfWeek(dayOfWeek);
 
-        return formattedDate + "-" + dayOfWeekKorean;
+        return formattedDate + "" +dayOfWeekKorean;
     }
 
     private String getKoreanDayOfWeek(DayOfWeek dayOfWeek) {
         switch (dayOfWeek) {
-            case MONDAY: return "월요일";
-            case TUESDAY: return "화요일";
-            case WEDNESDAY: return "수요일";
-            case THURSDAY: return "목요일";
-            case FRIDAY: return "금요일";
-            case SATURDAY: return "토요일";
-            case SUNDAY: return "일요일";
+            case MONDAY: return "(월))";
+            case TUESDAY: return "(화)";
+            case WEDNESDAY: return "(수)";
+            case THURSDAY: return "(목)";
+            case FRIDAY: return "(금)";
+            case SATURDAY: return "(토)";
+            case SUNDAY: return "(일)";
             default: throw new IllegalArgumentException("Invalid day of week: " + dayOfWeek);
         }
     }
