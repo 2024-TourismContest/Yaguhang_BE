@@ -1,15 +1,15 @@
-package _4.TourismContest.spot.dto.event.spotDetailResponse;
+package _4.TourismContest.spot.dto.spotDetailResponse;
 
 import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
 import _4.TourismContest.tour.dto.TourApiDetailImageResponseDto;
 import _4.TourismContest.tour.dto.detailIntroResponse.TourApiDetailIntroResponseDto;
-import _4.TourismContest.tour.dto.detailIntroResponse.TourApiRestaurantDetailIntroResponseDto;
+import _4.TourismContest.tour.dto.detailIntroResponse.TourApiShoppingDetailIntroResponseDto;
 import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
 @Builder
-public record SpotRestaurantDetailResponse (
+public record SpotShoppingDetailResponse(
         Long contentId,
         String name,
         String address,
@@ -18,16 +18,19 @@ public record SpotRestaurantDetailResponse (
         String businessHours,
         String closedDays,
         String description,
+        String items,
+        String animalZone,
         String parkingFacilities,
         List<String> images
-) implements SpotDetailResponse {
-    public static SpotRestaurantDetailResponse makeSpotRestaurantDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
-                                                                                TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto,
-                                                                                TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped){
+) implements SpotDetailResponse{
+    public static SpotShoppingDetailResponse makeSpotShoppingDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
+                                                                            TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto,
+                                                                            TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped){
         TourApiDetailCommonResponseDto.Item commonItem = tourApiDetailCommonResponseDto.getResponse().getBody().getItems().getItem().get(0);
-        TourApiRestaurantDetailIntroResponseDto tourApiRestaurantDetailIntroResponseDto = (TourApiRestaurantDetailIntroResponseDto) tourApiDetailIntroResponseDto;
-        TourApiRestaurantDetailIntroResponseDto.Item introItem = tourApiRestaurantDetailIntroResponseDto.getResponse().getBody().getItems().getItem().get(0);
+        TourApiShoppingDetailIntroResponseDto tourApiShoppingDetailIntroResponseDto = (TourApiShoppingDetailIntroResponseDto) tourApiDetailIntroResponseDto;
+        TourApiShoppingDetailIntroResponseDto.Item introItem = tourApiShoppingDetailIntroResponseDto.getResponse().getBody().getItems().getItem().get(0);
         TourApiDetailImageResponseDto.Items ImageItems = tourApiDetailImageResponseDto.getResponse().getBody().getItems();
+
         List<String> images = new ArrayList<>();
         if(commonItem.getFirstimage() != null){
             images.add(commonItem.getFirstimage());
@@ -38,19 +41,21 @@ public record SpotRestaurantDetailResponse (
         for(TourApiDetailImageResponseDto.Item item : ImageItems.getItem()){
             images.add(item.getOriginimgurl());
         }
-        SpotRestaurantDetailResponse spotRestaurantDetailResponse = SpotRestaurantDetailResponse.builder()
+        SpotShoppingDetailResponse spotShoppingDetailResponse = SpotShoppingDetailResponse.builder()
                 .contentId(Long.parseLong(commonItem.getContentid()))
                 .name(commonItem.getTitle())
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
                 .isScraped(isScraped)
-                .phoneNumber(introItem.getInfocenterfood())
-                .businessHours(introItem.getOpentimefood())
-                .closedDays(introItem.getRestdatefood())
+                .phoneNumber(introItem.getInfocentershopping())
+                .businessHours(introItem.getOpentime())
+                .closedDays(introItem.getRestdateshopping())
                 .description(commonItem.getOverview())
-                .parkingFacilities(introItem.getPacking())
+                .items(introItem.getSaleitem())
+                .animalZone(introItem.getChkpetshopping())
+                .parkingFacilities(introItem.getParkingshopping())
                 .images(images)
                 .build();
 
-        return spotRestaurantDetailResponse;
+        return spotShoppingDetailResponse;
     }
 }

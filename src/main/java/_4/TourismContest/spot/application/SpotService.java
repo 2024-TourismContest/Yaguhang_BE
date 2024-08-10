@@ -4,14 +4,19 @@ import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.repository.ReviewRepository;
+import _4.TourismContest.spot.domain.AthletePickSpot;
 import _4.TourismContest.spot.domain.Spot;
+import _4.TourismContest.spot.domain.SpotCategory;
 import _4.TourismContest.spot.domain.SpotScrap;
+import _4.TourismContest.spot.dto.*;
 import _4.TourismContest.spot.dto.command.ScrapResponseDto;
 import _4.TourismContest.spot.dto.command.ScrapSpot;
 import _4.TourismContest.spot.dto.command.ScrapStadium;
 import _4.TourismContest.spot.dto.command.ScrapStadiumSpot;
-import _4.TourismContest.spot.dto.event.*;
-import _4.TourismContest.spot.dto.event.spotDetailResponse.*;
+import _4.TourismContest.spot.dto.preview.SpotAthletePickPreviewDto;
+import _4.TourismContest.spot.dto.preview.SpotBasicPreviewDto;
+import _4.TourismContest.spot.dto.spotDetailResponse.*;
+import _4.TourismContest.spot.repository.AthletePickSpotRepository;
 import _4.TourismContest.spot.repository.SpotRepository;
 import _4.TourismContest.spot.repository.SpotScrapRepository;
 import _4.TourismContest.stadium.domain.Stadium;
@@ -31,8 +36,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static _4.TourismContest.spot.dto.event.SpotCategoryResponse.tourApiToSpotCategoryResponse;
-import static _4.TourismContest.spot.dto.event.SpotStadiumPreviewResponse.tourApiToSpotStadiumPreviewResponse;
+import static _4.TourismContest.spot.dto.SpotCategoryResponse.tourApiToSpotCategoryResponse;
+import static _4.TourismContest.spot.dto.SpotStadiumPreviewResponse.tourApiToSpotStadiumPreviewResponse;
 
 @Transactional
 @AllArgsConstructor
@@ -44,6 +49,7 @@ public class SpotService {
     private final StadiumRepository stadiumRepository;
     private final ReviewRepository reviewRepository;
     private final TourApi tourApi;
+    private final AthletePickSpotRepository athletePickSpotRepository;
 
     public SpotCategoryResponse getMainSpot(String stadium, String category, UserPrincipal userPrincipal){
         TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadium), 10000, category); // radius 10km
@@ -56,6 +62,23 @@ public class SpotService {
         TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium.getName()), radius * 1000, category, pagesize);
 
         return tourApiToSpotStadiumPreviewResponse(tourApiResponseDto, category, pagesize, pageindex, getIsScrapedList(userPrincipal, tourApiResponseDto));
+    }
+
+    public SpotStadiumPreviewResponse getAthletePickSpot(Long stadiumId, UserPrincipal userPrincipal){
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
+        List<Spot> spots = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK);
+
+        List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(spots);
+        List<SpotBasicPreviewDto> athletePickPreviewDtoList = new ArrayList<>();
+        for(AthletePickSpot spot : athletePickSpotsInfo){
+            Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(/*userPrincipal.getId()*/1L, spot.getId());
+            boolean isScraped = scrap.isPresent();
+
+            athletePickPreviewDtoList.add(SpotAthletePickPreviewDto.of(spot, isScraped));
+        }
+
+        return SpotStadiumPreviewResponse.of(athletePickPreviewDtoList);
     }
 
     public SpotDetailResponse getDetailSpot(String category, Long contentId, UserPrincipal userPrincipal) {

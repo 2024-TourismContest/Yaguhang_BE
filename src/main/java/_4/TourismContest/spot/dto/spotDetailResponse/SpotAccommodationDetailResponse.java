@@ -1,4 +1,4 @@
-package _4.TourismContest.spot.dto.event.spotDetailResponse;
+package _4.TourismContest.spot.dto.spotDetailResponse;
 
 import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
 import _4.TourismContest.tour.dto.TourApiDetailImageResponseDto;

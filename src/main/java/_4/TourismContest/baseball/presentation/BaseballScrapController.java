@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/scraps")
@@ -25,7 +22,7 @@ public class BaseballScrapController {
 
     @PatchMapping("/schedule/scrap")
     @Operation(summary = "야구 경기 스크랩하기")
-    public ResponseEntity<String> scrapSchdule(@CurrentUser UserPrincipal userPrincipal, Long gameId){
+    public ResponseEntity<String> scrapSchdule(@CurrentUser UserPrincipal userPrincipal, @RequestParam Long gameId){
         return new ResponseEntity<>(baseballScrapService.scrapSchdule(userPrincipal, gameId), HttpStatus.OK);
     }
 

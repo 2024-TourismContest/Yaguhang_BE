@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class SpotScrapController {
     private final SpotService spotService;
 
-    @PatchMapping("/spot/{contentId}/{stadiumId}")
+    @PatchMapping("/spot")
     @Operation(summary = "주변 볼거리 스크랩하기")
-    public ResponseEntity<String> scrapSpot(@PathVariable Long contentId, @PathVariable Long stadiumId, @CurrentUser UserPrincipal userPrincipal){
+    public ResponseEntity<String> scrapSpot(@RequestParam Long contentId,
+                                            @RequestParam Long stadiumId,
+                                            @CurrentUser UserPrincipal userPrincipal){
         return new ResponseEntity<>(spotService.scrapSpot(contentId, stadiumId, userPrincipal), HttpStatus.OK);
     }
 
