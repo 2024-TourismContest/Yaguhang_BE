@@ -24,7 +24,6 @@ public class BaseballScrapController {
     private final BaseballScrapService baseballScrapService;
 
     @PatchMapping("/schedule/scrap")
-    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "야구 경기 스크랩하기")
     public ResponseEntity<String> scrapSchdule(@CurrentUser UserPrincipal userPrincipal, Long gameId){
         return new ResponseEntity<>(baseballScrapService.scrapSchdule(userPrincipal, gameId), HttpStatus.OK);
