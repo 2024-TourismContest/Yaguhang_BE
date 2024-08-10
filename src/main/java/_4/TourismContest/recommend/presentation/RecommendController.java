@@ -4,7 +4,6 @@ import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.recommend.application.RecommendService;
 import _4.TourismContest.recommend.dto.event.RecommendPreviewResponse;
-import _4.TourismContest.spot.dto.event.spotDetailResponse.SpotDetailResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
