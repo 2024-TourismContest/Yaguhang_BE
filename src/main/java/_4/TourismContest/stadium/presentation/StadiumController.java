@@ -2,15 +2,23 @@ package _4.TourismContest.stadium.presentation;
 
 import _4.TourismContest.stadium.application.StadiumService;
 import _4.TourismContest.stadium.domain.Stadium;
+import _4.TourismContest.stadium.dto.StadiumMapXY;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
 
 
-@Controller
+@RestController
+@RequestMapping("/api/stadiums")
 @RequiredArgsConstructor
 public class StadiumController {
 
@@ -61,5 +69,12 @@ public class StadiumController {
                         .build()
         );
         stadiumService.saveStadiums(stadiums);
+    }
+
+    @GetMapping("/stadiumMap")
+    @Operation(summary = "구장 좌표 받아오기", description = "구장 이름을 사용하여 구장 좌표를 찾아옵니다.")
+    public ResponseEntity<StadiumMapXY> getStadiumMap(@RequestParam String stadiumName){
+        StadiumMapXY response = stadiumService.getStadiumMapXY(stadiumName);
+        return ResponseEntity.ok(response);
     }
 }
