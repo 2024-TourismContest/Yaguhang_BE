@@ -20,13 +20,13 @@ public class StadiumService {
         }
     }
 
-    public StadiumMapXY getStadiumMapXY(String stadiumName) {
-        Stadium stadium = stadiumRepository.findTopByName(stadiumName)
+    public StadiumMapXY getStadiumMapXY(Long stadiumId) {
+        Stadium stadium = stadiumRepository.findById(stadiumId)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 구장 이름입니다."));
 
         return StadiumMapXY.builder()
                 .stadiumId(stadium.getId())
-                .name(stadiumName)
+                .name(stadium.getName())
                 .mapX(stadium.getX())
                 .mapY(stadium.getY())
                 .build();

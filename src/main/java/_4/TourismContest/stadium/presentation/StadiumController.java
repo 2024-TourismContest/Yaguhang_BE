@@ -73,8 +73,8 @@ public class StadiumController {
 
     @GetMapping("/stadiumMap")
     @Operation(summary = "구장 좌표 받아오기", description = "구장 이름을 사용하여 구장 좌표를 찾아옵니다.")
-    public ResponseEntity<StadiumMapXY> getStadiumMap(@RequestParam String stadiumName){
-        StadiumMapXY response = stadiumService.getStadiumMapXY(stadiumName);
+    public ResponseEntity<StadiumMapXY> getStadiumMap(@RequestParam Long stadiumId){
+        StadiumMapXY response = stadiumService.getStadiumMapXY(stadiumId);
         return ResponseEntity.ok(response);
     }
 }
