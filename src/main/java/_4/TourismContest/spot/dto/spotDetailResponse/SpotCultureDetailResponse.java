@@ -20,6 +20,7 @@ public record SpotCultureDetailResponse(
         String description,
         String parkingFacilities,
         String animalZone,
+        String usefee,
         List<String> images
 ) implements SpotDetailResponse{
     public static SpotCultureDetailResponse makeSpotCultureDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
@@ -52,6 +53,7 @@ public record SpotCultureDetailResponse(
                 .description(commonItem.getOverview())
                 .parkingFacilities(introItem.getParkingculture())
                 .animalZone(introItem.getParkingculture())
+                .usefee(introItem.getUsefee())
                 .images(images)
                 .build();
         return spotCultureDetailResponse;

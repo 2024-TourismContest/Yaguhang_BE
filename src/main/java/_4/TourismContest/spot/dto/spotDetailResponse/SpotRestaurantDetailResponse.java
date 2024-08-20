@@ -4,6 +4,7 @@ import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
 import _4.TourismContest.tour.dto.TourApiDetailImageResponseDto;
 import _4.TourismContest.tour.dto.detailIntroResponse.TourApiDetailIntroResponseDto;
 import _4.TourismContest.tour.dto.detailIntroResponse.TourApiRestaurantDetailIntroResponseDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ public record SpotRestaurantDetailResponse (
         String closedDays,
         String description,
         String parkingFacilities,
+        String firstmenu,
+        String treatmenu,
         List<String> images
 ) implements SpotDetailResponse {
     public static SpotRestaurantDetailResponse makeSpotRestaurantDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
@@ -48,6 +51,8 @@ public record SpotRestaurantDetailResponse (
                 .closedDays(introItem.getRestdatefood())
                 .description(commonItem.getOverview())
                 .parkingFacilities(introItem.getPacking())
+                .treatmenu(introItem.getTreatmenu())
+                .firstmenu(introItem.getFirstmenu())
                 .images(images)
                 .build();
 
