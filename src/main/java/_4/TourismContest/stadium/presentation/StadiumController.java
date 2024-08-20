@@ -44,11 +44,11 @@ public class StadiumController {
                         .image("https://yaguhang.kro.kr:8443/stadiums/incheonStadium.jpeg").nx(55).ny(124)
                         .build(),
                 Stadium.builder()
-                        .y(35.2375f).x(128.6811f).name("창원").team("NC 다이노스")
+                        .y(35.2225f).x(128.5824f).name("창원").team("NC 다이노스")
                         .image("https://yaguhang.kro.kr:8443/stadiums/changwonStadium.webp").nx(89).ny(77)
                         .build(),
                 Stadium.builder()
-                        .y(35.1796f).x(126.8786f).name("광주").team("KIA 타이거즈")
+                        .y(35.1681f).x(126.8891f).name("광주").team("KIA 타이거즈")
                         .image("https://yaguhang.kro.kr:8443/stadiums/kiaChampionsField.webp").nx(59).ny(74)
                         .build(),
                 Stadium.builder()
