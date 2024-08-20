@@ -36,5 +36,7 @@ public class TourApiCultureDetailIntroResponseDto implements TourApiDetailIntroR
         private String parkingculture;
         @JsonProperty("chkpetculture")
         private String chkpetculture;
+        @JsonProperty("usefee")
+        private String usefee;
     }
 }
