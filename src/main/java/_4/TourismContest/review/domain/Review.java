@@ -1,5 +1,6 @@
 package _4.TourismContest.review.domain;
 
+import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
 import _4.TourismContest.spot.domain.Spot;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
@@ -56,5 +57,11 @@ public class Review {
         this.content = content;
         this.likeCount = 0;
         this.createdAt = null;
+    }
+
+    public Review update(ReviewUpdateRequest request){
+        this.star = request.star();
+        this.content = request.content();
+        return this;
     }
 }

@@ -11,7 +11,8 @@ public record ReviewDto(
         Long reviewerId,
         float star,
         int likeCount,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String content
 ) {
     public static ReviewDto of(Review review){
         return new ReviewDto(
@@ -19,7 +20,8 @@ public record ReviewDto(
                 review.getUser().getId(),
                 review.getStar(),
                 review.getLikeCount(),
-                review.getCreatedAt()
+                review.getCreatedAt(),
+                review.getContent()
         );
     }
 
