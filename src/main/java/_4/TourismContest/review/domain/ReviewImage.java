@@ -2,10 +2,9 @@ package _4.TourismContest.review.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -22,5 +21,11 @@ public class ReviewImage {
     private Review review;
 
     @Column(name = "image", nullable = false)
-    private String image;
+    private String imageUrl;
+
+    @Builder
+    public ReviewImage(Review review, String imageUrl) {
+        this.review = review;
+        this.imageUrl = imageUrl;
+    }
 }
