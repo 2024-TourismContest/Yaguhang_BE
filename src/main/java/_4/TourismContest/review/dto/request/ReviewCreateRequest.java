@@ -22,7 +22,7 @@ public record ReviewCreateRequest(
                 .build();
     }
 
-    public List<ReviewImage> toReviewImageEntitys(Review review){
+    public List<ReviewImage> toReviewImageEntities(Review review){
         return this.images.stream()
                 .map(image -> ReviewImage.builder()
                         .review(review)

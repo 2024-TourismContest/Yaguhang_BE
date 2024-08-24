@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ReviewService {
         Review review = request.toReviewEntity(user, spot);
         reviewRepository.save(review);
 
-        List<ReviewImage> reviewImages = request.toReviewImageEntitys(review);
+        List<ReviewImage> reviewImages = request.toReviewImageEntities(review);
         reviewImageRepository.saveAll(reviewImages);
     }
 
@@ -56,6 +57,20 @@ public class ReviewService {
         if(author.getId()==userId){
             Review updatedReview = review.update(request);
             reviewRepository.save(updatedReview);
+
+            //일급 컬렉션이 필요함을 느낌..
+            List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(updatedReview);
+            reviewImageRepository.deleteAll(reviewImages);
+
+            List<String> images = request.images();
+            List<ReviewImage> updatedReviewImages = images.stream()
+                    .map(image -> ReviewImage.builder()
+                            .id(updatedReview.getId())
+                            .review(updatedReview)
+                            .imageUrl(image)
+                            .build())
+                    .collect(Collectors.toList());
+            reviewImageRepository.saveAll(updatedReviewImages);
         }
         else{
             throw new IllegalArgumentException("not author");

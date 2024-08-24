@@ -25,13 +25,13 @@ public class ReviewController {
     }
 
     @GetMapping("/{spotId}")
-    public ResponseEntity<ReviewsResponse> read(@PathVariable("spotId") Long spotId) {
+    public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("spotId") Long spotId) {
         ReviewsResponse reviewsResponse = reviewService.getSpotReviews(spotId);
         return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<String> read(@PathVariable("reviewId") Long reviewId,
+    public ResponseEntity<String> updateReview(@PathVariable("reviewId") Long reviewId,
                                                 @RequestParam Long userId,
                                                 @RequestBody ReviewUpdateRequest request) {
         reviewService.updateReview(reviewId, userId,request);
@@ -39,7 +39,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<String> read(@PathVariable("reviewId") Long reviewId,
+    public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
                                        @RequestParam Long userId) {
         reviewService.deleteReview(reviewId, userId);
         return new ResponseEntity<>("success delete review", HttpStatus.OK);

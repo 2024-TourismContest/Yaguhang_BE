@@ -24,6 +24,13 @@ public class ReviewImage {
     private String imageUrl;
 
     @Builder
+    public ReviewImage(Long id, Review review, String imageUrl) {
+        this.id = id;
+        this.review = review;
+        this.imageUrl = imageUrl;
+    }
+
+    @Builder
     public ReviewImage(Review review, String imageUrl) {
         this.review = review;
         this.imageUrl = imageUrl;
