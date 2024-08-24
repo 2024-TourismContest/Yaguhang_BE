@@ -58,5 +58,15 @@ public class ReviewService {
     }
 
     public void deleteReview(Long reviewId, Long userId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("no review"));
+        User author = review.getUser();
+
+        if(author.getId()==userId){
+            reviewRepository.delete(review);
+        }
+        else{
+            throw new IllegalArgumentException("not author");
+        }
     }
 }
