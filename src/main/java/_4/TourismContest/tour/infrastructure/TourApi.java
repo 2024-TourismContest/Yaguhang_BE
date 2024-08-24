@@ -8,6 +8,7 @@ import _4.TourismContest.tour.dto.TourApiDetailImageResponseDto;
 import _4.TourismContest.tour.dto.TourApiResponseDto;
 import _4.TourismContest.tour.dto.detailIntroResponse.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -31,38 +33,57 @@ public class TourApi {
     private static final String TOUR_API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1";
     @Value("${tour_api.secret.KorService1}")
     private String korService1_secret;
+    @Value("${tour_api.secret.KorService2}")
+    private String korService2_secret;
+
+    private int apiIndex = 0;
+
+    private List<String> apikeys;
+    @PostConstruct
+    void init(){
+        apikeys = List.of(korService1_secret,korService2_secret);
+    }
+
     public TourApiResponseDto getSpot(float x, float y, int radius, int contentTypeId, int pageSize) throws IOException { // 좌표 값 주변 리스트 가져오는 메소드
+        try{
+            String ENDPOINT = "/locationBasedList1";
+            String url = TOUR_API_BASE_URL + ENDPOINT;
 
-        String ENDPOINT = "/locationBasedList1";
-        String url = TOUR_API_BASE_URL + ENDPOINT;
+            int randomPageMax = getTotalCount(x,y,radius,contentTypeId) / pageSize;
 
-        int randomPageMax = getTotalCount(x,y,radius,contentTypeId) / pageSize;
+            Random random = new Random();
+            int randomPage = 0;
+            if(randomPageMax != 0){
+                randomPage = random.nextInt(randomPageMax);
+            }
 
-        Random random = new Random();
-        int randomPage = 0;
-        if(randomPageMax != 0){
-            randomPage = random.nextInt(randomPageMax);
-        }
-
-        URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
-                .queryParam("numOfRows" , pageSize)
-                .queryParam("pageNo",randomPage)
-                .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
-                .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
-                .queryParam("mapX", URLEncoder.encode(String.valueOf(x), StandardCharsets.UTF_8))
-                .queryParam("mapY", URLEncoder.encode(String.valueOf(y), StandardCharsets.UTF_8))
-                .queryParam("radius", URLEncoder.encode(String.valueOf(radius), StandardCharsets.UTF_8))
-                .queryParam("contentTypeId", URLEncoder.encode(String.valueOf(contentTypeId), StandardCharsets.UTF_8))
-                .queryParam("_type", URLEncoder.encode("json", StandardCharsets.UTF_8))
-                .build(true)
-                .toUri();
+            URI uri = UriComponentsBuilder.fromHttpUrl(url)
+                    .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
+                    .queryParam("numOfRows" , pageSize)
+                    .queryParam("pageNo",randomPage)
+                    .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
+                    .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
+                    .queryParam("mapX", URLEncoder.encode(String.valueOf(x), StandardCharsets.UTF_8))
+                    .queryParam("mapY", URLEncoder.encode(String.valueOf(y), StandardCharsets.UTF_8))
+                    .queryParam("radius", URLEncoder.encode(String.valueOf(radius), StandardCharsets.UTF_8))
+                    .queryParam("contentTypeId", URLEncoder.encode(String.valueOf(contentTypeId), StandardCharsets.UTF_8))
+                    .queryParam("_type", URLEncoder.encode("json", StandardCharsets.UTF_8))
+                    .build(true)
+                    .toUri();
 
 //        String responseEntity = restTemplate.getForObject(uri, String.class);
 //        TourApiResponseDto tourApiResponseDto = parseResponse(responseEntity);   // xml -> json으로 파싱이 필요한 경우
-        TourApiResponseDto tourApiResponseDto = restTemplate.getForObject(uri, TourApiResponseDto.class);
+            TourApiResponseDto tourApiResponseDto = restTemplate.getForObject(uri, TourApiResponseDto.class);
 
-        return tourApiResponseDto;
+            return tourApiResponseDto;
+        }catch (Exception e){
+            if(apiIndex==apikeys.size()){
+                apiIndex=0;
+            }else{
+                apiIndex++;
+            }
+            return getSpot(x,y,radius,contentTypeId,pageSize);
+        }
     }
 
     public Integer getTotalCount (float x, float y, int radius, int contentTypeId) throws IOException{ // total 개수 가져오는 메소드
@@ -70,7 +91,7 @@ public class TourApi {
         String url = TOUR_API_BASE_URL + ENDPOINT;
 
         URI getPageuri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("mapX", URLEncoder.encode(String.valueOf(x), StandardCharsets.UTF_8))
