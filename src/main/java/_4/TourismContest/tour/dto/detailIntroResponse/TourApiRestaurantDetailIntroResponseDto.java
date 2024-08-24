@@ -31,8 +31,8 @@ public class TourApiRestaurantDetailIntroResponseDto implements TourApiDetailInt
         private String opentimefood;
         @JsonProperty("restdatefood")
         private String restdatefood;
-        @JsonProperty("packing")
-        private String packing;
+        @JsonProperty("parkingfood")
+        private String parkingfood;
         @JsonProperty("firstmenu")
         private String firstmenu;
         @JsonProperty("treatmenu")
