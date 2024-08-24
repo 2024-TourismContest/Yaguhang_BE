@@ -45,7 +45,7 @@ public class Review {
     private int likeCount;
 
     @CreatedDate
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Builder
     public Review(User user, Spot spot, float star, String content) {
@@ -55,6 +55,6 @@ public class Review {
         this.star = star;
         this.content = content;
         this.likeCount = 0;
-        this.createAt = null;
+        this.createdAt = null;
     }
 }

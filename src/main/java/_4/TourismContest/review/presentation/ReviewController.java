@@ -3,6 +3,7 @@ package _4.TourismContest.review.presentation;
 
 import _4.TourismContest.review.application.ReviewService;
 import _4.TourismContest.review.dto.request.ReviewCreateRequest;
+import _4.TourismContest.review.dto.response.ReviewsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,5 +21,11 @@ public class ReviewController {
                                        @RequestBody ReviewCreateRequest request) {
         reviewService.saveReview(userId, spotId, request);
         return new ResponseEntity<>("success save review", HttpStatus.OK);
+    }
+
+    @GetMapping("/{spotId}")
+    public ResponseEntity<ReviewsResponse> read(@PathVariable("spotId") Long spotId) {
+        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(spotId);
+        return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
 }
