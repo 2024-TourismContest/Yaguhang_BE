@@ -82,7 +82,7 @@ public class SecurityConfig {
                         exceptionHandling.authenticationEntryPoint(new RestAuthenticationEntryPoint())) // 예외 처리 설정
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/", "/error", "/favicon.ico", "/**/*.png", "/**/*.gif","/**/*.webp", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js").permitAll() // 특정 경로 허용
+                                .requestMatchers("/**", "/error", "/favicon.ico", "/**/*.png", "/**/*.gif","/**/*.webp", "/**/*.svg", "/**/*.jpg", "/**/*.html", "/**/*.css", "/**/*.js").permitAll() // 특정 경로 허용
                                 .requestMatchers("/api/auth/**", "/oauth2/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/**", "/aws").permitAll() // 인증 관련 경로 허용
                                 .anyRequest().authenticated()) // 나머지 모든 요청은 인증 필요
                 .oauth2Login(oauth2Login ->
