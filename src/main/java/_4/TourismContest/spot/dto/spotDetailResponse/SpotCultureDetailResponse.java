@@ -48,7 +48,7 @@ public record SpotCultureDetailResponse(
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
                 .isScraped(isScraped)
                 .phoneNumber(introItem.getInfocenterculture())
-                .businessHours(introItem.getUsetimeculture())
+                .businessHours(introItem.getUsetimeculture().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateculture())
                 .description(commonItem.getOverview())
                 .parkingFacilities(introItem.getParkingculture())
