@@ -2,15 +2,23 @@ package _4.TourismContest.stadium.presentation;
 
 import _4.TourismContest.stadium.application.StadiumService;
 import _4.TourismContest.stadium.domain.Stadium;
+import _4.TourismContest.stadium.dto.StadiumMapXY;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
 
 
-@Controller
+@RestController
+@RequestMapping("/api/stadiums")
 @RequiredArgsConstructor
 public class StadiumController {
 
@@ -36,11 +44,11 @@ public class StadiumController {
                         .image("https://yaguhang.kro.kr:8443/stadiums/incheonStadium.jpeg").nx(55).ny(124)
                         .build(),
                 Stadium.builder()
-                        .y(35.2375f).x(128.6811f).name("창원").team("NC 다이노스")
+                        .y(35.2225f).x(128.5824f).name("창원").team("NC 다이노스")
                         .image("https://yaguhang.kro.kr:8443/stadiums/changwonStadium.webp").nx(89).ny(77)
                         .build(),
                 Stadium.builder()
-                        .y(35.1796f).x(126.8786f).name("광주").team("KIA 타이거즈")
+                        .y(35.1681f).x(126.8891f).name("광주").team("KIA 타이거즈")
                         .image("https://yaguhang.kro.kr:8443/stadiums/kiaChampionsField.webp").nx(59).ny(74)
                         .build(),
                 Stadium.builder()
@@ -61,5 +69,12 @@ public class StadiumController {
                         .build()
         );
         stadiumService.saveStadiums(stadiums);
+    }
+
+    @GetMapping("/stadiumMap")
+    @Operation(summary = "구장 좌표 받아오기", description = "구장 이름을 사용하여 구장 좌표를 찾아옵니다.")
+    public ResponseEntity<StadiumMapXY> getStadiumMap(@RequestParam Long stadiumId){
+        StadiumMapXY response = stadiumService.getStadiumMapXY(stadiumId);
+        return ResponseEntity.ok(response);
     }
 }
