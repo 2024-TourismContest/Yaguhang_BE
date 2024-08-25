@@ -11,7 +11,9 @@ import java.util.List;
 
 @Repository
 public interface RecommendRepository extends JpaRepository<Recommend, Long> {
-    @Query("SELECT r FROM Recommend r WHERE r.stadium.id=:stadiumId ORDER BY r.likeCount DESC")
-    List<Recommend> findByLikes(@Param("stadiumId")Long stadiumId, Pageable pageable);
+    @Query("SELECT r FROM Recommend r WHERE r.stadium.name=:stadiumName ORDER BY r.likeCount DESC")
+    List<Recommend> findByLikes(@Param("stadiumName")String stadiumName, Pageable pageable);
 
+    @Query("SELECT r FROM Recommend r WHERE r.user.id=:userId")
+    List<Recommend> findRecommendByUser(@Param("userId")Long userId, Pageable pageable);
 }
