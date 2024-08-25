@@ -39,7 +39,7 @@ public class RecommendController {
     @Operation(summary = "추천행 좋아요 api" ,description = "추천행 id 넣어주세요. 토큰 필수!")
     public ResponseEntity<String> addRecommendLike(@RequestParam Long recommendId,
                                                                   @CurrentUser UserPrincipal userPrincipal) {
-        return new ResponseEntity<>(recommendService.scrapRecommend(recommendId, userPrincipal), HttpStatus.OK);
+        return new ResponseEntity<>(recommendService.likeRecommend(recommendId, userPrincipal), HttpStatus.OK);
     }
 
     @GetMapping("/myscrap")
@@ -65,7 +65,7 @@ public class RecommendController {
     }
 
     @GetMapping("/myrecommend")
-    @Operation(summary = "내가 작성한 추천행 리스트를 좋아요 순으로 가져오는 api" ,description = "토큰과 pagesige 넣어주세요")
+    @Operation(summary = "내가 작성한 추천행 리스트를 가져오는 api" ,description = "토큰과 pagesige 넣어주세요")
     public ResponseEntity<RecommendPreviewResponse> getMyRecommend(@RequestParam(defaultValue = "10") Integer pageSize,
                                                                    @CurrentUser UserPrincipal userPrincipal) {
         RecommendPreviewResponse recommendPreviewResponse = recommendService.getMyRecommendList(pageSize, userPrincipal);

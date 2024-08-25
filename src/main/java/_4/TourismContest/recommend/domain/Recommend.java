@@ -46,4 +46,8 @@ public class Recommend {
         this.user = user;
         this.title = title;
     }
+    public Recommend setImage(Recommend recommend, String image){
+        recommend.image = image;
+        return recommend;
+    }
 }

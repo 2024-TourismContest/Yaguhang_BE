@@ -113,6 +113,7 @@ public class RecommendService {
                     .imageUrl(recommendSpot.getSpot().getImage())
                     .isScraped(isScrapedSpot(userPrincipal, recommendSpot.getSpot()))
                     .build();
+            spotGeneralPreviewDtos.add(spotGeneralPreviewDto);
         }
 
         return RecommendDetailResponse.builder()
@@ -128,7 +129,7 @@ public class RecommendService {
                 .build();
     }
 
-    public String scrapRecommend(Long recommendId, UserPrincipal userPrincipal){
+    public String likeRecommend(Long recommendId, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
         Recommend recommend = recommendRepository.findById(recommendId)
@@ -138,7 +139,7 @@ public class RecommendService {
         if(optionalRecommendLike.isPresent()){
             RecommendLike recommendLike = optionalRecommendLike.get();
             recommendLikeRepository.delete(recommendLike);
-            return "remove scrap";
+            return "remove like";
         }
         else{
             RecommendLike recommendLike = RecommendLike.builder()
@@ -146,7 +147,7 @@ public class RecommendService {
                     .recommend(recommend)
                     .build();
             recommendLikeRepository.save(recommendLike);
-            return "add scrap";
+            return "add like";
         }
     }
     public RecommendSpotScrapResponse getrecommendSpotScrapResponse(String stadiumName, UserPrincipal userPrincipal){
@@ -226,6 +227,11 @@ public class RecommendService {
                     .recommend(recommend)
                     .spot(spot.getSpot())
                     .build();
+            if(recommend.getImage()==null){
+                if(spot.getSpot().getImage()!=null) {
+                    recommendRepository.save(recommend.setImage(recommend, spot.getSpot().getImage()));
+                }
+            }
             recommendSpotRepository.save(recommendSpot);
         }
         return "success post recommend";
