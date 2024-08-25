@@ -3,6 +3,7 @@ package _4.TourismContest.recommend.domain;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,4 +21,9 @@ public class RecommendLike {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Recommend recommend;
+    @Builder
+    public RecommendLike(User user, Recommend recommend){
+        this.user = user;
+        this.recommend = recommend;
+    }
 }
