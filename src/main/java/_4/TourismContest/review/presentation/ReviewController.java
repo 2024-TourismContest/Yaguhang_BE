@@ -4,6 +4,7 @@ package _4.TourismContest.review.presentation;
 import _4.TourismContest.review.application.ReviewService;
 import _4.TourismContest.review.dto.request.ReviewCreateRequest;
 import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
+import _4.TourismContest.review.dto.response.ReviewPreviewsResponse;
 import _4.TourismContest.review.dto.response.ReviewsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -51,5 +52,11 @@ public class ReviewController {
                                                @RequestParam Long userId) {
         String result = reviewService.likeReview(reviewId, userId);
         return new ResponseEntity<>("success "+result+" review", HttpStatus.OK);
+    }
+
+    @GetMapping("/my-review")
+    public ResponseEntity<ReviewPreviewsResponse> getReviews(@RequestParam Long userId) {
+        ReviewPreviewsResponse reviewsResponse = reviewService.getReviewsByUser(userId);
+        return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
 }

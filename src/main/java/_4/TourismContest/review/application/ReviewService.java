@@ -1,11 +1,14 @@
 package _4.TourismContest.review.application;
 
+import _4.TourismContest.recommend.dto.event.RecommendPreviewResponse;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.domain.ReviewImage;
 import _4.TourismContest.review.domain.ReviewLike;
 import _4.TourismContest.review.dto.ReviewDto;
+import _4.TourismContest.review.dto.ReviewPreviewDto;
 import _4.TourismContest.review.dto.request.ReviewCreateRequest;
 import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
+import _4.TourismContest.review.dto.response.ReviewPreviewsResponse;
 import _4.TourismContest.review.dto.response.ReviewsResponse;
 import _4.TourismContest.review.repository.ReviewImageRepository;
 import _4.TourismContest.review.repository.ReviewLikeRepository;
@@ -137,5 +140,21 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             reviewLikeRepository.save(reviewLike);
             return "add";
         }
+    }
+
+    public ReviewPreviewsResponse getReviewsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("no user"));
+
+        List<Review> reviews = reviewRepository.findAllByUser(user);
+
+        List<ReviewPreviewDto> reviewPreviewDtos = new ArrayList<>();
+        for(Review review : reviews){
+            Optional<ReviewImage> reviewImage = reviewImageRepository.findFirstByReview(review);
+
+            if(reviewImage.isPresent()) reviewPreviewDtos.add(ReviewPreviewDto.of(review, reviewImage.get().getImageUrl()));
+            else reviewPreviewDtos.add(ReviewPreviewDto.of(review, ""));
+        }
+        return ReviewPreviewsResponse.of(reviewPreviewDtos);
     }
 }
