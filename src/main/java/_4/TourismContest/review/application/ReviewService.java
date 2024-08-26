@@ -41,11 +41,24 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         reviewImageRepository.saveAll(reviewImages);
     }
 
-    public ReviewsResponse getSpotReviews(Long spotId) {
+    public ReviewsResponse getSpotReviews(Long spotId, String sort) {
         Spot spot = spotRepository.findById(spotId)
                 .orElseThrow(() -> new IllegalArgumentException("no spot"));
 
-        List<Review> reviews = reviewRepository.findAllBySpot(spot);
+        List<Review> reviews;
+        if(sort.equals("new")){
+            reviews = reviewRepository.findAllBySpotOrderByIdAsc(spot);
+        }
+        else if(sort.equals("like")){
+            reviews = reviewRepository.findAllBySpotOrderByLikeCountIdDesc(spot);
+        }
+        else if(sort.equals("old")){
+            reviews = reviewRepository.findAllBySpotOrderByIdDesc(spot);
+        }
+        else{
+            throw new IllegalArgumentException("not accestable sort by");
+        }
+
         List<ReviewDto> reviewDtos = new ArrayList<>();
         for(Review review : reviews){
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);

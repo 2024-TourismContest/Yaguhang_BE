@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     Optional<Review> findBySpot(Spot spot);
-
     List<Review> findAllBySpot(Spot spot);
+    List<Review> findAllBySpotOrderByIdAsc(Spot spot);
+    List<Review> findAllBySpotOrderByIdDesc(Spot spot);
+    List<Review> findAllBySpotOrderByLikeCountIdDesc(Spot spot);
 }

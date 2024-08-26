@@ -25,8 +25,9 @@ public class ReviewController {
     }
 
     @GetMapping("/{spotId}")
-    public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("spotId") Long spotId) {
-        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(spotId);
+    public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("spotId") Long spotId,
+                                                      @RequestParam String sort) {
+        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(spotId, sort);
         return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
 
