@@ -1,6 +1,5 @@
 package _4.TourismContest.review.application;
 
-import _4.TourismContest.recommend.dto.event.RecommendPreviewResponse;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.domain.ReviewImage;
 import _4.TourismContest.review.domain.ReviewLike;
@@ -57,7 +56,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             reviews = reviewRepository.findAllBySpotOrderByIdAsc(spot);
         }
         else if(sort.equals("like")){
-            reviews = reviewRepository.findAllBySpotOrderByLikeCountIdDesc(spot);
+            reviews = reviewRepository.findAllBySpotOrderByLikeCountDesc(spot);
         }
         else if(sort.equals("old")){
             reviews = reviewRepository.findAllBySpotOrderByIdDesc(spot);
