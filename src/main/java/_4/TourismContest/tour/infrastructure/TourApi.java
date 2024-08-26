@@ -39,13 +39,15 @@ public class TourApi {
     private String korService3_secret;
     @Value("${tour_api.secret.KorService4}")
     private String korService4_secret;
+    @Value("${tour_api.secret.KorService5}")
+    private String korService5_secret;
 
     private int apiIndex = 0;
 
     private List<String> apikeys;
     @PostConstruct
     void init(){
-    apikeys = List.of(korService1_secret,korService2_secret,korService3_secret,korService4_secret);
+    apikeys = List.of(korService1_secret,korService2_secret,korService3_secret,korService4_secret,korService5_secret);
     }
 
     public TourApiResponseDto getSpot(float x, float y, int radius, int contentTypeId, int pageSize) throws IOException { // 좌표 값 주변 리스트 가져오는 메소드
