@@ -2,11 +2,13 @@ package _4.TourismContest.review.application;
 
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.domain.ReviewImage;
+import _4.TourismContest.review.domain.ReviewLike;
 import _4.TourismContest.review.dto.ReviewDto;
 import _4.TourismContest.review.dto.request.ReviewCreateRequest;
 import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
 import _4.TourismContest.review.dto.response.ReviewsResponse;
 import _4.TourismContest.review.repository.ReviewImageRepository;
+import _4.TourismContest.review.repository.ReviewLikeRepository;
 import _4.TourismContest.review.repository.ReviewRepository;
 import _4.TourismContest.spot.domain.Spot;
 import _4.TourismContest.spot.repository.SpotRepository;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
     private final UserRepository userRepository;
     private final SpotRepository spotRepository;
 
@@ -105,6 +109,33 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         }
         else{
             throw new IllegalArgumentException("not author");
+        }
+    }
+
+    public String likeReview(Long reviewId, Long userId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("no review"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("no user"));
+
+        Optional<ReviewLike> reviewLikeOptional = reviewLikeRepository.findByUserAndReview(user, review);
+        if(reviewLikeOptional.isPresent()){
+            review.subLikesCount();
+            reviewRepository.save(review);
+
+            reviewLikeRepository.delete(reviewLikeOptional.get());
+            return "remove";
+        }
+        else{
+            review.addLikesCount();
+            reviewRepository.save(review);
+
+            ReviewLike reviewLike = ReviewLike.builder()
+                    .user(user)
+                    .review(review)
+                    .build();
+            reviewLikeRepository.save(reviewLike);
+            return "add";
         }
     }
 }

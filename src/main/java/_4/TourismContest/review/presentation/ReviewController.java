@@ -45,4 +45,11 @@ public class ReviewController {
         reviewService.deleteReview(reviewId, userId);
         return new ResponseEntity<>("success delete review", HttpStatus.OK);
     }
+
+    @PatchMapping("/{reviewId}")
+    public ResponseEntity<String> likeReview(@PathVariable("reviewId") Long reviewId,
+                                               @RequestParam Long userId) {
+        String result = reviewService.likeReview(reviewId, userId);
+        return new ResponseEntity<>("success "+result+" review", HttpStatus.OK);
+    }
 }

@@ -64,4 +64,12 @@ public class Review {
         this.content = request.content();
         return this;
     }
+
+    public void addLikesCount() {
+        this.likeCount++;
+    }
+
+    public void subLikesCount() {
+        this.likeCount--;
+    }
 }
