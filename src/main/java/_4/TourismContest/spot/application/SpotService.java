@@ -169,6 +169,7 @@ public class SpotService {
                     .name(tourApiDetailCommonResponseDto.getTitle())
                     .mapX(Double.parseDouble(tourApiDetailCommonResponseDto.getMapx()))
                     .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
+                    .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
                     .image(tourApiDetailCommonResponseDto.getFirstimage())
                     .build();
             SpotScrap spotScrap = SpotScrap.builder()
