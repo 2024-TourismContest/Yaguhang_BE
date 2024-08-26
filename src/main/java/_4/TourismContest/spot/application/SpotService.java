@@ -169,6 +169,7 @@ public class SpotService {
                     .name(tourApiDetailCommonResponseDto.getTitle())
                     .mapX(Double.parseDouble(tourApiDetailCommonResponseDto.getMapx()))
                     .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
+                    .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
                     .image(tourApiDetailCommonResponseDto.getFirstimage())
                     .build();
             SpotScrap spotScrap = SpotScrap.builder()
@@ -364,18 +365,38 @@ public class SpotService {
             case 2:
             case 3:
             case 4:
-            case 5:
-                return 20;
-            case 6:
-                return 18;
-            case 7:
-                return 10;
-            case 8:
-                return 6;
-            case 9:
-                return 3;
-            case 10:
                 return 1;
+            case 5:
+            case 6:
+                return 2;
+            case 7:
+            case 8:
+                return 10;
+            case 9:
+            case 10:
+                return 15;
+            case 11:
+            case 12:
+                return 18;
+            case 13:
+            case 14:
+                return 20;
+//            case 1:
+//            case 2:
+//            case 3:
+//            case 4:
+//            case 5:
+//                return 20;
+//            case 6:
+//                return 18;
+//            case 7:
+//                return 10;
+//            case 8:
+//                return 6;
+//            case 9:
+//                return 3;
+//            case 10:
+//                return 1;
             default:
                 throw new IllegalArgumentException("Invalid level: " + level);
         }

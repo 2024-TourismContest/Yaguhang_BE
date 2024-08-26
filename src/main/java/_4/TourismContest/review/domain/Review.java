@@ -1,23 +1,26 @@
 package _4.TourismContest.review.domain;
 
+import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
 import _4.TourismContest.spot.domain.Spot;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "review")
+@EntityListeners(AuditingEntityListener.class)
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,12 +39,37 @@ public class Review {
     @Column(name = "rating", nullable = false)
     private float star;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", nullable = false, length = 2048)
     private String content;
 
     @Column(name = "like_count")
     private int likeCount;
 
     @CreatedDate
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
+
+    @Builder
+    public Review(User user, Spot spot, float star, String content) {
+        this.id = null;
+        this.user = user;
+        this.spot = spot;
+        this.star = star;
+        this.content = content;
+        this.likeCount = 0;
+        this.createdAt = null;
+    }
+
+    public Review update(ReviewUpdateRequest request){
+        this.star = request.star();
+        this.content = request.content();
+        return this;
+    }
+
+    public void addLikesCount() {
+        this.likeCount++;
+    }
+
+    public void subLikesCount() {
+        this.likeCount--;
+    }
 }

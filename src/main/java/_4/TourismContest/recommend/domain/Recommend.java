@@ -4,6 +4,7 @@ import _4.TourismContest.stadium.domain.Stadium;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,7 +25,7 @@ public class Recommend {
     @ManyToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.ALL)
     private User user;
 
     @Column(name = "title")
@@ -38,4 +39,15 @@ public class Recommend {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @Builder
+    public Recommend (Stadium stadium, User user, String title){
+        this.stadium = stadium;
+        this.user = user;
+        this.title = title;
+    }
+    public Recommend setImage(Recommend recommend, String image){
+        recommend.image = image;
+        return recommend;
+    }
 }

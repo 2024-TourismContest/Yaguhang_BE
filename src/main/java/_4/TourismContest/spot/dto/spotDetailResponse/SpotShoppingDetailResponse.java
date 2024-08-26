@@ -47,7 +47,7 @@ public record SpotShoppingDetailResponse(
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
                 .isScraped(isScraped)
                 .phoneNumber(introItem.getInfocentershopping())
-                .businessHours(introItem.getOpentime())
+                .businessHours(introItem.getOpentime().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateshopping())
                 .description(commonItem.getOverview())
                 .items(introItem.getSaleitem())
