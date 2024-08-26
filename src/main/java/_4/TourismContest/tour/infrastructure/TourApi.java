@@ -117,7 +117,7 @@ public class TourApi {
 
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("contentId", URLEncoder.encode(String.valueOf(contentId), StandardCharsets.UTF_8))
@@ -143,7 +143,7 @@ public class TourApi {
 
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("contentId", URLEncoder.encode(String.valueOf(contentId), StandardCharsets.UTF_8))
@@ -186,7 +186,7 @@ public class TourApi {
         String url = TOUR_API_BASE_URL + ENDPOINT;
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(korService1_secret, StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("contentId", URLEncoder.encode(String.valueOf(contentId), StandardCharsets.UTF_8))
