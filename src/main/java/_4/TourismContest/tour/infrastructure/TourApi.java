@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
@@ -31,24 +32,27 @@ public class TourApi {
         this.objectMapper = objectMapper;
     }
     private static final String TOUR_API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1";
-    @Value("${tour_api.secret.KorService1}")
-    private String korService1_secret;
-    @Value("${tour_api.secret.KorService2}")
-    private String korService2_secret;
-    @Value("${tour_api.secret.KorService3}")
-    private String korService3_secret;
-    @Value("${tour_api.secret.KorService4}")
-    private String korService4_secret;
-    @Value("${tour_api.secret.KorService5}")
-    private String korService5_secret;
+    @Value("${tour_api.secret.KorService6}")
+    private String korService6_secret;
+//    @Value("${tour_api.secret.KorService1}")
+//    private String korService1_secret;
+//    @Value("${tour_api.secret.KorService2}")
+//    private String korService2_secret;
+//    @Value("${tour_api.secret.KorService3}")
+//    private String korService3_secret;
+//    @Value("${tour_api.secret.KorService4}")
+//    private String korService4_secret;
+//    @Value("${tour_api.secret.KorService5}")
+//    private String korService5_secret;
 
     private int apiIndex = 0;
 
     private List<String> apikeys;
-    @PostConstruct
-    void init(){
-    apikeys = List.of(korService1_secret,korService2_secret,korService3_secret,korService4_secret,korService5_secret);
-    }
+//    @PostConstruct
+//    void init(){
+//        apikeys = List.of(korService1_secret,korService2_secret,korService3_secret,korService4_secret,korService5_secret);
+//    }
+
 
     public TourApiResponseDto getSpot(float x, float y, int radius, int contentTypeId, int pageSize) throws IOException { // 좌표 값 주변 리스트 가져오는 메소드
         try{
@@ -64,7 +68,7 @@ public class TourApi {
             }
 
             URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                    .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
+                    .queryParam("serviceKey", URLEncoder.encode(korService6_secret, StandardCharsets.UTF_8))
                     .queryParam("numOfRows" , pageSize)
                     .queryParam("pageNo",randomPage)
                     .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
@@ -83,12 +87,13 @@ public class TourApi {
 
             return tourApiResponseDto;
         }catch (Exception e){
-            if(apiIndex==apikeys.size()-1){
-                apiIndex=0;
-            }else{
-                apiIndex++;
-            }
-            return getSpot(x,y,radius,contentTypeId,pageSize);
+            throw new HttpTimeoutException("");
+//            if(apiIndex==apikeys.size()-1){
+//                apiIndex=0;
+//            }else{
+//                apiIndex++;
+//            }
+//            return getSpot(x,y,radius,contentTypeId,pageSize);
         }
     }
 
@@ -97,7 +102,7 @@ public class TourApi {
         String url = TOUR_API_BASE_URL + ENDPOINT;
 
         URI getPageuri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(korService6_secret, StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("mapX", URLEncoder.encode(String.valueOf(x), StandardCharsets.UTF_8))
@@ -119,7 +124,7 @@ public class TourApi {
 
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(korService6_secret, StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("contentId", URLEncoder.encode(String.valueOf(contentId), StandardCharsets.UTF_8))
@@ -145,7 +150,7 @@ public class TourApi {
 
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(korService6_secret, StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("contentId", URLEncoder.encode(String.valueOf(contentId), StandardCharsets.UTF_8))
@@ -188,7 +193,7 @@ public class TourApi {
         String url = TOUR_API_BASE_URL + ENDPOINT;
 
         URI uri = UriComponentsBuilder.fromHttpUrl(url)
-                .queryParam("serviceKey", URLEncoder.encode(apikeys.get(apiIndex), StandardCharsets.UTF_8))
+                .queryParam("serviceKey", URLEncoder.encode(korService6_secret, StandardCharsets.UTF_8))
                 .queryParam("MobileOS", URLEncoder.encode("ETC", StandardCharsets.UTF_8))
                 .queryParam("MobileApp", URLEncoder.encode("yaguhang", StandardCharsets.UTF_8))
                 .queryParam("contentId", URLEncoder.encode(String.valueOf(contentId), StandardCharsets.UTF_8))
