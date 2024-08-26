@@ -3,6 +3,7 @@ package _4.TourismContest.recommend.domain;
 import _4.TourismContest.spot.domain.Spot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,4 +21,10 @@ public class RecommendSpot {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Recommend recommend;
+
+    @Builder
+    public RecommendSpot(Spot spot, Recommend recommend){
+        this.spot = spot;
+        this.recommend = recommend;
+    }
 }
