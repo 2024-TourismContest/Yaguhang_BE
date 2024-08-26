@@ -20,18 +20,20 @@ public class Spot {
     private String name;
     @Column(length = 2500)
     private String image;
+    private String address;
     @Enumerated(EnumType.STRING)
     private SpotCategory category;
     private double mapX;    //X좌표
     private double mapY;    //Y좌표
 
     @Builder
-    public Spot(Long contentId, Stadium stadium, String name, String image, double mapX, double mapY) {
+    public Spot(Long contentId, Stadium stadium, String name, String image, double mapX, double mapY, String address) {
         this.id = contentId;
         this.stadium = stadium;
         this.name = name;
         this.image = image;
         this.mapX = mapX;
         this.mapY = mapY;
+        this.address = address;
     }
 }
