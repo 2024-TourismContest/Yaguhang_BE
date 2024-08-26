@@ -15,6 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findAllBySpot(Spot spot);
     List<Review> findAllBySpotOrderByIdAsc(Spot spot);
     List<Review> findAllBySpotOrderByIdDesc(Spot spot);
-    List<Review> findAllBySpotOrderByLikeCountIdDesc(Spot spot);
+    List<Review> findAllBySpotOrderByLikeCountDesc(Spot spot);
     List<Review> findAllByUser(User user);
 }

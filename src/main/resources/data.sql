@@ -1,5 +1,5 @@
 INSERT INTO users (email, password, nickname, profile_img, provider, provider_id, fan_team)
-VALUES ('example@example.com', 'encrypted_password', 'nickname123', 'profile_img_url', 'local', 'provider123', '롯데');
+VALUES ('example@example.com', 'encrypted_password', 'anonymous', 'profile_img_url', 'local', 'provider123', '롯데');
 
 /*spot*/
 INSERT INTO spot(content_id,mapX,mapY,category,stadium_id,image,name) VALUES

@@ -47,7 +47,7 @@ public class ReviewController {
         return new ResponseEntity<>("success delete review", HttpStatus.OK);
     }
 
-    @PatchMapping("/{reviewId}")
+    @PatchMapping("/{reviewId}/like")
     public ResponseEntity<String> likeReview(@PathVariable("reviewId") Long reviewId,
                                                @RequestParam Long userId) {
         String result = reviewService.likeReview(reviewId, userId);
