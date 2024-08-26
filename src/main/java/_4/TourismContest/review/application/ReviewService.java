@@ -15,12 +15,13 @@ import _4.TourismContest.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ReviewService {
+public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final UserRepository userRepository;
@@ -45,7 +46,11 @@ public class ReviewService {
                 .orElseThrow(() -> new IllegalArgumentException("no spot"));
 
         List<Review> reviews = reviewRepository.findAllBySpot(spot);
-        List<ReviewDto> reviewDtos = ReviewDto.of(reviews);
+        List<ReviewDto> reviewDtos = new ArrayList<>();
+        for(Review review : reviews){
+            List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
+            reviewDtos.add(ReviewDto.of(review, reviewImages));
+        }
         return ReviewsResponse.of(reviewDtos);
     }
 
