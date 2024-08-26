@@ -81,7 +81,7 @@ public class TourApi {
 
             return tourApiResponseDto;
         }catch (Exception e){
-            if(apiIndex==apikeys.size()){
+            if(apiIndex==apikeys.size()-1){
                 apiIndex=0;
             }else{
                 apiIndex++;
