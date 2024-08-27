@@ -3,10 +3,9 @@ package _4.TourismContest.review.domain;
 import _4.TourismContest.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -24,4 +23,10 @@ public class ReviewLike {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Review review;
+
+    @Builder
+    public ReviewLike(User user, Review review) {
+        this.user = user;
+        this.review = review;
+    }
 }

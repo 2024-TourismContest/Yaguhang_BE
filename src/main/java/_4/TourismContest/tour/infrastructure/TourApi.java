@@ -51,7 +51,7 @@ public class TourApi {
     private List<String> apikeys;
     @PostConstruct
     void init(){
-        apikeys = List.of(korService1_secret,korService2_secret,korService3_secret,korService4_secret,korService5_secret);
+        apikeys = List.of(korService1_secret,korService2_secret,korService3_secret,korService4_secret,korService5_secret,korService6_secret);
     }
 
 
