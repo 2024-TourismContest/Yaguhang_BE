@@ -83,6 +83,29 @@ public class SpotService {
 
     public SpotDetailResponse getDetailSpot(String category, Long contentId, UserPrincipal userPrincipal) {
         SpotDetailResponse spotDetailResponse;
+        if(category.equals("선수맛집")){
+            spotDetailResponse = getAthletePickSpotDetail(contentId, userPrincipal);
+        }
+        else{
+            spotDetailResponse = getTourApiSpotDetail(category, contentId, userPrincipal);
+        }
+
+        return spotDetailResponse;
+    }
+
+    private SpotDetailResponse getAthletePickSpotDetail(Long contentId, UserPrincipal userPrincipal) {
+        Spot spot = spotRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("no spot"));
+        AthletePickSpot athletePickSpot = athletePickSpotRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("no athlete_pick spot"));
+
+        boolean isScraped = getIsScraped(userPrincipal, contentId);
+
+        return SpotAthletePickDetailResponse.makeSpotAthletePickDetailResponse(spot, athletePickSpot, isScraped);
+    }
+
+    private SpotDetailResponse getTourApiSpotDetail(String category, Long contentId, UserPrincipal userPrincipal) {
+        SpotDetailResponse spotDetailResponse;
         TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId);
         TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto = tourApi.getSpotDetailIntro(contentId, category);
         TourApiDetailImageResponseDto tourApiDetailImageResponseDto = tourApi.getSpotDetailImage(contentId);
@@ -99,11 +122,13 @@ public class SpotService {
             spotDetailResponse = SpotCultureDetailResponse.makeSpotCultureDetailResponse(tourApiDetailCommonResponseDto,
                     tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId));
         }
-        else {
+        else if(category.equals("쇼핑")){
             spotDetailResponse = SpotShoppingDetailResponse.makeSpotShoppingDetailResponse(tourApiDetailCommonResponseDto,
                     tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId));
         }
-
+        else{
+            throw new IllegalArgumentException("no category");
+        }
         return spotDetailResponse;
     }
 
