@@ -242,6 +242,9 @@ public class RecommendService {
                 .orElseThrow(() -> new BadRequestException("로그인 토큰을 다시 확인해주세요"));
         Recommend recommend =  recommendRepository.findById(recommendId)
                 .orElseThrow(() -> new BadRequestException("recommendId를 다시 확인해주세요"));
+        if(user.getId() != recommend.getUser().getId()){
+            new BadRequestException("삭제 권한이 없습니다. ");
+        }
         List<RecommendSpot> recommendSpots = recommendSpotRepository.findByRecommend(recommend);
         for(RecommendSpot recommendSpot : recommendSpots)
             recommendSpotRepository.delete(recommendSpot);
