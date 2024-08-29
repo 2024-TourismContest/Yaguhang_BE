@@ -354,8 +354,6 @@ public class SpotService {
 
         long endTime = System.nanoTime();
         long durationInMillis = (endTime - startTime) / 1_000_000;
-        System.out.println("Execution time: " + durationInMillis + " ms");
-
         return filteredItems;
     }
 
@@ -398,7 +396,6 @@ public class SpotService {
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
         return EARTH_RADIUS * c; // 두 좌표 간의 거리 반환
     }
 
@@ -468,9 +465,16 @@ public class SpotService {
             List<Review> allBySpot = reviewRepository.findAllBySpot(spot);
             int reviewCount = allBySpot.size();
             int radius = getRadius(level);
-            double itemLatitude = Double.parseDouble(String.valueOf(spot.getMapY()));
-            double itemLongitude = Double.parseDouble(String.valueOf(spot.getMapX()));
-            double distance = calculateDistance(stadium.getY(), stadium.getX(), itemLatitude, itemLongitude);
+            MapXY stadiumCoordinate = getCoordinate(stadium.getName());  // 경기장 좌표
+            double distanceToStadium = calculateDistance(nowY, nowX, stadiumCoordinate.y().doubleValue(), stadiumCoordinate.x().doubleValue());
+
+            List<SpotMapResponseDto> filteredItems = new ArrayList<>();
+
+            if (distanceToStadium > radius + 20) {
+                // 두 원이 서로 밖에 있으며 만나지 않는 경우 -> API 호출 X
+                return filteredItems;
+            }
+            double distance = calculateDistance(stadium.getY(), stadium.getX(), spot.getMapY(), spot.getMapX());
             if (distance <= Math.abs(radius - 20)) {
                 boolean isScrapped = false;
                 if(userPrincipal!=null){
