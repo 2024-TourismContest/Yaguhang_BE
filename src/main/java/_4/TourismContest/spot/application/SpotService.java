@@ -381,22 +381,6 @@ public class SpotService {
             case 13:
             case 14:
                 return 20;
-//            case 1:
-//            case 2:
-//            case 3:
-//            case 4:
-//            case 5:
-//                return 20;
-//            case 6:
-//                return 18;
-//            case 7:
-//                return 10;
-//            case 8:
-//                return 6;
-//            case 9:
-//                return 3;
-//            case 10:
-//                return 1;
             default:
                 throw new IllegalArgumentException("Invalid level: " + level);
         }
@@ -475,5 +459,61 @@ public class SpotService {
                 .build();
     }
 
+    public List<SpotMapResponseDto> getAthletePickMap(Long stadiumId, int level, double nowX, double nowY, UserPrincipal userPrincipal) {
+        Stadium stadium = stadiumRepository.findById(stadiumId)
+                .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다."));
+        List<Spot> spots = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK);
+        ArrayList<SpotMapResponseDto> responses = new ArrayList<>(); //최종 response값
+        for (Spot spot : spots) {
+            List<Review> allBySpot = reviewRepository.findAllBySpot(spot);
+            int reviewCount = allBySpot.size();
+            int radius = getRadius(level);
+            double itemLatitude = Double.parseDouble(String.valueOf(spot.getMapY()));
+            double itemLongitude = Double.parseDouble(String.valueOf(spot.getMapX()));
+            double distance = calculateDistance(stadium.getY(), stadium.getX(), itemLatitude, itemLongitude);
+            if (distance <= Math.abs(radius - 20)) {
+                boolean isScrapped = false;
+                if(userPrincipal!=null){
+                    for (SpotMapResponseDto response : responses) {
+                        Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(userPrincipal.getId(), response.contentId());
+                        isScrapped = scrap.isPresent();
+                    }
+                }
+                SpotMapResponseDto response = SpotMapResponseDto.builder()
+                        .address(spot.getAddress())
+                        .mapX(spot.getMapX())
+                        .mapY(spot.getMapY())
+                        .title(spot.getName())
+                        .stadiumId(spot.getStadium().getId())
+                        .reviewCount(Long.valueOf(reviewCount))
+                        .image(spot.getImage())
+                        .contentId(spot.getId())
+                        .isScrapped(isScrapped)
+                        .build();
+                responses.add(response);
+            } else if (distance <= 20) {
+                boolean isScrapped = false;
+                if(userPrincipal!=null){
+                    for (SpotMapResponseDto response : responses) {
+                        Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(userPrincipal.getId(), response.contentId());
+                        isScrapped = scrap.isPresent();
+                    }
+                }
+                SpotMapResponseDto response = SpotMapResponseDto.builder()
+                        .address(spot.getAddress())
+                        .mapX(spot.getMapX())
+                        .mapY(spot.getMapY())
+                        .title(spot.getName())
+                        .stadiumId(spot.getStadium().getId())
+                        .reviewCount(Long.valueOf(reviewCount))
+                        .image(spot.getImage())
+                        .contentId(spot.getId())
+                        .isScrapped(isScrapped)
+                        .build();
+                responses.add(response);
+            }
+        }
+        return responses;
+    }
 }
 
