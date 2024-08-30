@@ -29,6 +29,7 @@ import _4.TourismContest.tour.infrastructure.TourApi;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +70,14 @@ public class SpotService {
                 .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
         List<Spot> spots = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK);
 
-        List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(spots);
+        int pageSize = 4;
+        int totalPages = spots.size()/pageSize;  //야구선수픽 전체 장소 개수
+        Random random = new Random();
+        int pageNum = random.nextInt(totalPages);
+
+        List<Spot> spotsByStadiumAndCategory = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK, PageRequest.of(pageNum, pageSize));
+
+        List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(spotsByStadiumAndCategory);
         List<SpotBasicPreviewDto> athletePickPreviewDtoList = new ArrayList<>();
         for(AthletePickSpot spot : athletePickSpotsInfo){
             Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(/*userPrincipal.getId()*/1L, spot.getId());
