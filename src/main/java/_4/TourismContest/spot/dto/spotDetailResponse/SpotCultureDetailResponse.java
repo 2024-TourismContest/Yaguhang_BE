@@ -50,7 +50,7 @@ public record SpotCultureDetailResponse(
                 .phoneNumber(introItem.getInfocenterculture())
                 .businessHours(introItem.getUsetimeculture().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateculture())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .parkingFacilities(introItem.getParkingculture())
                 .animalZone(introItem.getParkingculture())
                 .usefee(introItem.getUsefee())

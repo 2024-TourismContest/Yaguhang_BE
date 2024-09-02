@@ -48,7 +48,7 @@ public record SpotAccommodationDetailResponse (
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
                 .isScraped(isScraped)
                 .phoneNumber(introItem.getInfocenterlodging())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .checkIn(introItem.getCheckintime())
                 .checkOut(introItem.getCheckouttime())
                 .homepage(commonItem.getHomepage())
