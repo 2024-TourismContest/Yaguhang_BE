@@ -49,7 +49,7 @@ public record SpotRestaurantDetailResponse (
                 .phoneNumber(introItem.getInfocenterfood())
                 .businessHours(introItem.getOpentimefood().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdatefood())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .parkingFacilities(introItem.getParkingfood())
                 .treatmenu(introItem.getTreatmenu())
                 .firstmenu(introItem.getFirstmenu())

@@ -49,7 +49,7 @@ public record SpotShoppingDetailResponse(
                 .phoneNumber(introItem.getInfocentershopping())
                 .businessHours(introItem.getOpentime().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateshopping())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .items(introItem.getSaleitem())
                 .animalZone(introItem.getChkpetshopping())
                 .parkingFacilities(introItem.getParkingshopping())
