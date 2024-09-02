@@ -89,7 +89,7 @@ public class SpotService {
         return SpotStadiumPreviewResponse.of(athletePickPreviewDtoList);
     }
 
-    public SpotDetailResponse getDetailSpot(String category, Long contentId, UserPrincipal userPrincipal) {
+    public SpotDetailResponse getDetailSpot(String category, Long contentId, Long stadiumId,UserPrincipal userPrincipal) {
         SpotDetailResponse spotDetailResponse;
         TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId);
         TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto = tourApi.getSpotDetailIntro(contentId, category);
@@ -97,19 +97,19 @@ public class SpotService {
 
         if(category.equals("숙소")){
             spotDetailResponse = SpotAccommodationDetailResponse.makeSpotAccommodationDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId));
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
         }
         else if(category.equals("맛집")){
             spotDetailResponse = SpotRestaurantDetailResponse.makeSpotRestaurantDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId));
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
         }
         else if(category.equals("문화")){
             spotDetailResponse = SpotCultureDetailResponse.makeSpotCultureDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId));
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
         }
         else {
             spotDetailResponse = SpotShoppingDetailResponse.makeSpotShoppingDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId));
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
         }
 
         return spotDetailResponse;

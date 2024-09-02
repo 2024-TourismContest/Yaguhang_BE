@@ -11,6 +11,7 @@ import java.util.List;
 
 @Builder
 public record SpotAccommodationDetailResponse (
+        Long stadiumId,
         Long contentId,
         String name,
         String address,
@@ -26,7 +27,7 @@ public record SpotAccommodationDetailResponse (
 ) implements SpotDetailResponse {
     public static SpotAccommodationDetailResponse makeSpotAccommodationDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
                                                                                       TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto,
-                                                                                      TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped){
+                                                                                      TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped, Long stadiumId){
         TourApiDetailCommonResponseDto.Item commonItem = tourApiDetailCommonResponseDto.getResponse().getBody().getItems().getItem().get(0);
         TourApiAccommodationDetailIntroResponseDto tourApiAccommodationDetailIntroResponseDto = (TourApiAccommodationDetailIntroResponseDto) tourApiDetailIntroResponseDto;
         TourApiAccommodationDetailIntroResponseDto.Item introItem = tourApiAccommodationDetailIntroResponseDto.getResponse().getBody().getItems().getItem().get(0);
@@ -43,6 +44,7 @@ public record SpotAccommodationDetailResponse (
         }
 
         SpotAccommodationDetailResponse spotAccommodationDetailResponse = SpotAccommodationDetailResponse.builder()
+                .stadiumId(stadiumId)
                 .contentId(Long.parseLong(commonItem.getContentid()))
                 .name(commonItem.getTitle())
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
