@@ -34,5 +34,6 @@ public class SpotStadiumController {
         SpotStadiumPreviewResponse spotStadiumPreviewResponse = spotService.getAthletePickSpot(stadiumId,userPrincipal);
         return new ResponseEntity<>(spotStadiumPreviewResponse, HttpStatus.OK);
     }
+
 }
 
