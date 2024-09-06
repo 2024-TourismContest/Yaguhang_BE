@@ -47,6 +47,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         clearAuthenticationAttributes(request, response);
+        response.setHeader("Cache-Control", "max-age=0");
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
