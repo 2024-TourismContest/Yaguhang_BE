@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -37,6 +38,9 @@ public class Recommend {
     @Column(name = "image")
     private String image;
 
+    @OneToMany
+    private List<RecommendImage> recommendImages;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -46,8 +50,16 @@ public class Recommend {
         this.user = user;
         this.title = title;
     }
-    public Recommend setImage(Recommend recommend, String image){
-        recommend.image = image;
+    public Recommend setImages(Recommend recommend, List<RecommendImage> recommendImages){
+        recommend.recommendImages = recommendImages;
+        return recommend;
+    }
+    public Recommend minusLikes(Recommend recommend){
+        recommend.likeCount--;
+        return recommend;
+    }
+    public Recommend plusLikes(Recommend recommend){
+        recommend.likeCount++;
         return recommend;
     }
 }
