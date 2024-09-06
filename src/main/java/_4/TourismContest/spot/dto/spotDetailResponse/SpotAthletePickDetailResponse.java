@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public record SpotAthletePickDetailResponse(
+        Long stadiumId,
         Long contentId,
         String name,
         String address,
@@ -22,8 +23,10 @@ public record SpotAthletePickDetailResponse(
 ) implements SpotDetailResponse {
     public static SpotAthletePickDetailResponse makeSpotAthletePickDetailResponse(Spot spot,
                                                                                   AthletePickSpot athletePickSpot,
-                                                                                  Boolean isScraped) {
+                                                                                  Boolean isScraped,
+                                                                                  Long stadiumId) {
         return new SpotAthletePickDetailResponse(
+                stadiumId,
                 spot.getId(),
                 spot.getName(),
                 spot.getAddress(),
