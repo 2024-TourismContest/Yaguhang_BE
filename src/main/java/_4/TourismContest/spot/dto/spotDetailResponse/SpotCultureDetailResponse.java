@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Builder
 public record SpotCultureDetailResponse(
+        Long stadiumId,
         Long contentId,
         String name,
         String address,
@@ -25,7 +26,7 @@ public record SpotCultureDetailResponse(
 ) implements SpotDetailResponse{
     public static SpotCultureDetailResponse makeSpotCultureDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
                                                                           TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto,
-                                                                          TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped){
+                                                                          TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped, Long stadiumId){
         TourApiDetailCommonResponseDto.Item commonItem = tourApiDetailCommonResponseDto.getResponse().getBody().getItems().getItem().get(0);
         TourApiCultureDetailIntroResponseDto tourApiCultureDetailIntroResponseDto = (TourApiCultureDetailIntroResponseDto) tourApiDetailIntroResponseDto;
         TourApiCultureDetailIntroResponseDto.Item introItem = tourApiCultureDetailIntroResponseDto.getResponse().getBody().getItems().getItem().get(0);
@@ -43,6 +44,7 @@ public record SpotCultureDetailResponse(
         }
 
         SpotCultureDetailResponse spotCultureDetailResponse = SpotCultureDetailResponse.builder()
+                .stadiumId(stadiumId)
                 .contentId(Long.parseLong(commonItem.getContentid()))
                 .name(commonItem.getTitle())
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
@@ -50,7 +52,7 @@ public record SpotCultureDetailResponse(
                 .phoneNumber(introItem.getInfocenterculture())
                 .businessHours(introItem.getUsetimeculture().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateculture())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .parkingFacilities(introItem.getParkingculture())
                 .animalZone(introItem.getParkingculture())
                 .usefee(introItem.getUsefee())

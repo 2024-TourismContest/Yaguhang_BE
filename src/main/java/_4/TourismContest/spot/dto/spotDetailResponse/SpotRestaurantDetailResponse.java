@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Builder
 public record SpotRestaurantDetailResponse (
+        Long stadiumId,
         Long contentId,
         String name,
         String address,
@@ -26,7 +27,7 @@ public record SpotRestaurantDetailResponse (
 ) implements SpotDetailResponse {
     public static SpotRestaurantDetailResponse makeSpotRestaurantDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
                                                                                 TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto,
-                                                                                TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped){
+                                                                                TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped, Long stadiumId){
         TourApiDetailCommonResponseDto.Item commonItem = tourApiDetailCommonResponseDto.getResponse().getBody().getItems().getItem().get(0);
         TourApiRestaurantDetailIntroResponseDto tourApiRestaurantDetailIntroResponseDto = (TourApiRestaurantDetailIntroResponseDto) tourApiDetailIntroResponseDto;
         TourApiRestaurantDetailIntroResponseDto.Item introItem = tourApiRestaurantDetailIntroResponseDto.getResponse().getBody().getItems().getItem().get(0);
@@ -42,6 +43,7 @@ public record SpotRestaurantDetailResponse (
             images.add(item.getOriginimgurl());
         }
         SpotRestaurantDetailResponse spotRestaurantDetailResponse = SpotRestaurantDetailResponse.builder()
+                .stadiumId(stadiumId)
                 .contentId(Long.parseLong(commonItem.getContentid()))
                 .name(commonItem.getTitle())
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
@@ -49,7 +51,7 @@ public record SpotRestaurantDetailResponse (
                 .phoneNumber(introItem.getInfocenterfood())
                 .businessHours(introItem.getOpentimefood().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdatefood())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .parkingFacilities(introItem.getParkingfood())
                 .treatmenu(introItem.getTreatmenu())
                 .firstmenu(introItem.getFirstmenu())

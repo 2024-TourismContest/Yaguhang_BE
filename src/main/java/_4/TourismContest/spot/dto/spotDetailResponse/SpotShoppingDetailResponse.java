@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 @Builder
 public record SpotShoppingDetailResponse(
+        Long stadiumId,
         Long contentId,
         String name,
         String address,
@@ -25,7 +26,7 @@ public record SpotShoppingDetailResponse(
 ) implements SpotDetailResponse{
     public static SpotShoppingDetailResponse makeSpotShoppingDetailResponse(TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto,
                                                                             TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto,
-                                                                            TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped){
+                                                                            TourApiDetailImageResponseDto tourApiDetailImageResponseDto, Boolean isScraped, Long stadiumId){
         TourApiDetailCommonResponseDto.Item commonItem = tourApiDetailCommonResponseDto.getResponse().getBody().getItems().getItem().get(0);
         TourApiShoppingDetailIntroResponseDto tourApiShoppingDetailIntroResponseDto = (TourApiShoppingDetailIntroResponseDto) tourApiDetailIntroResponseDto;
         TourApiShoppingDetailIntroResponseDto.Item introItem = tourApiShoppingDetailIntroResponseDto.getResponse().getBody().getItems().getItem().get(0);
@@ -42,6 +43,7 @@ public record SpotShoppingDetailResponse(
             images.add(item.getOriginimgurl());
         }
         SpotShoppingDetailResponse spotShoppingDetailResponse = SpotShoppingDetailResponse.builder()
+                .stadiumId(stadiumId)
                 .contentId(Long.parseLong(commonItem.getContentid()))
                 .name(commonItem.getTitle())
                 .address(commonItem.getAddr1() + " " + commonItem.getAddr2())
@@ -49,7 +51,7 @@ public record SpotShoppingDetailResponse(
                 .phoneNumber(introItem.getInfocentershopping())
                 .businessHours(introItem.getOpentime().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateshopping())
-                .description(commonItem.getOverview())
+                .description(commonItem.getOverview().replace("<br>", "\n"))
                 .items(introItem.getSaleitem())
                 .animalZone(introItem.getChkpetshopping())
                 .parkingFacilities(introItem.getParkingshopping())
