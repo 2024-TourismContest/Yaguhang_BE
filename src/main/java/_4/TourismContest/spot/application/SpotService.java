@@ -52,12 +52,12 @@ public class SpotService {
     private final TourApi tourApi;
     private final AthletePickSpotRepository athletePickSpotRepository;
 
-    public SpotCategoryResponse getMainSpot(String stadium, String category, UserPrincipal userPrincipal){
+    public SpotCategoryResponse getMainSpot(String stadium, String category, UserPrincipal userPrincipal) {
         TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadium), 10000, category); // radius 10km
         return tourApiToSpotCategoryResponse(tourApiResponseDto, category, getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
 
-    public SpotStadiumPreviewResponse getStadiumSpot(Long stadiumId, String category,Integer pagesize, Integer pageindex, Integer radius,UserPrincipal userPrincipal){
+    public SpotStadiumPreviewResponse getStadiumSpot(Long stadiumId, String category, Integer pagesize, Integer pageindex, Integer radius, UserPrincipal userPrincipal) {
         Stadium stadium = stadiumRepository.findById(stadiumId)
                 .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
         TourApiResponseDto tourApiResponseDto = tourApi.getStadiumSpot(getCoordinate(stadium.getName()), radius * 1000, category, pagesize);
@@ -65,13 +65,13 @@ public class SpotService {
         return tourApiToSpotStadiumPreviewResponse(tourApiResponseDto, category, pagesize, pageindex, getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
 
-    public SpotStadiumPreviewResponse getAthletePickSpot(Long stadiumId, UserPrincipal userPrincipal){
+    public SpotStadiumPreviewResponse getAthletePickSpot(Long stadiumId, UserPrincipal userPrincipal) {
         Stadium stadium = stadiumRepository.findById(stadiumId)
                 .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
         List<Spot> spots = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK);
 
         int pageSize = 4;
-        int totalPages = spots.size()/pageSize;  //야구선수픽 전체 장소 개수
+        int totalPages = spots.size() / pageSize;  //야구선수픽 전체 장소 개수
         Random random = new Random();
         int pageNum = random.nextInt(totalPages);
 
@@ -79,7 +79,7 @@ public class SpotService {
 
         List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(spotsByStadiumAndCategory);
         List<SpotBasicPreviewDto> athletePickPreviewDtoList = new ArrayList<>();
-        for(AthletePickSpot spot : athletePickSpotsInfo){
+        for (AthletePickSpot spot : athletePickSpotsInfo) {
             Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(/*userPrincipal.getId()*/1L, spot.getId());
             boolean isScraped = scrap.isPresent();
 
@@ -89,59 +89,77 @@ public class SpotService {
         return SpotStadiumPreviewResponse.of(athletePickPreviewDtoList);
     }
 
-    public SpotDetailResponse getDetailSpot(String category, Long contentId, Long stadiumId,UserPrincipal userPrincipal) {
+    public SpotDetailResponse getDetailSpot(String category, Long contentId, Long stadiumId, UserPrincipal userPrincipal) {
         SpotDetailResponse spotDetailResponse;
-        TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId);
-        TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto = tourApi.getSpotDetailIntro(contentId, category);
-        TourApiDetailImageResponseDto tourApiDetailImageResponseDto = tourApi.getSpotDetailImage(contentId);
-
-        if(category.equals("숙소")){
-            spotDetailResponse = SpotAccommodationDetailResponse.makeSpotAccommodationDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
-        }
-        else if(category.equals("맛집")){
-            spotDetailResponse = SpotRestaurantDetailResponse.makeSpotRestaurantDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
-        }
-        else if(category.equals("문화")){
-            spotDetailResponse = SpotCultureDetailResponse.makeSpotCultureDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
-        }
-        else {
-            spotDetailResponse = SpotShoppingDetailResponse.makeSpotShoppingDetailResponse(tourApiDetailCommonResponseDto,
-                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
+        if (category.equals("선수맛집")) {
+            spotDetailResponse = getAthletePickSpotDetail(contentId, userPrincipal, stadiumId);
+        } else {
+            spotDetailResponse = getTourApiSpotDetail(category, contentId, userPrincipal, stadiumId);
         }
 
         return spotDetailResponse;
     }
 
-    public Boolean getIsScraped(UserPrincipal userPrincipal, Long contentId){
-        if(userPrincipal == null){ // 로그인 정보가 없을 시
-            return false;
+    private SpotDetailResponse getAthletePickSpotDetail(Long contentId, UserPrincipal userPrincipal, Long stadiumId) {
+        Spot spot = spotRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("no spot"));
+        AthletePickSpot athletePickSpot = athletePickSpotRepository.findById(contentId)
+                .orElseThrow(() -> new IllegalArgumentException("no athlete_pick spot"));
+
+        boolean isScraped = getIsScraped(userPrincipal, contentId);
+
+        return SpotAthletePickDetailResponse.makeSpotAthletePickDetailResponse(spot, athletePickSpot, isScraped, stadiumId);
+    }
+
+    private SpotDetailResponse getTourApiSpotDetail(String category, Long contentId, UserPrincipal userPrincipal, Long stadiumId) {
+        SpotDetailResponse spotDetailResponse;
+        TourApiDetailCommonResponseDto tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId);
+        TourApiDetailIntroResponseDto tourApiDetailIntroResponseDto = tourApi.getSpotDetailIntro(contentId, category);
+        TourApiDetailImageResponseDto tourApiDetailImageResponseDto = tourApi.getSpotDetailImage(contentId);
+
+        if (category.equals("숙소")) {
+            spotDetailResponse = SpotAccommodationDetailResponse.makeSpotAccommodationDetailResponse(tourApiDetailCommonResponseDto,
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
+        } else if (category.equals("맛집")) {
+            spotDetailResponse = SpotRestaurantDetailResponse.makeSpotRestaurantDetailResponse(tourApiDetailCommonResponseDto,
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
+        } else if (category.equals("문화")) {
+            spotDetailResponse = SpotCultureDetailResponse.makeSpotCultureDetailResponse(tourApiDetailCommonResponseDto,
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
+        } else if (category.equals("쇼핑")) {
+            spotDetailResponse = SpotShoppingDetailResponse.makeSpotShoppingDetailResponse(tourApiDetailCommonResponseDto,
+                    tourApiDetailIntroResponseDto, tourApiDetailImageResponseDto, getIsScraped(userPrincipal, contentId), stadiumId);
+        } else {
+            throw new IllegalArgumentException("no category");
         }
-        else{ // 로그인 정보가 있을 시
+        return spotDetailResponse;
+    }
+
+    public Boolean getIsScraped(UserPrincipal userPrincipal, Long contentId) {
+        if (userPrincipal == null) { // 로그인 정보가 없을 시
+            return false;
+        } else { // 로그인 정보가 있을 시
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
-            if(spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId).isEmpty())
+            if (spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId).isEmpty())
                 return false;
             else
                 return true;
         }
     }
 
-    public List<Boolean> getIsScrapedList(UserPrincipal userPrincipal, TourApiResponseDto tourApiResponseDto ){
+    public List<Boolean> getIsScrapedList(UserPrincipal userPrincipal, TourApiResponseDto tourApiResponseDto) {
         // 스크랩 여부 가져오기
         List<Boolean> scraped = new ArrayList<>();
-        if(userPrincipal == null){ // 로그인 정보가 없을 시
-            for(TourApiResponseDto.Item item : tourApiResponseDto.getResponse().getBody().getItems().getItem()){
+        if (userPrincipal == null) { // 로그인 정보가 없을 시
+            for (TourApiResponseDto.Item item : tourApiResponseDto.getResponse().getBody().getItems().getItem()) {
                 scraped.add(false);
             }
-        }
-        else{ // 로그인 정보가 있을 시
+        } else { // 로그인 정보가 있을 시
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
-            for(TourApiResponseDto.Item item : tourApiResponseDto.getResponse().getBody().getItems().getItem()){
-                if(spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), Long.parseLong(item.getContentid())).isEmpty())
+            for (TourApiResponseDto.Item item : tourApiResponseDto.getResponse().getBody().getItems().getItem()) {
+                if (spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), Long.parseLong(item.getContentid())).isEmpty())
                     scraped.add(false);
                 else
                     scraped.add(true);
@@ -151,35 +169,41 @@ public class SpotService {
         return scraped;
     }
 
-    public MapXY getCoordinate(String stadiumName){
+    public MapXY getCoordinate(String stadiumName) {
         // 경기장 좌표값 가져오기
         Stadium stadium = stadiumRepository.findTopByName(stadiumName)
                 .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
         return new MapXY(stadium.getX(), stadium.getY());
     }
 
-    public String scrapSpot(Long contentId, Long stadiumId, UserPrincipal userPrincipal){
+    public String scrapSpot(Long contentId, Long stadiumId, UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
         Optional<SpotScrap> optionalSpotScrap = spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId);
-        if(optionalSpotScrap.isPresent()){
+        if (optionalSpotScrap.isPresent()) {
             SpotScrap spotScrap = optionalSpotScrap.get();
             spotScrapRepository.delete(spotScrap);
             return "remove scrap";
-        }
-        else{
+        } else {
             Stadium stadium = stadiumRepository.findById(stadiumId)
                     .orElseThrow(() -> new BadRequestException("stadiumId를 다시 확인해주세요"));
-            TourApiDetailCommonResponseDto.Item tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId).getResponse().getBody().getItems().getItem().get(0);
-            Spot spot = Spot.builder()
-                    .contentId(contentId)
-                    .stadium(stadium)
-                    .name(tourApiDetailCommonResponseDto.getTitle())
-                    .mapX(Double.parseDouble(tourApiDetailCommonResponseDto.getMapx()))
-                    .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
-                    .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
-                    .image(tourApiDetailCommonResponseDto.getFirstimage())
-                    .build();
+
+            Spot spot;
+            if (contentId > 100000000L) {
+                spot = spotRepository.findById(stadiumId).orElseThrow(() -> new NoSuchElementException("contentId를 다시 확인해주세요."));
+            } else {
+                TourApiDetailCommonResponseDto.Item tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId).getResponse().getBody().getItems().getItem().get(0);
+                spot = Spot.builder()
+                        .contentId(contentId)
+                        .stadium(stadium)
+                        .name(tourApiDetailCommonResponseDto.getTitle())
+                        .mapX(Double.parseDouble(tourApiDetailCommonResponseDto.getMapx()))
+                        .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
+                        .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
+                        .image(tourApiDetailCommonResponseDto.getFirstimage())
+                        .build();
+            }
+
             SpotScrap spotScrap = SpotScrap.builder()
                     .user(user)
                     .spot(spotRepository.save(spot))
@@ -189,7 +213,7 @@ public class SpotService {
         }
     }
 
-    public ScrapResponseDto getMyScrap(UserPrincipal userPrincipal){
+    public ScrapResponseDto getMyScrap(UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
 
@@ -197,39 +221,39 @@ public class SpotService {
 
         ScrapStadiumSpot scrapStadiumSpot;
         scrapStadiumSpot = getScrapStadiumSpot(user, "잠실");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "수원");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "문학");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "창원");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "광주");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "사직");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "대구");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "대전");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
         scrapStadiumSpot = getScrapStadiumSpot(user, "고척");
-        if(scrapStadiumSpot != null){
+        if (scrapStadiumSpot != null) {
             scrapStadiumSpots.add(scrapStadiumSpot);
         }
 
@@ -240,7 +264,7 @@ public class SpotService {
         return scrapResponseDto;
     }
 
-    public ScrapStadiumSpot getScrapStadiumSpot(User user, String name){
+    public ScrapStadiumSpot getScrapStadiumSpot(User user, String name) {
         List<SpotScrap> spotScraps = spotScrapRepository.findByUserIdAndName(user.getId(), name);
         if (spotScraps == null || spotScraps.isEmpty()) {
             return null;
@@ -298,7 +322,7 @@ public class SpotService {
 
                 Optional<Spot> spotOptional = spotRepository.findById(Long.parseLong(item.getContentid()));
                 Long reviewCount = 0L;
-                if(spotOptional.isPresent()){
+                if (spotOptional.isPresent()) {
                     Spot spot = spotOptional.get();
                     reviewCount = Long.valueOf(reviewRepository.findAllBySpot(spot).size());
                 }
@@ -307,7 +331,7 @@ public class SpotService {
                         .contentId(Long.parseLong(item.getContentid()))
                         .stadiumId(stadium.getId())
                         .title(item.getTitle())
-                        .address(item.getAddr1()+item.getAddr2())
+                        .address(item.getAddr1() + item.getAddr2())
                         .mapX(Double.parseDouble(item.getMapx()))
                         .mapY(Double.parseDouble(item.getMapy()))
                         .reviewCount(reviewCount)
@@ -317,7 +341,7 @@ public class SpotService {
 
                 Optional<Spot> spotOptional = spotRepository.findById(Long.parseLong(item.getContentid()));
                 Long reviewCount = 0L;
-                if(spotOptional.isPresent()){
+                if (spotOptional.isPresent()) {
                     Spot spot = spotOptional.get();
                     reviewCount = Long.valueOf(reviewRepository.findAllBySpot(spot).size());
                 }
@@ -326,12 +350,13 @@ public class SpotService {
                         .contentId(Long.parseLong(item.getContentid()))
                         .stadiumId(stadium.getId())
                         .title(item.getTitle())
-                        .address(item.getAddr1()+item.getAddr2())
+                        .address(item.getAddr1() + item.getAddr2())
                         .mapX(Double.parseDouble(item.getMapx()))
                         .mapY(Double.parseDouble(item.getMapy()))
                         .reviewCount(reviewCount)
                         .image(item.getFirstimage())
-                        .build());;
+                        .build());
+                ;
             }
         }
 
@@ -485,7 +510,7 @@ public class SpotService {
             double distance = calculateDistance(stadium.getY(), stadium.getX(), spot.getMapY(), spot.getMapX());
             if (distance <= Math.abs(radius - 20)) {
                 boolean isScrapped = false;
-                if(userPrincipal!=null){
+                if (userPrincipal != null) {
                     for (SpotMapResponseDto response : responses) {
                         Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(userPrincipal.getId(), response.contentId());
                         isScrapped = scrap.isPresent();
@@ -505,7 +530,7 @@ public class SpotService {
                 responses.add(response);
             } else if (distance <= 20) {
                 boolean isScrapped = false;
-                if(userPrincipal!=null){
+                if (userPrincipal != null) {
                     for (SpotMapResponseDto response : responses) {
                         Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(userPrincipal.getId(), response.contentId());
                         isScrapped = scrap.isPresent();
