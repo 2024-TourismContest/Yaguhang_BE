@@ -3,10 +3,12 @@ package _4.TourismContest.recommend.application;
 import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.recommend.domain.Recommend;
+import _4.TourismContest.recommend.domain.RecommendImage;
 import _4.TourismContest.recommend.domain.RecommendLike;
 import _4.TourismContest.recommend.domain.RecommendSpot;
 import _4.TourismContest.recommend.dto.command.RecommendPostRequest;
 import _4.TourismContest.recommend.dto.event.*;
+import _4.TourismContest.recommend.repository.RecommendImageRepository;
 import _4.TourismContest.recommend.repository.RecommendLikeRepository;
 import _4.TourismContest.recommend.repository.RecommendRepository;
 import _4.TourismContest.recommend.repository.RecommendSpotRepository;
@@ -24,6 +26,7 @@ import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,21 +44,36 @@ public class RecommendService {
     private final RecommendRepository recommendRepository;
     private final RecommendSpotRepository recommendSpotRepository;
     private final RecommendLikeRepository recommendLikeRepository;
+    private final RecommendImageRepository recommendImageRepository;
     private final SpotScrapRepository spotScrapRepository;
     private final StadiumRepository stadiumRepository;
     private final UserRepository userRepository;
-    public RecommendPreviewResponse getRecommendList(String stadiumName,  Integer pagesize, UserPrincipal userPrincipal){
-        Pageable pageable = PageRequest.of(0, pagesize, Sort.by("likeCount").descending());
-        List<Recommend> recommends = recommendRepository.findByLikes(stadiumName, pageable);
+    public RecommendPreviewResponse getRecommendList(Integer pageIndex,  Integer pagesize, String order,UserPrincipal userPrincipal){
+        Pageable pageable;
+        if(order.equals("최신순")){
+            pageable = PageRequest.of(pageIndex, pagesize, Sort.by("createdAt").descending());
+        }
+        else if(order.equals("인기순")){
+            pageable = PageRequest.of(pageIndex, pagesize, Sort.by("likeCount").descending());
+        }
+        else{
+            throw new BadRequestException("정렬 기준을 다시 확인해주세요");
+        }
+        Page<Recommend> recommendsPage = recommendRepository.findRecommendList(pageable);
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
 
-        for (Recommend recommend : recommends) {
+        for (Recommend recommend : recommendsPage.getContent()) {
+            List<String> imageList = recommend.getRecommendImages().stream()
+                    .map(RecommendImage::getImage)
+                    .filter(image -> image != null && !image.isEmpty())
+                    .collect(Collectors.toList());
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
+                    .stadiumName(recommend.getStadium().getName())
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(recommend.getUser().getProfileImg())
                     .title(recommend.getTitle())
-                    .image(recommend.getImage())
+                    .images(imageList)
                     .createdAt(recommend.getCreatedAt())
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
@@ -65,6 +83,7 @@ public class RecommendService {
         }
 
         RecommendPreviewResponse recommendPreviewResponse = RecommendPreviewResponse.builder()
+                .hasNextPage(recommendsPage.hasNext())
                 .pagesize(pagesize)
                 .recommendPreviewDtos(recommendPreviewDtos)
                 .build();
@@ -79,12 +98,16 @@ public class RecommendService {
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
 
         for (Recommend recommend : recommends) {
+            List<String> imageList = recommend.getRecommendImages().stream()
+                    .map(RecommendImage::getImage)
+                    .filter(image -> image != null && !image.isEmpty())
+                    .collect(Collectors.toList());
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(recommend.getUser().getProfileImg())
                     .title(recommend.getTitle())
-                    .image(recommend.getImage())
+                    .images(imageList)
                     .createdAt(recommend.getCreatedAt())
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
@@ -129,6 +152,7 @@ public class RecommendService {
                 .build();
     }
 
+    @Transactional
     public String likeRecommend(Long recommendId, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
@@ -139,6 +163,7 @@ public class RecommendService {
         if(optionalRecommendLike.isPresent()){
             RecommendLike recommendLike = optionalRecommendLike.get();
             recommendLikeRepository.delete(recommendLike);
+            recommend.minusLikes(recommend);
             return "remove like";
         }
         else{
@@ -147,6 +172,7 @@ public class RecommendService {
                     .recommend(recommend)
                     .build();
             recommendLikeRepository.save(recommendLike);
+            recommend.plusLikes(recommend);
             return "add like";
         }
     }
@@ -220,6 +246,8 @@ public class RecommendService {
                 .title(recommendPostRequest.title())
                 .build());
 
+        List<RecommendImage> recommendImages = new ArrayList<>();
+
         for(Long contentId : recommendPostRequest.contentIdList()){
             SpotScrap spot = spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId)
                     .orElseThrow(() -> new BadRequestException("contentId를 다시 확인해주세요"));
@@ -227,13 +255,15 @@ public class RecommendService {
                     .recommend(recommend)
                     .spot(spot.getSpot())
                     .build();
-            if(recommend.getImage()==null){
-                if(spot.getSpot().getImage()!=null) {
-                    recommendRepository.save(recommend.setImage(recommend, spot.getSpot().getImage()));
-                }
+
+            if(spot.getSpot().getImage()!=null) {
+                recommendImages.add(recommendImageRepository.save(RecommendImage.builder()
+                        .image(spot.getSpot().getImage())
+                        .build()));
             }
             recommendSpotRepository.save(recommendSpot);
         }
+        recommendRepository.save(recommend.setImages(recommend, recommendImages));
         return "success post recommend";
     }
     @Transactional
