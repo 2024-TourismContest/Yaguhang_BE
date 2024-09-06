@@ -19,11 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class RecommendController {
     private final RecommendService recommendService;
     @GetMapping("")
-    @Operation(summary = "추천행 리스트를 좋아요 순으로 가져오는 api" ,description = "경기장 이름과 pagesige 넣어주세요")
-    public ResponseEntity<RecommendPreviewResponse> getRecommend(@RequestParam String stadiumName,
+    @Operation(summary = "추천행 리스트 가져오는 api" ,description = "pageIndex, pagesige 넣어주세요. 정렬 기준 : '인기순', '최신순'")
+    public ResponseEntity<RecommendPreviewResponse> getRecommend(@RequestParam(defaultValue = "0") Integer pageIndex,
                                                                    @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                   @RequestParam(defaultValue = "인기순") String order,
                                                                    @CurrentUser UserPrincipal userPrincipal) {
-        RecommendPreviewResponse recommendPreviewResponse = recommendService.getRecommendList(stadiumName, pageSize, userPrincipal);
+        RecommendPreviewResponse recommendPreviewResponse = recommendService.getRecommendList(pageIndex, pageSize, order,userPrincipal);
         return new ResponseEntity<>(recommendPreviewResponse, HttpStatus.OK);
     }
 
