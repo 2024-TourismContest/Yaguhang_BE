@@ -48,7 +48,7 @@ public class RecommendService {
     private final SpotScrapRepository spotScrapRepository;
     private final StadiumRepository stadiumRepository;
     private final UserRepository userRepository;
-    public RecommendPreviewResponse getRecommendList(Integer pageIndex,  Integer pagesize, String order,UserPrincipal userPrincipal){
+    public RecommendPreviewResponse getRecommendList(Integer pageIndex,  Integer pagesize, String order, String filter, UserPrincipal userPrincipal){
         Pageable pageable;
         if(order.equals("최신순")){
             pageable = PageRequest.of(pageIndex, pagesize, Sort.by("createdAt").descending());
@@ -59,7 +59,15 @@ public class RecommendService {
         else{
             throw new BadRequestException("정렬 기준을 다시 확인해주세요");
         }
-        Page<Recommend> recommendsPage = recommendRepository.findRecommendList(pageable);
+
+        Page<Recommend> recommendsPage;
+        if(filter.equals("전체")) {
+            recommendsPage = recommendRepository.findRecommendList(pageable);
+        }
+        else{
+            recommendsPage = recommendRepository.findRecommendListByfilter(pageable, filter);
+        }
+
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
 
         for (Recommend recommend : recommendsPage.getContent()) {
