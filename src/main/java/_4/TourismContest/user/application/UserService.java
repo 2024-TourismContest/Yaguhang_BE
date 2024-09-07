@@ -3,18 +3,18 @@ package _4.TourismContest.user.application;
 import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.repository.BaseballRepository;
 import _4.TourismContest.baseball.repository.BaseballScrapRepository;
-import _4.TourismContest.baseball.repository.impl.BaseballScrapRepositoryCustom;
-import _4.TourismContest.baseball.repository.impl.BaseballScrapRepositoryCustomImpl;
 import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.exception.ResourceNotFoundException;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.dto.UserProfileResponse;
+import _4.TourismContest.user.dto.UserUpdateRequest;
 import _4.TourismContest.user.dto.event.UserDdayDto;
 import _4.TourismContest.user.dto.event.UserInfoDto;
 import _4.TourismContest.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -28,7 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BaseballRepository baseballRepository;
     private final BaseballScrapRepository baseballScrapRepository;
-
+    private final PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -52,16 +52,10 @@ public class UserService {
         return UserProfileResponse.of(user);
     }
 
-    public Optional<User> updateUser(Long id, User updatedUser) {
-        return userRepository.findById(id).map(user -> {
-            User updated = User.builder()
-                    .email(updatedUser.getEmail())
-                    .password(updatedUser.getPassword())
-                    .nickname(updatedUser.getNickname())
-                    .profileImg(updatedUser.getProfileImg())
-                    .build();
-            return userRepository.save(updated);
-        });
+    public void updateUserPassword(Long id, String password) {
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        user.updatePassword(password);
     }
 
     public void deleteUser(Long id) {
@@ -136,5 +130,14 @@ public class UserService {
         userRepository.save(User.registerFanTeam(user, team));
 
         return "success register";
+    }
+
+    @Transactional
+    public UserInfoDto updateUser(Long currentUserId, UserUpdateRequest request) {
+        User user = userRepository.findById(currentUserId).orElseThrow(() -> new ResourceNotFoundException("User", "id", currentUserId));
+
+        user.update(request);
+
+        return UserInfoDto.of(user);
     }
 }
