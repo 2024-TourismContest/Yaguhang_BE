@@ -28,8 +28,13 @@ public class SpotMapController {
             "radius: (km 단위)")
     public ResponseEntity<List<SpotMapResponseDto>> getStadiumNearSpot(@PathVariable Long stadiumId, @PathVariable String category, @PathVariable int level,
                                                                        @PathVariable double nowX, @PathVariable double nowY, @CurrentUser UserPrincipal userPrincipal) throws IOException {
-        List<SpotMapResponseDto> nearSpot = spotService.getNearSpot(nowX, nowY, stadiumId, category, level, userPrincipal);
-        return ResponseEntity.ok(nearSpot);
+        if(category.equals("선수PICK")){
+            List<SpotMapResponseDto> athletePickMap = spotService.getAthletePickMap(stadiumId, level, nowX, nowY, userPrincipal);
+            return ResponseEntity.ok(athletePickMap);
+        }else{
+            List<SpotMapResponseDto> nearSpot = spotService.getNearSpot(nowX, nowY, stadiumId, category, level, userPrincipal);
+            return ResponseEntity.ok(nearSpot);
+        }
     }
 
     @GetMapping("/{stadium}/{contentId}")
@@ -38,11 +43,11 @@ public class SpotMapController {
         SpotDetailInfoDto nearSpotDetailInfo = spotService.getNearSpotDetailInfo(stadium, contentId, userPrincipal);
         return ResponseEntity.ok(nearSpotDetailInfo);
     }
-    @GetMapping("/{stadiumId}/{level}/{nowX}/{nowY}")
-    @Operation(summary = "선수픽 맛집 마커를 찍기 위한 정보",description = "선수들이 점찍은 맛집 정보를 마커 형태로 제공하기 위해, 좌표와 리뷰 수, 별점 등 정보를 제공합니다.")
-    public ResponseEntity<List<SpotMapResponseDto>> getAtheletePickInfo(@PathVariable Long stadiumId, @PathVariable int level, @PathVariable double nowX, @PathVariable double nowY, @CurrentUser UserPrincipal userPrincipal) throws IOException{
-        List<SpotMapResponseDto> nearSpot = spotService.getAthletePickMap(stadiumId,level,nowX,nowY,userPrincipal);
-        return ResponseEntity.ok(nearSpot);
-    }
+//    @GetMapping("/{stadiumId}/{level}/{nowX}/{nowY}")
+//    @Operation(summary = "선수픽 맛집 마커를 찍기 위한 정보",description = "선수들이 점찍은 맛집 정보를 마커 형태로 제공하기 위해, 좌표와 리뷰 수, 별점 등 정보를 제공합니다.")
+//    public ResponseEntity<List<SpotMapResponseDto>> getAtheletePickInfo(@PathVariable Long stadiumId, @PathVariable int level, @PathVariable double nowX, @PathVariable double nowY, @CurrentUser UserPrincipal userPrincipal) throws IOException{
+//        List<SpotMapResponseDto> nearSpot = spotService.getAthletePickMap(stadiumId,level,nowX,nowY,userPrincipal);
+//        return ResponseEntity.ok(nearSpot);
+//    }
 }
 
