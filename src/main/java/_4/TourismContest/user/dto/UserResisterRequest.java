@@ -13,6 +13,5 @@ public record UserResisterRequest(
         String password,
         @NotBlank
         @Size(min = 2, max = 30)
-        String nickname ) {
-
+        String nickname) {
 }

@@ -1,6 +1,7 @@
 package _4.TourismContest.user.domain;
 
 import _4.TourismContest.oauth.domain.AuthProvider;
+import _4.TourismContest.user.dto.UserUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -68,5 +69,14 @@ public class User {
     public static User registerFanTeam(User user, String fanTeam){
         user.fanTeam = fanTeam;
         return user;
+    }
+
+    public void update(UserUpdateRequest request) {
+        this.nickname = request.nickname();
+        this.profileImg = request.profileImge();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
