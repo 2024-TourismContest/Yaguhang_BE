@@ -52,7 +52,7 @@ public class WeatherForecastService {
      * @return
      */
     public Page<WeatherForecast> findWeatherForecastDataPerHour(String stadium, int page, int size) {
-        Stadium stadiumEntity = stadiumRepository.findByName(stadium)
+        Stadium stadiumEntity = stadiumRepository.findTopByName(stadium)
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         LocalDateTime now = LocalDateTime.now().minusHours(1L);
@@ -77,7 +77,7 @@ public class WeatherForecastService {
 
         LocalDateTime gameTime = game.getTime().minusHours(1L);
 
-        Stadium stadium = stadiumRepository.findByName(game.getLocation())
+        Stadium stadium = stadiumRepository.findTopByName(game.getLocation())
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         Pageable pageable = PageRequest.of(page, size);
@@ -200,7 +200,7 @@ public class WeatherForecastService {
     }
 
     private Stadium getStadiumByName(String location) {
-        return stadiumRepository.findByName(location)
+        return stadiumRepository.findTopByName(location)
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
     }
 
