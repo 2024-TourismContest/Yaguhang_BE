@@ -237,7 +237,7 @@ public class RecommendService {
     public String postRecommend(RecommendPostRequest recommendPostRequest, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("로그인 토큰을 다시 확인해주세요"));
-        Stadium stadium = stadiumRepository.findByName(recommendPostRequest.Stadium())
+        Stadium stadium = stadiumRepository.findTopByName(recommendPostRequest.Stadium())
                 .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
 
         Recommend recommend = recommendRepository.save(Recommend.builder()
