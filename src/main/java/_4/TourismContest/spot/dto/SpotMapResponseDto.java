@@ -6,6 +6,7 @@ import lombok.Builder;
 public record SpotMapResponseDto(
         Long contentId,
         Long stadiumId,
+        String stadiumName,
         String title,
         String address,
         Double mapX,
