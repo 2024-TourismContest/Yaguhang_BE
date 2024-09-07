@@ -18,6 +18,9 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
     @Query("SELECT r FROM Recommend r")
     Page<Recommend> findRecommendList(Pageable pageable);
 
+    @Query("SELECT r FROM Recommend r where r.stadium.name=:filter")
+    Page<Recommend> findRecommendListByfilter(Pageable pageable, @Param("filter")String filter);
+
     @Query("SELECT r FROM Recommend r WHERE r.user.id=:userId")
     List<Recommend> findRecommendByUser(@Param("userId")Long userId, Pageable pageable);
 }
