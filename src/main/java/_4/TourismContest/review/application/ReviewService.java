@@ -49,8 +49,11 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
     }
 
     public ReviewsResponse getSpotReviews(Long spotId, UserPrincipal userPrincipal, String sort) {
-        Spot spot = spotRepository.findById(spotId)
-                .orElseThrow(() -> new IllegalArgumentException("no spot"));
+        Optional<Spot> optionalSpot = spotRepository.findById(spotId);
+        if(optionalSpot.isEmpty()){
+            return new ReviewsResponse(new ArrayList<>());
+        }
+        Spot spot = optionalSpot.get();
 
         List<Review> reviews;
         if(sort.equals("new")){
