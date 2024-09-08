@@ -1,5 +1,6 @@
 package _4.TourismContest.review.application;
 
+import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.domain.ReviewImage;
 import _4.TourismContest.review.domain.ReviewLike;
@@ -47,9 +48,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         reviewImageRepository.saveAll(reviewImages);
     }
 
-    public ReviewsResponse getSpotReviews(Long spotId, Long userId, String sort) {
-        Optional<User> optionalUser = userRepository.findById(userId);
-
+    public ReviewsResponse getSpotReviews(Long spotId, UserPrincipal userPrincipal, String sort) {
         Spot spot = spotRepository.findById(spotId)
                 .orElseThrow(() -> new IllegalArgumentException("no spot"));
 
@@ -70,8 +69,9 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         List<ReviewDto> reviewDtos = new ArrayList<>();
         for(Review review : reviews){
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
-            if(optionalUser.isPresent()){
-                User user = optionalUser.get();
+            if(userPrincipal!=null){
+                User user = userRepository.findById(userPrincipal.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("no user"));
                 reviewDtos.add(ReviewDto.of(review, reviewImages, user.getId()==review.getUser().getId(), reviewLikeRepository.findByUserAndReview(user,review).isPresent()));
             }
             else{
