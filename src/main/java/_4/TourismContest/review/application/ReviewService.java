@@ -15,6 +15,10 @@ import _4.TourismContest.review.repository.ReviewLikeRepository;
 import _4.TourismContest.review.repository.ReviewRepository;
 import _4.TourismContest.spot.domain.Spot;
 import _4.TourismContest.spot.repository.SpotRepository;
+import _4.TourismContest.stadium.domain.Stadium;
+import _4.TourismContest.stadium.repository.StadiumRepository;
+import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
+import _4.TourismContest.tour.infrastructure.TourApi;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,13 +38,38 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
     private final ReviewLikeRepository reviewLikeRepository;
     private final UserRepository userRepository;
     private final SpotRepository spotRepository;
+    private final TourApi tourApi;
+    private final StadiumRepository stadiumRepository;
 
     public void saveReview(Long userId, Long spotId, ReviewCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("no user"));
 
-        Spot spot = spotRepository.findById(spotId)
-                .orElseThrow(() -> new IllegalArgumentException("no spot"));
+        Optional<Spot> optionalSpot = spotRepository.findById(spotId);
+        Spot spot;
+        if(optionalSpot.isEmpty()){
+            if (spotId > 100000000L) {
+                spot = spotRepository.findById(spotId).orElseThrow(() -> new NoSuchElementException("contentId를 다시 확인해주세요."));
+            } else {
+                TourApiDetailCommonResponseDto.Item tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(spotId).getResponse().getBody().getItems().getItem().get(0);
+                Stadium stadium = stadiumRepository.findTopByName(request.stadiumName())
+                        .orElseThrow(() -> new IllegalArgumentException("no stadium"));
+                spot = Spot.builder()
+                        .contentId(spotId)
+                        .stadium(stadium)
+                        .name(tourApiDetailCommonResponseDto.getTitle())
+                        .mapX(Double.parseDouble(tourApiDetailCommonResponseDto.getMapx()))
+                        .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
+                        .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
+                        .image(tourApiDetailCommonResponseDto.getFirstimage())
+                        .build();
+                spotRepository.save(spot);
+            }
+        }
+        else{
+            spot = optionalSpot.get();
+        }
+
 
         Review review = request.toReviewEntity(user, spot);
         reviewRepository.save(review);
