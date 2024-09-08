@@ -39,7 +39,7 @@ public class ReviewController {
     }
 
     @GetMapping("/{contentId}")
-    @Operation(summary = "리뷰 리스트 가져오는 api" ,description = "contentId, 토큰, 정렬 기준을 넣어주세요. 정렬 기준 : ('new' : 최신순), ('like' : 좋아요순), ('ole' : 오래된순)")
+    @Operation(summary = "리뷰 리스트 가져오는 api" ,description = "contentId, 토큰, 정렬 기준을 넣어주세요. 정렬 기준 : ('new' : 최신순), ('like' : 좋아요순), ('old' : 오래된순)")
     public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("contentId") Long contentId,
                                                       @CurrentUser UserPrincipal user,
                                                       @RequestParam String sort) {
