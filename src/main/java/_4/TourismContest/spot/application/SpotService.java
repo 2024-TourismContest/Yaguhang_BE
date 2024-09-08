@@ -190,7 +190,7 @@ public class SpotService {
 
             Spot spot;
             if (contentId > 100000000L) {
-                spot = spotRepository.findById(stadiumId).orElseThrow(() -> new NoSuchElementException("contentId를 다시 확인해주세요."));
+                spot = spotRepository.findById(contentId).orElseThrow(() -> new NoSuchElementException("contentId를 다시 확인해주세요."));
             } else {
                 TourApiDetailCommonResponseDto.Item tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(contentId).getResponse().getBody().getItems().getItem().get(0);
                 spot = Spot.builder()
