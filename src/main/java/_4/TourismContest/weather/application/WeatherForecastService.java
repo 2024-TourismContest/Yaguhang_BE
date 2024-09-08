@@ -185,11 +185,11 @@ public class WeatherForecastService {
         LocalDateTime startOfDay = gameTime.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = gameTime.toLocalDate().atTime(LocalTime.MAX);
 
-        double minTemp = getWeatherDataForCategory(stadium, "TMN", gameTime);
-        double maxTemp = getWeatherDataForCategory(stadium, "TMX", gameTime);
-        double humidity = getWeatherDataForCategory(stadium, "REH", gameTime);
-        double temp = getWeatherDataForCategory(stadium, "TMP", gameTime);
-        double totalRainfall = calculateTotalRainfall(stadium, startOfDay, endOfDay);
+        Double minTemp = getWeatherDataForCategory(stadium, "TMN", gameTime);
+        Double maxTemp = getWeatherDataForCategory(stadium, "TMX", gameTime);
+        Double humidity = getWeatherDataForCategory(stadium, "REH", gameTime);
+        Double temp = getWeatherDataForCategory(stadium, "TMP", gameTime);
+        Double totalRainfall = calculateTotalRainfall(stadium, startOfDay, endOfDay);
 
         return buildWeatherForecastPerDayDTO(minTemp, maxTemp, humidity, totalRainfall, temp, game.getLocation(),game);
     }
@@ -204,11 +204,11 @@ public class WeatherForecastService {
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
     }
 
-    private double getWeatherDataForCategory(Stadium stadium, String category, LocalDateTime gameTime) {
+    private Double getWeatherDataForCategory(Stadium stadium, String category, LocalDateTime gameTime) {
         return weatherForecastRepository.findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(
                         stadium.getNx(), stadium.getNy(), category, gameTime)
                 .map(weather -> Double.parseDouble(weather.getFcstValue()))
-                .orElseThrow(() -> new IllegalStateException("No data found in WeatherRepository"));
+                .orElse(null); // 데이터가 없을 경우 null 반환
     }
 
     private double calculateTotalRainfall(Stadium stadium, LocalDateTime startOfDay, LocalDateTime endOfDay) {
@@ -229,7 +229,7 @@ public class WeatherForecastService {
         return fcstValue.endsWith("mm") ? Double.parseDouble(fcstValue.replace("mm", "").trim()) : 0.0;
     }
 
-    private WeatherForecastPerDayDTO buildWeatherForecastPerDayDTO(double minTemp, double maxTemp, double humidity, double rainFall, double temp, String stadiumLocation, Baseball baseball) {
+    private WeatherForecastPerDayDTO buildWeatherForecastPerDayDTO(Double minTemp, Double maxTemp, Double humidity, Double rainFall, Double temp, String stadiumLocation, Baseball baseball) {
         return WeatherForecastPerDayDTO.builder()
                 .minTemp(minTemp)
                 .maxTemp(maxTemp)

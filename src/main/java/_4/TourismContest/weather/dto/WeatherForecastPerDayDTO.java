@@ -9,11 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class WeatherForecastPerDayDTO {
-    private double minTemp;
-    private double maxTemp;
-    private double humidity;
-    private double temp;
-    private double rainFall;
+    private Double minTemp;
+    private Double maxTemp;
+    private Double humidity;
+    private Double temp;
+    private Double rainFall;
     private WeatherForecastEnum sky;
     private String skyUrl;
     private String stadium;
