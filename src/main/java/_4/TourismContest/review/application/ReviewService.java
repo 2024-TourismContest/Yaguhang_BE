@@ -47,7 +47,10 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         reviewImageRepository.saveAll(reviewImages);
     }
 
-    public ReviewsResponse getSpotReviews(Long spotId, String sort) {
+    public ReviewsResponse getSpotReviews(Long spotId, Long userId, String sort) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("no user"));
+
         Spot spot = spotRepository.findById(spotId)
                 .orElseThrow(() -> new IllegalArgumentException("no spot"));
 
@@ -68,7 +71,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         List<ReviewDto> reviewDtos = new ArrayList<>();
         for(Review review : reviews){
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
-            reviewDtos.add(ReviewDto.of(review, reviewImages));
+            reviewDtos.add(ReviewDto.of(review, reviewImages, user.getId()==review.getUser().getId(), reviewLikeRepository.findByUserAndReview(user,review).isPresent()));
         }
         return ReviewsResponse.of(reviewDtos);
     }
