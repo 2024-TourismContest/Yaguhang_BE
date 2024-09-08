@@ -43,7 +43,7 @@ public class ReviewController {
     public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("contentId") Long contentId,
                                                       @CurrentUser UserPrincipal user,
                                                       @RequestParam String sort) {
-        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(contentId, user.getId(), sort);
+        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(contentId, user, sort);
         return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
 
