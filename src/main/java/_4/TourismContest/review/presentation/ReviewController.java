@@ -8,6 +8,7 @@ import _4.TourismContest.review.dto.request.ReviewCreateRequest;
 import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
 import _4.TourismContest.review.dto.response.ReviewPreviewsResponse;
 import _4.TourismContest.review.dto.response.ReviewsResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,22 +29,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @PostMapping("/{spotId}")
-    public ResponseEntity<String> saveReview(@PathVariable("spotId") Long spotId,
+    @PostMapping("/{contentId}")
+    @Operation(summary = "리뷰 작성하는 api" ,description = "contentId, 토큰, 리뷰 작성 내용 입력해주세요. ")
+    public ResponseEntity<String> saveReview(@PathVariable("contentId") Long contentId,
                                        @CurrentUser UserPrincipal user,
                                        @RequestBody ReviewCreateRequest request) {
-        reviewService.saveReview(user.getId(), spotId, request);
+        reviewService.saveReview(user.getId(), contentId, request);
         return new ResponseEntity<>("success save review", HttpStatus.OK);
     }
 
-    @GetMapping("/{spotId}")
-    public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("spotId") Long spotId,
+    @GetMapping("/{contentId}")
+    @Operation(summary = "리뷰 리스트 가져오는 api" ,description = "contentId, 토큰, 정렬 기준을 넣어주세요. 정렬 기준 : ('new' : 최신순), ('like' : 좋아요순), ('ole' : 오래된순)")
+    public ResponseEntity<ReviewsResponse> getReviews(@PathVariable("contentId") Long contentId,
+                                                      @CurrentUser UserPrincipal user,
                                                       @RequestParam String sort) {
-        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(spotId, sort);
+        ReviewsResponse reviewsResponse = reviewService.getSpotReviews(contentId, user.getId(), sort);
         return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
 
     @PutMapping("/{reviewId}")
+    @Operation(summary = "리뷰 수정하는 api" ,description = "reviewId, 토큰, 리뷰 수정 내용 입력해주세요. ")
     public ResponseEntity<String> updateReview(@PathVariable("reviewId") Long reviewId,
                                                @CurrentUser UserPrincipal user,
                                                 @RequestBody ReviewUpdateRequest request) {
@@ -52,6 +57,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
+    @Operation(summary = "리뷰 삭제하는 api" ,description = "reviewId, 토큰 입력해주세요. ")
     public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
                                                @CurrentUser UserPrincipal user) {
         reviewService.deleteReview(reviewId, user.getId());
@@ -59,6 +65,7 @@ public class ReviewController {
     }
 
     @PatchMapping("/{reviewId}/like")
+    @Operation(summary = "리뷰 좋아요 api" ,description = "reviewId, 토큰 입력해주세요. ")
     public ResponseEntity<String> likeReview(@PathVariable("reviewId") Long reviewId,
                                              @CurrentUser UserPrincipal user) {
         String result = reviewService.likeReview(reviewId, user.getId());
@@ -66,6 +73,7 @@ public class ReviewController {
     }
 
     @GetMapping("/my-review")
+    @Operation(summary = "내가 작성한 리뷰 리스트 가져오는 api" ,description = "토큰 입력해주세요. ")
     public ResponseEntity<ReviewPreviewsResponse> getReviews(@CurrentUser UserPrincipal user) {
         ReviewPreviewsResponse reviewsResponse = reviewService.getReviewsByUser(user.getId());
         return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);

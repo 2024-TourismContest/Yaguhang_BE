@@ -11,16 +11,20 @@ import java.util.stream.Collectors;
 public record ReviewDto(
         UserInfoDto user,
         Long reviewId,
+        boolean isMine,
+        boolean isLiked,
         float star,
         int likeCount,
         LocalDateTime createdAt,
         String content,
         List<String> images
 ) {
-    public static ReviewDto of(Review review, List<ReviewImage> reviewImages){
+    public static ReviewDto of(Review review, List<ReviewImage> reviewImages, boolean isMine, boolean isLiked){
         return new ReviewDto(
                 UserInfoDto.of(review.getUser()),
                 review.getId(),
+                isMine,
+                isLiked,
                 review.getStar(),
                 review.getLikeCount(),
                 review.getCreatedAt(),
