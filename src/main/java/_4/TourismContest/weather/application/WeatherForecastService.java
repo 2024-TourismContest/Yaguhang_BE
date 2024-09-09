@@ -24,6 +24,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -353,19 +355,11 @@ public class WeatherForecastService {
      */
     @Transactional
     public void fetchAndSaveShortTermForecastData(String baseDate, String baseTime, int nx, int ny) throws IOException {
-        URI uri = UriComponentsBuilder.fromHttpUrl(API_URL)
-                .queryParam("serviceKey", SERVICE_KEY)
-                .queryParam("base_date", baseDate)
-                .queryParam("base_time", baseTime)
-                .queryParam("nx", nx)
-                .queryParam("ny", ny)
-                .queryParam("numOfRows", 1000)
-                .queryParam("pageNo", 1)
-                .queryParam("dataType", "JSON")
-                .encode()
-                .build()
-                .toUri();
-
+        String encodedServiceKey = URLEncoder.encode(SERVICE_KEY, StandardCharsets.UTF_8.toString());
+        String url = String.format("%s?serviceKey=%s&base_date=%s&base_time=%s&nx=%d&ny=%d&numOfRows=%d&pageNo=%d&dataType=%s",
+                API_URL,encodedServiceKey,baseDate,baseTime,nx,ny,1000,1,"JSON");
+        URI uri = URI.create(url);
+        System.out.println("uri.toURL() = " + uri.toURL());
         WeatherApiResponse response = restTemplate.getForObject(uri, WeatherApiResponse.class);
         if (response != null && response.getResponse() != null &&
                 response.getResponse().getBody() != null &&
@@ -411,4 +405,5 @@ public class WeatherForecastService {
             throw new IOException("No data found in response.");
         }
     }
+
 }
