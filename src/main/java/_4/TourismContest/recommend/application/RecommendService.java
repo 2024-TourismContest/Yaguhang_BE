@@ -117,10 +117,8 @@ public class RecommendService {
                     .map(RecommendImage::getImage)
                     .filter(image -> image != null && !image.isEmpty())
                     .collect(Collectors.toList());
-
             Random random = new Random();
             String profileImg = imageList.get(random.nextInt(imageList.size()));
-
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .authorName(recommend.getUser().getNickname())
