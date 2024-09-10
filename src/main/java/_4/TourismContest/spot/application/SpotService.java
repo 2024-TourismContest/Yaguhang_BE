@@ -80,7 +80,7 @@ public class SpotService {
         List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(spotsByStadiumAndCategory);
         List<SpotBasicPreviewDto> athletePickPreviewDtoList = new ArrayList<>();
         for (AthletePickSpot spot : athletePickSpotsInfo) {
-            Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(/*userPrincipal.getId()*/1L, spot.getId());
+            Optional<SpotScrap> scrap = spotScrapRepository.findByUserIdAndSpotContentId(userPrincipal.getId(), spot.getId());
             boolean isScraped = scrap.isPresent();
 
             athletePickPreviewDtoList.add(SpotAthletePickPreviewDto.of(spot, isScraped));
