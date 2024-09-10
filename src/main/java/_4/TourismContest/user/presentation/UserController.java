@@ -33,6 +33,7 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
+    @Operation(summary = "내 정보 확인" ,description = "")
     public ResponseEntity<UserProfileResponse> getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
         UserProfileResponse currentUser = userService.getCurrentUser(userPrincipal.getId());
         return ResponseEntity.ok(currentUser);
@@ -51,6 +52,7 @@ public class UserController {
     }
 
     @DeleteMapping
+    @Operation(summary = "유저 삭제" ,description = "")
     public ResponseEntity<String> deleteUser(@CurrentUser UserPrincipal user) {
         userService.deleteUser(user.getId());
         return ResponseEntity.ok("success delete user");

@@ -9,6 +9,7 @@ import _4.TourismContest.user.application.UserService;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.dto.UserResisterRequest;
 import _4.TourismContest.user.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/login")
+    @Operation(summary = "로그인" ,description = "")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -53,6 +55,10 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
+    @Operation(summary = "회원가입"
+            ,description = "이메일 형식으로 기입 할것.\n" +
+            "비밀번호는 6~20자 사이\n" +
+            "닉네임은 2~30자 사이로 입력해주세요.")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserResisterRequest registrationDto) {
         User newUser = User.builder()
                 .email(registrationDto.email())
@@ -65,17 +71,20 @@ public class AuthController {
     }
 
     @GetMapping("/provider")
+    @Operation(summary = "로그인 provider 확인" ,description = "로그인 종류를 확인합니다.(일반, 카카오)")
     public ResponseEntity<String> getUserProvider(@CurrentUser UserPrincipal currentUser) {
         User user = userRepository.findById(currentUser.getId()).orElseThrow(() -> new NoSuchElementException("사용자가 존재하지 않습니다."));
         return ResponseEntity.ok(user.getProvider().name());
     }
 
     @GetMapping("/password-check")
+    @Operation(summary = "비밀번호 확인" ,description = "")
     public ResponseEntity<Boolean> checkPassword(@CurrentUser UserPrincipal currentUser, @RequestBody String password) {
         return ResponseEntity.ok(currentUser.getPassword().equals(password));
     }
 
     @PutMapping("/password")
+    @Operation(summary = "비밀번호 변경" ,description = "")
     public ResponseEntity<String> updatePassword(@CurrentUser UserPrincipal currentUser, @RequestBody String password) {
         userService.updateUserPassword(currentUser.getId(), passwordEncoder.encode(password));
         return ResponseEntity.ok("success update password");
