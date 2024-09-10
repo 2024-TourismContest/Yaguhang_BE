@@ -23,6 +23,7 @@ import _4.TourismContest.spot.repository.SpotScrapRepository;
 import _4.TourismContest.stadium.domain.Stadium;
 import _4.TourismContest.stadium.repository.StadiumRepository;
 import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
+import _4.TourismContest.tour.infrastructure.TourApi;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -33,9 +34,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -48,6 +51,7 @@ public class RecommendService {
     private final SpotScrapRepository spotScrapRepository;
     private final StadiumRepository stadiumRepository;
     private final UserRepository userRepository;
+    private final TourApi tourApi;
     public RecommendPreviewResponse getRecommendList(Integer pageIndex,  Integer pagesize, String order, String filter, UserPrincipal userPrincipal){
         Pageable pageable;
         if(order.equals("최신순")){
@@ -69,20 +73,23 @@ public class RecommendService {
         }
 
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         for (Recommend recommend : recommendsPage.getContent()) {
             List<String> imageList = recommend.getRecommendImages().stream()
                     .map(RecommendImage::getImage)
                     .filter(image -> image != null && !image.isEmpty())
                     .collect(Collectors.toList());
+
+            Random random = new Random();
+            String profileImg = imageList.get(random.nextInt(imageList.size()));
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumName(recommend.getStadium().getName())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(recommend.getUser().getProfileImg())
+                    .profileImage(profileImg)
                     .title(recommend.getTitle())
                     .images(imageList)
-                    .createdAt(recommend.getCreatedAt())
+                    .createdAt(recommend.getCreatedAt().format(formatter))
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
                     .isLiked(isScraped(userPrincipal, recommend))
@@ -104,19 +111,23 @@ public class RecommendService {
         Pageable pageable = PageRequest.of(0, pagesize);
         List<Recommend> recommends = recommendRepository.findRecommendByUser(user.getId(), pageable);
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         for (Recommend recommend : recommends) {
             List<String> imageList = recommend.getRecommendImages().stream()
                     .map(RecommendImage::getImage)
                     .filter(image -> image != null && !image.isEmpty())
                     .collect(Collectors.toList());
+
+            Random random = new Random();
+            String profileImg = imageList.get(random.nextInt(imageList.size()));
+
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(recommend.getUser().getProfileImg())
+                    .profileImage(profileImg)
                     .title(recommend.getTitle())
                     .images(imageList)
-                    .createdAt(recommend.getCreatedAt())
+                    .createdAt(recommend.getCreatedAt().format(formatter))
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
                     .isLiked(isScraped(userPrincipal, recommend))
