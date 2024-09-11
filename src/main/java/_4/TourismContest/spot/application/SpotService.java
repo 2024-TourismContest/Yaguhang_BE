@@ -52,9 +52,11 @@ public class SpotService {
     private final TourApi tourApi;
     private final AthletePickSpotRepository athletePickSpotRepository;
 
-    public SpotCategoryResponse getMainSpot(String stadium, String category, UserPrincipal userPrincipal) {
-        TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadium), 10000, category); // radius 10km
-        return tourApiToSpotCategoryResponse(tourApiResponseDto, category, getIsScrapedList(userPrincipal, tourApiResponseDto));
+    public SpotCategoryResponse getMainSpot(String stadiumName, String category, UserPrincipal userPrincipal) {
+        TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadiumName), 10000, category); // radius 10km
+        Stadium stadium = stadiumRepository.findTopByName(stadiumName)
+                .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
+        return tourApiToSpotCategoryResponse(tourApiResponseDto, category, stadium,getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
 
     public SpotStadiumPreviewResponse getStadiumSpot(Long stadiumId, String category, Integer pagesize, Integer pageindex, Integer radius, UserPrincipal userPrincipal) {
