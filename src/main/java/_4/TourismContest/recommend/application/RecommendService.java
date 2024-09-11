@@ -99,6 +99,7 @@ public class RecommendService {
 
         RecommendPreviewResponse recommendPreviewResponse = RecommendPreviewResponse.builder()
                 .hasNextPage(recommendsPage.hasNext())
+                .totalPage(recommendsPage.getTotalPages())
                 .pagesize(pagesize)
                 .recommendPreviewDtos(recommendPreviewDtos)
                 .build();

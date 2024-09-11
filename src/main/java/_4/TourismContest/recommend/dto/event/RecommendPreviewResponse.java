@@ -7,6 +7,7 @@ import java.util.List;
 public record RecommendPreviewResponse(
         Boolean hasNextPage,
         Integer pagesize,
+        Integer totalPage,
         List<RecommendPreviewDto> recommendPreviewDtos
 ) {
 }
