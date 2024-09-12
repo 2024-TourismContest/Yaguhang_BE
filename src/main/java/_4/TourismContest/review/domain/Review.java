@@ -34,7 +34,7 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     private Spot spot;
 
-    @Min(1)
+    @Min(0)
     @Max(5)
     @Column(name = "rating", nullable = false)
     private float star;
