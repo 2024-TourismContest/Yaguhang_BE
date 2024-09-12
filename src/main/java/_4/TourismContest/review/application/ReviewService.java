@@ -1,6 +1,7 @@
 package _4.TourismContest.review.application;
 
 import _4.TourismContest.oauth.application.UserPrincipal;
+import _4.TourismContest.recommend.dto.event.RecommendScrapResponse;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.domain.ReviewImage;
 import _4.TourismContest.review.domain.ReviewLike;
@@ -9,6 +10,7 @@ import _4.TourismContest.review.dto.ReviewPreviewDto;
 import _4.TourismContest.review.dto.request.ReviewCreateRequest;
 import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
 import _4.TourismContest.review.dto.response.ReviewPreviewsResponse;
+import _4.TourismContest.review.dto.response.ReviewScrapResponse;
 import _4.TourismContest.review.dto.response.ReviewsResponse;
 import _4.TourismContest.review.repository.ReviewImageRepository;
 import _4.TourismContest.review.repository.ReviewLikeRepository;
@@ -23,6 +25,7 @@ import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,7 +159,8 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         }
     }
 
-    public String likeReview(Long reviewId, Long userId) {
+    @Transactional
+    public ReviewScrapResponse likeReview(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("no review"));
         User user = userRepository.findById(userId)
@@ -168,7 +172,10 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             reviewRepository.save(review);
 
             reviewLikeRepository.delete(reviewLikeOptional.get());
-            return "remove";
+            return ReviewScrapResponse.builder()
+                    .message("remove like")
+                    .likeCount(review.getLikeCount())
+                    .build();
         }
         else{
             review.addLikesCount();
@@ -179,7 +186,10 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                     .review(review)
                     .build();
             reviewLikeRepository.save(reviewLike);
-            return "add";
+            return ReviewScrapResponse.builder()
+                    .message("add like")
+                    .likeCount(review.getLikeCount())
+                    .build();
         }
     }
 

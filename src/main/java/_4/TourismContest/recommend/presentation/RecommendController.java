@@ -6,6 +6,7 @@ import _4.TourismContest.recommend.application.RecommendService;
 import _4.TourismContest.recommend.dto.command.RecommendPostRequest;
 import _4.TourismContest.recommend.dto.event.RecommendDetailResponse;
 import _4.TourismContest.recommend.dto.event.RecommendPreviewResponse;
+import _4.TourismContest.recommend.dto.event.RecommendScrapResponse;
 import _4.TourismContest.recommend.dto.event.RecommendSpotScrapResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,8 @@ public class RecommendController {
 
     @PatchMapping("/like")
     @Operation(summary = "추천행 좋아요 api" ,description = "추천행 id 넣어주세요. 토큰 필수!")
-    public ResponseEntity<String> addRecommendLike(@RequestParam Long recommendId,
-                                                                  @CurrentUser UserPrincipal userPrincipal) {
+    public ResponseEntity<RecommendScrapResponse> addRecommendLike(@RequestParam Long recommendId,
+                                                                   @CurrentUser UserPrincipal userPrincipal) {
         return new ResponseEntity<>(recommendService.likeRecommend(recommendId, userPrincipal), HttpStatus.OK);
     }
 

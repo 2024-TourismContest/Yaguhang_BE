@@ -171,7 +171,7 @@ public class RecommendService {
     }
 
     @Transactional
-    public String likeRecommend(Long recommendId, UserPrincipal userPrincipal){
+    public RecommendScrapResponse likeRecommend(Long recommendId, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
         Recommend recommend = recommendRepository.findById(recommendId)
@@ -182,7 +182,10 @@ public class RecommendService {
             RecommendLike recommendLike = optionalRecommendLike.get();
             recommendLikeRepository.delete(recommendLike);
             recommend.minusLikes(recommend);
-            return "remove like";
+            return RecommendScrapResponse.builder()
+                    .message("remove like")
+                    .likeCount(recommend.getLikeCount())
+                    .build();
         }
         else{
             RecommendLike recommendLike = RecommendLike.builder()
@@ -191,7 +194,10 @@ public class RecommendService {
                     .build();
             recommendLikeRepository.save(recommendLike);
             recommend.plusLikes(recommend);
-            return "add like";
+            return RecommendScrapResponse.builder()
+                    .message("add like")
+                    .likeCount(recommend.getLikeCount())
+                    .build();
         }
     }
     public RecommendSpotScrapResponse getrecommendSpotScrapResponse(String stadiumName, UserPrincipal userPrincipal){
