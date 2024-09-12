@@ -332,7 +332,8 @@ public class SpotService {
                     reviewCount = Long.valueOf(reviewRepository.findAllBySpot(spot).size());
                 }
                 // 두 원이 내접하거나 포함되는 경우 -> 전체 API 호출 결과 반환
-                filteredItems.add(SpotMapResponseDto.builder()
+                filteredItems.add(
+                        SpotMapResponseDto.builder()
                         .contentId(Long.parseLong(item.getContentid()))
                         .stadiumId(stadium.getId())
                         .stadiumName(stadium.getName())
@@ -424,7 +425,7 @@ public class SpotService {
         }
     }
 
-    // Haversine formula를 사용하여 두 좌표 간의 거리를 계산하는 메서드
+    // Haversine formula를 사용하여 구면 좌표계 위에서 두 좌표 간의 거리를 계산
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int EARTH_RADIUS = 6371; // 지구 반경 (단위: km)
 

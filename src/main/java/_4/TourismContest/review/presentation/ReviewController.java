@@ -34,6 +34,7 @@ public class ReviewController {
     public ResponseEntity<String> saveReview(@PathVariable("contentId") Long contentId,
                                        @CurrentUser UserPrincipal user,
                                        @RequestBody ReviewCreateRequest request) {
+        if(user==null) return new ResponseEntity<>("you are not logined", HttpStatus.OK);
         reviewService.saveReview(user.getId(), contentId, request);
         return new ResponseEntity<>("success save review", HttpStatus.OK);
     }
@@ -52,6 +53,7 @@ public class ReviewController {
     public ResponseEntity<String> updateReview(@PathVariable("reviewId") Long reviewId,
                                                @CurrentUser UserPrincipal user,
                                                 @RequestBody ReviewUpdateRequest request) {
+        if(user==null) return new ResponseEntity<>("you are not logined", HttpStatus.OK);
         reviewService.updateReview(reviewId, user.getId(),request);
         return new ResponseEntity<>("success update review", HttpStatus.OK);
     }
@@ -60,6 +62,7 @@ public class ReviewController {
     @Operation(summary = "리뷰 삭제하는 api" ,description = "reviewId, 토큰 입력해주세요. ")
     public ResponseEntity<String> deleteReview(@PathVariable("reviewId") Long reviewId,
                                                @CurrentUser UserPrincipal user) {
+        if(user==null) return new ResponseEntity<>("you are not logined", HttpStatus.OK);
         reviewService.deleteReview(reviewId, user.getId());
         return new ResponseEntity<>("success delete review", HttpStatus.OK);
     }
@@ -68,13 +71,15 @@ public class ReviewController {
     @Operation(summary = "리뷰 좋아요 api" ,description = "reviewId, 토큰 입력해주세요. ")
     public ResponseEntity<String> likeReview(@PathVariable("reviewId") Long reviewId,
                                              @CurrentUser UserPrincipal user) {
+        if(user==null) return new ResponseEntity<>("you are not logined", HttpStatus.OK);
         String result = reviewService.likeReview(reviewId, user.getId());
         return new ResponseEntity<>("success "+result+" review", HttpStatus.OK);
     }
 
     @GetMapping("/my-review")
     @Operation(summary = "내가 작성한 리뷰 리스트 가져오는 api" ,description = "토큰 입력해주세요. ")
-    public ResponseEntity<ReviewPreviewsResponse> getReviews(@CurrentUser UserPrincipal user) {
+    public ResponseEntity<?> getReviews(@CurrentUser UserPrincipal user) {
+        if(user==null) return new ResponseEntity<>("you are not logined", HttpStatus.OK);
         ReviewPreviewsResponse reviewsResponse = reviewService.getReviewsByUser(user.getId());
         return new ResponseEntity<>(reviewsResponse, HttpStatus.OK);
     }
