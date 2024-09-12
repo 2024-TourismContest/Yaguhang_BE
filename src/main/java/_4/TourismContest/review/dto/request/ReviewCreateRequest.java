@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public record ReviewCreateRequest(
         float star,
         String content,
-        String stadiumName,
+        Long stadiumId,
         List<String> images
 ) {
     public Review toReviewEntity(User user, Spot spot){
