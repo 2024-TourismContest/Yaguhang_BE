@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/aws")
+@RequestMapping("/api/aws")
 public class AwsController {
     private final AwsUtils awsUtils;
 
