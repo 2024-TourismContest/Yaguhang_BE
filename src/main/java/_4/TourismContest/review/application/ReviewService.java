@@ -52,7 +52,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                 spot = spotRepository.findById(spotId).orElseThrow(() -> new NoSuchElementException("contentId를 다시 확인해주세요."));
             } else {
                 TourApiDetailCommonResponseDto.Item tourApiDetailCommonResponseDto = tourApi.getSpotDetailCommon(spotId).getResponse().getBody().getItems().getItem().get(0);
-                Stadium stadium = stadiumRepository.findTopByName(request.stadiumName())
+                Stadium stadium = stadiumRepository.findTopById(request.stadiumId())
                         .orElseThrow(() -> new IllegalArgumentException("no stadium"));
                 spot = Spot.builder()
                         .contentId(spotId)
