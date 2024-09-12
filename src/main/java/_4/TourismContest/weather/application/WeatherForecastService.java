@@ -78,16 +78,18 @@ public class WeatherForecastService {
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Baseball ID"));
 
         LocalDateTime gameTime = game.getTime().minusHours(1L);
+        LocalDateTime endOfDay = game.getTime().toLocalDate().atTime(LocalTime.MAX);
 
         Stadium stadium = stadiumRepository.findTopByName(game.getLocation())
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<WeatherForecast> weatherForecastPage = weatherForecastRepository.findByNxAndNyAndCategoryAndFcstTimeIsAfter(
+        Page<WeatherForecast> weatherForecastPage = weatherForecastRepository.findByNxAndNyAndCategoryAndFcstTimeBetween(
                 stadium.getNx(),
                 stadium.getNy(),
                 "SKY",
                 gameTime,
+                endOfDay,
                 pageable
         );
 

@@ -18,5 +18,7 @@ public interface WeatherForecastRepository extends JpaRepository<WeatherForecast
 
     Page<WeatherForecast> findByNxAndNyAndCategoryAndFcstTimeIsAfter(int nx, int ny, String category ,LocalDateTime time, Pageable pageable);
 
+    Page<WeatherForecast> findByNxAndNyAndCategoryAndFcstTimeBetween(int nx, int ny, String category ,LocalDateTime startTime, LocalDateTime endTime, Pageable pageable);
+
     Optional<WeatherForecast> findTopByNxAndNyAndCategoryAndFcstTimeIsAfter(int nx,int ny, String category ,LocalDateTime gameTime);
 }
