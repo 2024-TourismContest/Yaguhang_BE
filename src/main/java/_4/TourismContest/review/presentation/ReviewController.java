@@ -30,7 +30,9 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/{contentId}")
-    @Operation(summary = "리뷰 작성하는 api" ,description = "contentId, 토큰, 리뷰 작성 내용 입력해주세요. ")
+    @Operation(summary = "리뷰 작성하는 api" ,
+            description = "contentId, 토큰, 리뷰 작성 내용 입력해주세요. " +
+                    "star는 0~5 사이값 입력해주세요.")
     public ResponseEntity<String> saveReview(@PathVariable("contentId") Long contentId,
                                        @CurrentUser UserPrincipal user,
                                        @RequestBody ReviewCreateRequest request) {
