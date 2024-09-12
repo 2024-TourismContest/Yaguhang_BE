@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 @AllArgsConstructor
 @Service
@@ -29,6 +30,19 @@ public class UserService {
     private final BaseballRepository baseballRepository;
     private final BaseballScrapRepository baseballScrapRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final Map<String, String> teamLogoMap = Map.of(
+            "두산", "Doosan.png",
+            "LG", "LGTwins.png",
+            "KT", "KtWizs.png",
+            "SSG", "SSGLanders.png",
+            "NC", "NCDinos.png",
+            "KIA", "KIA.png",
+            "롯데", "Lotte.png",
+            "삼성", "Samsung.png",
+            "한화", "Hanwha.png",
+            "키움", "Kiwoom.png"
+    );
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -69,7 +83,7 @@ public class UserService {
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .image(user.getProfileImg())
-                .fanTeam(user.getFanTeam())
+                .fanTeam(getTeamLogoUrl(user.getFanTeam()))
                 .build();
 
         return userInfoDto;
@@ -130,6 +144,19 @@ public class UserService {
         userRepository.save(User.registerFanTeam(user, team));
 
         return "success register";
+    }
+
+    private String getTeamLogoUrl(String team) {
+        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+        if(team == null || team.equals(""))
+            return baseUrl + "main.svg";
+        String logoFileName = teamLogoMap.get(team);
+
+        if (logoFileName == null) {
+            throw new IllegalArgumentException("Unknown team: " + team + ". Please check the team name.");
+        }
+
+        return baseUrl + logoFileName;
     }
 
     @Transactional

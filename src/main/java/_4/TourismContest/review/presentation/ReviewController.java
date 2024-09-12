@@ -3,10 +3,12 @@ package _4.TourismContest.review.presentation;
 
 import _4.TourismContest.oauth.application.CurrentUser;
 import _4.TourismContest.oauth.application.UserPrincipal;
+import _4.TourismContest.recommend.dto.event.RecommendScrapResponse;
 import _4.TourismContest.review.application.ReviewService;
 import _4.TourismContest.review.dto.request.ReviewCreateRequest;
 import _4.TourismContest.review.dto.request.ReviewUpdateRequest;
 import _4.TourismContest.review.dto.response.ReviewPreviewsResponse;
+import _4.TourismContest.review.dto.response.ReviewScrapResponse;
 import _4.TourismContest.review.dto.response.ReviewsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -71,11 +73,13 @@ public class ReviewController {
 
     @PatchMapping("/{reviewId}/like")
     @Operation(summary = "리뷰 좋아요 api" ,description = "reviewId, 토큰 입력해주세요. ")
-    public ResponseEntity<String> likeReview(@PathVariable("reviewId") Long reviewId,
-                                             @CurrentUser UserPrincipal user) {
-        if(user==null) return new ResponseEntity<>("you are not logined", HttpStatus.OK);
-        String result = reviewService.likeReview(reviewId, user.getId());
-        return new ResponseEntity<>("success "+result+" review", HttpStatus.OK);
+    public ResponseEntity<ReviewScrapResponse> likeReview(@PathVariable("reviewId") Long reviewId,
+                                                          @CurrentUser UserPrincipal user) {
+        if(user==null) return new ResponseEntity<>(ReviewScrapResponse.builder()
+                .message("you are not logined")
+                .build()
+                , HttpStatus.OK);
+        return new ResponseEntity<>(reviewService.likeReview(reviewId, user.getId()), HttpStatus.OK);
     }
 
     @GetMapping("/my-review")
