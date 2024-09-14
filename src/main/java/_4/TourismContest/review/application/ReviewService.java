@@ -154,6 +154,8 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         if(author.getId()==userId){
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
             reviewImageRepository.deleteAll(reviewImages);
+            List<ReviewLike> reviewLikes = reviewLikeRepository.findAllByReview(review);
+            reviewLikeRepository.deleteAll(reviewLikes);
             reviewRepository.delete(review);
         }
         else{
