@@ -27,10 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -132,7 +129,9 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             reviewImageRepository.deleteAll(reviewImages);
 
             List<String> images = request.images();
-            List<ReviewImage> updatedReviewImages = images.stream()
+            List<ReviewImage> updatedReviewImages = Optional.ofNullable(images)
+                    .orElse(Collections.emptyList())  // images가 null이면 빈 리스트 반환
+                    .stream()
                     .map(image -> ReviewImage.builder()
                             .id(updatedReview.getId())
                             .review(updatedReview)
