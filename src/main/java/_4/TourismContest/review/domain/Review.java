@@ -59,10 +59,10 @@ public class Review {
         this.createdAt = null;
     }
 
-    public Review update(ReviewUpdateRequest request){
-        this.star = request.star();
-        this.content = request.content();
-        return this;
+    public Review update(Review review, ReviewUpdateRequest request){
+        review.star = request.star();
+        review.content = request.content();
+        return review;
     }
 
     public void addLikesCount() {

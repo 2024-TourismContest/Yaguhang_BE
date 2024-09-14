@@ -124,7 +124,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         User author = review.getUser();
         
         if(author.getId()==userId){
-            Review updatedReview = review.update(request);
+            Review updatedReview = review.update(review, request);
             reviewRepository.save(updatedReview);
 
             //일급 컬렉션이 필요함을 느낌..
@@ -152,6 +152,8 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         User author = review.getUser();
 
         if(author.getId()==userId){
+            List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
+            reviewImageRepository.deleteAll(reviewImages);
             reviewRepository.delete(review);
         }
         else{
