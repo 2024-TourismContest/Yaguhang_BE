@@ -8,6 +8,8 @@ import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Builder
 public record SpotAccommodationDetailResponse (
@@ -53,11 +55,26 @@ public record SpotAccommodationDetailResponse (
                 .description(commonItem.getOverview().replace("<br>", "\n"))
                 .checkIn(introItem.getCheckintime())
                 .checkOut(introItem.getCheckouttime())
-                .homepage(commonItem.getHomepage())
+                .homepage(extractUrl(commonItem.getHomepage()))
                 .size(introItem.getRoomcount())
                 .parkingFacilities(introItem.getParkinglodging())
                 .images(images)
                 .build();
         return spotAccommodationDetailResponse;
+    }
+
+    public static String extractUrl(String url){
+        String urlPattern = "(https?://[\\w./?=&]+)";
+
+        // Pattern 객체 생성
+        Pattern pattern = Pattern.compile(urlPattern);
+        Matcher matcher = pattern.matcher(url);
+
+        // 매칭되는 URL 찾기
+        if (matcher.find()) {
+            return  matcher.group(1);  // 첫 번째 매칭된 그룹 반환
+        } else {
+            return "";
+        }
     }
 }
