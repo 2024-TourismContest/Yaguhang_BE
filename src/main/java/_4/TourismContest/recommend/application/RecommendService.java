@@ -129,7 +129,6 @@ public class RecommendService {
 
         // keyWord를 와일드카드로 감싸기
         keyWord = "%" + keyWord.toLowerCase() + "%";
-
         Page<Recommend> recommendsPage;
         if(filter.equals("전체")) {
             recommendsPage = recommendRepository.findRecommendsByKeyWord(pageable,keyWord);
