@@ -127,6 +127,9 @@ public class RecommendService {
             throw new BadRequestException("정렬 기준을 다시 확인해주세요");
         }
 
+        // keyWord를 와일드카드로 감싸기
+        keyWord = "%" + keyWord.toLowerCase() + "%";
+
         Page<Recommend> recommendsPage;
         if(filter.equals("전체")) {
             recommendsPage = recommendRepository.findRecommendsByKeyWord(pageable,keyWord);

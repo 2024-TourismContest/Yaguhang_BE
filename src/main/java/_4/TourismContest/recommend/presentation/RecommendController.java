@@ -82,16 +82,7 @@ public class RecommendController {
                                                                         @RequestParam(defaultValue = "전체") String filter,
                                                                         @RequestParam String keyWord,
                                                                         @CurrentUser UserPrincipal userPrincipal){
-        RecommendPreviewResponse recommendPreviewResponse = recommendService.searchRecommendListByKeyword(pageIndex,pageSize,order,filter,keyWord,userPrincipal);
+        RecommendPreviewResponse recommendPreviewResponse = recommendService.searchRecommendListByKeyword(pageIndex,pageSize,keyWord,order,filter,userPrincipal);
         return new ResponseEntity<>(recommendPreviewResponse,HttpStatus.OK);
     }
-
-//    public ResponseEntity<RecommendPreviewResponse> getRecommend(@RequestParam(defaultValue = "0") Integer pageIndex,
-//                                                                 @RequestParam(defaultValue = "10") Integer pageSize,
-//                                                                 @RequestParam(defaultValue = "인기순") String order,
-//                                                                 @RequestParam(defaultValue = "전체")String filter,
-//                                                                 @CurrentUser UserPrincipal userPrincipal) {
-//        RecommendPreviewResponse recommendPreviewResponse = recommendService.getRecommendList(pageIndex, pageSize, order, filter,userPrincipal);
-//        return new ResponseEntity<>(recommendPreviewResponse, HttpStatus.OK);
-//    }
 }
