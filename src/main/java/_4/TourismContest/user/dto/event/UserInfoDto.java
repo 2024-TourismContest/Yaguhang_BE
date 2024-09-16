@@ -29,7 +29,7 @@ public record UserInfoDto(
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
         String fanTeam;
         if(user.getFanTeam() == null || user.getFanTeam().equals(""))
-            fanTeam = baseUrl + "main.svg";
+            fanTeam = baseUrl + "BaseBall.png";
         else{
             String logoFileName = teamLogoMap.get(user.getFanTeam());
 

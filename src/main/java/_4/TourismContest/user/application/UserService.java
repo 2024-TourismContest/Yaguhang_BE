@@ -149,7 +149,7 @@ public class UserService {
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
         if(team == null || team.equals(""))
-            return baseUrl + "main.svg";
+            return baseUrl + "BaseBall.png";
         String logoFileName = teamLogoMap.get(team);
 
         if (logoFileName == null) {
