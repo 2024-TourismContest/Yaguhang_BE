@@ -106,6 +106,69 @@ public class RecommendService {
         return recommendPreviewResponse;
     }
 
+    /**
+     * 추천행 검색 메서드
+     * @param keyWord
+     * @param filter
+     * @param pageIndex
+     * @param pagesize
+     * @param userPrincipal
+     * @return
+     */
+    public RecommendPreviewResponse searchRecommendListByKeyword(Integer pageIndex, Integer pageSize, String keyWord,String order, String filter,UserPrincipal userPrincipal) {
+        Pageable pageable;
+        if(order.equals("최신순")){
+            pageable = PageRequest.of(pageIndex, pageSize, Sort.by("createdAt").descending());
+        }
+        else if(order.equals("인기순")){
+            pageable = PageRequest.of(pageIndex, pageSize, Sort.by("likeCount").descending());
+        }
+        else{
+            throw new BadRequestException("정렬 기준을 다시 확인해주세요");
+        }
+
+        Page<Recommend> recommendsPage;
+        if(filter.equals("전체")) {
+            recommendsPage = recommendRepository.findRecommendsByKeyWord(pageable,keyWord);
+        }
+        else{
+            recommendsPage = recommendRepository.findRecommendsByFilterAndKeyWord(pageable, filter,keyWord);
+        }
+
+        List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        for (Recommend recommend : recommendsPage.getContent()) {
+            List<String> imageList = recommend.getRecommendImages().stream()
+                    .map(RecommendImage::getImage)
+                    .filter(image -> image != null && !image.isEmpty())
+                    .collect(Collectors.toList());
+
+            Random random = new Random();
+            String profileImg = imageList.get(random.nextInt(imageList.size()));
+            RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
+                    .recommendId(recommend.getId())
+                    .stadiumName(recommend.getStadium().getName())
+                    .authorName(recommend.getUser().getNickname())
+                    .profileImage(profileImg)
+                    .title(recommend.getTitle())
+                    .images(imageList)
+                    .createdAt(recommend.getCreatedAt().format(formatter))
+                    .isMine(isMine(userPrincipal, recommend))
+                    .likes(recommend.getLikeCount())
+                    .isLiked(isScraped(userPrincipal, recommend))
+                    .build();
+            recommendPreviewDtos.add(recommendPreviewDto);
+        }
+
+        RecommendPreviewResponse recommendPreviewResponse = RecommendPreviewResponse.builder()
+                .hasNextPage(recommendsPage.hasNext())
+                .totalPage(recommendsPage.getTotalPages())
+                .pagesize(pageSize)
+                .recommendPreviewDtos(recommendPreviewDtos)
+                .build();
+        return recommendPreviewResponse;
+    }
+
     public RecommendPreviewResponse getMyRecommendList(Integer pagesize, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
@@ -321,6 +384,4 @@ public class RecommendService {
         }
 
     }
-
-
 }

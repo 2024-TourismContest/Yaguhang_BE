@@ -74,4 +74,24 @@ public class RecommendController {
         RecommendPreviewResponse recommendPreviewResponse = recommendService.getMyRecommendList(pageSize, userPrincipal);
         return new ResponseEntity<>(recommendPreviewResponse, HttpStatus.OK);
     }
+    @GetMapping("/search")
+    @Operation(summary = "키워드로 추천행을 검색하는 API", description = "키워드를 입력할 경우, 키워드가 포함된 추천행 리스트가 반환됩니다.")
+    public ResponseEntity<RecommendPreviewResponse> searchRecommendList(@RequestParam(defaultValue = "0") Integer pageIndex,
+                                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                        @RequestParam(defaultValue = "인기순") String order,
+                                                                        @RequestParam(defaultValue = "전체") String filter,
+                                                                        @RequestParam String keyWord,
+                                                                        @CurrentUser UserPrincipal userPrincipal){
+        RecommendPreviewResponse recommendPreviewResponse = recommendService.searchRecommendListByKeyword(pageIndex,pageSize,order,filter,keyWord,userPrincipal);
+        return new ResponseEntity<>(recommendPreviewResponse,HttpStatus.OK);
+    }
+
+//    public ResponseEntity<RecommendPreviewResponse> getRecommend(@RequestParam(defaultValue = "0") Integer pageIndex,
+//                                                                 @RequestParam(defaultValue = "10") Integer pageSize,
+//                                                                 @RequestParam(defaultValue = "인기순") String order,
+//                                                                 @RequestParam(defaultValue = "전체")String filter,
+//                                                                 @CurrentUser UserPrincipal userPrincipal) {
+//        RecommendPreviewResponse recommendPreviewResponse = recommendService.getRecommendList(pageIndex, pageSize, order, filter,userPrincipal);
+//        return new ResponseEntity<>(recommendPreviewResponse, HttpStatus.OK);
+//    }
 }
