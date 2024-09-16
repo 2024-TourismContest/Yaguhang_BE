@@ -50,5 +50,9 @@ public class WebConfig implements WebMvcConfigurer {
         // 색상 있는 날씨 로고 경로 설정
         registry.addResourceHandler("/coloredWeatherImages/**")
                 .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/coloredWeatherImgs/");
+        // SNS 로고 경로 설정
+        registry.addResourceHandler("/logos/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/snsLogos/");
+
     }
 }

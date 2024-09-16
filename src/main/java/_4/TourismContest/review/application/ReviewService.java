@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,7 +88,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
 
         List<Review> reviews;
         if(sort.equals("new")){
-            reviews = reviewRepository.findAllBySpotOrderByIdAsc(spot);
+            reviews = reviewRepository.findAllBySpotOrderByIdDesc(spot);
         }
         else if(sort.equals("like")){
             reviews = reviewRepository.findAllBySpotOrderByLikeCountDesc(spot);
@@ -98,7 +99,6 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         else{
             throw new IllegalArgumentException("not accestable sort by");
         }
-
         List<ReviewDto> reviewDtos = new ArrayList<>();
         for(Review review : reviews){
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
