@@ -12,7 +12,7 @@ public record RecommendDetailResponse(
             String authorName,
             String profileImage,
             String title,
-            LocalDateTime createdAt,
+            String createdAt,
             Integer likes,
             Boolean isMine,
             Boolean isLiked,

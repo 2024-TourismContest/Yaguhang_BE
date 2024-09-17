@@ -80,7 +80,6 @@ public class RecommendService {
                     .filter(image -> image != null && !image.isEmpty())
                     .collect(Collectors.toList());
 
-            Random random = new Random();
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumName(recommend.getStadium().getName())
@@ -88,6 +87,8 @@ public class RecommendService {
                     .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(recommend.getUser().getProfileImg())
+                    .likeTeam(recommend.getUser().getFanTeam())
+                    .likeTeamUrl(recommend.getUser().getFanTeam() != null ? getTeamLogoUrl(recommend.getUser().getFanTeam()) : null)
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
@@ -105,6 +106,35 @@ public class RecommendService {
                 .recommendPreviewDtos(recommendPreviewDtos)
                 .build();
         return recommendPreviewResponse;
+    }
+
+    private String getTeamLogoUrl(String team) {
+        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+
+        switch (team) {
+            case "두산":
+                return baseUrl + "Doosan.png";
+            case "LG":
+                return baseUrl + "LGTwins.png";
+            case "KT":
+                return baseUrl + "KtWizs.png";
+            case "SSG":
+                return baseUrl + "SSGLanders.png";
+            case "NC":
+                return baseUrl + "NCDinos.png";
+            case "KIA":
+                return baseUrl + "KIA.png";
+            case "롯데":
+                return baseUrl + "Lotte.png";
+            case "삼성":
+                return baseUrl + "Samsung.png";
+            case "한화":
+                return baseUrl + "Hanwha.png";
+            case "키움":
+                return baseUrl + "Kiwoom.png";
+            default:
+                throw new IllegalArgumentException("Unknown team: " + team);
+        }
     }
 
     /**
@@ -153,6 +183,8 @@ public class RecommendService {
                     .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(recommend.getUser().getProfileImg())
+                    .likeTeam(recommend.getUser().getFanTeam())
+                    .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
@@ -225,13 +257,13 @@ public class RecommendService {
                     .build();
             spotGeneralPreviewDtos.add(spotGeneralPreviewDto);
         }
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         return RecommendDetailResponse.builder()
                 .recommendId(recommendId)
                 .authorName(recommend.getUser().getNickname())
                 .title(recommend.getTitle())
                 .likes(recommend.getLikeCount())
-                .createdAt(recommend.getCreatedAt())
+                .createdAt(recommend.getCreatedAt().format(formatter))
                 .profileImage(recommend.getUser().getProfileImg())
                 .isMine(isMine(userPrincipal,recommend))
                 .isLiked(isScraped(userPrincipal,recommend))
