@@ -37,6 +37,8 @@ public class TourApiDetailCommonResponseDto {
         private String firstimage;
         @JsonProperty("firstimage2")
         private String firstimage2;
+        @JsonProperty("contenttypeid")
+        private String contenttypeid;
         @JsonProperty("mapx")
         private String mapx;
         @JsonProperty("mapy")

@@ -81,12 +81,13 @@ public class RecommendService {
                     .collect(Collectors.toList());
 
             Random random = new Random();
-            String profileImg = imageList.get(random.nextInt(imageList.size()));
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumName(recommend.getStadium().getName())
+                    .stadiumId(recommend.getStadium().getId())
+                    .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(profileImg)
+                    .profileImage(recommend.getUser().getProfileImg())
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
@@ -145,13 +146,13 @@ public class RecommendService {
                     .filter(image -> image != null && !image.isEmpty())
                     .collect(Collectors.toList());
 
-            Random random = new Random();
-            String profileImg = imageList.get(random.nextInt(imageList.size()));
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumName(recommend.getStadium().getName())
+                    .stadiumId(recommend.getStadium().getId())
+                    .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(profileImg)
+                    .profileImage(recommend.getUser().getProfileImg())
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
@@ -187,6 +188,8 @@ public class RecommendService {
             String profileImg = imageList.get(random.nextInt(imageList.size()));
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
+                    .stadiumId(recommend.getStadium().getId())
+                    .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(profileImg)
                     .title(recommend.getTitle())
@@ -215,6 +218,7 @@ public class RecommendService {
             SpotGeneralPreviewDto spotGeneralPreviewDto = SpotGeneralPreviewDto.builder()
                     .contentId(recommendSpot.getSpot().getId())
                     .name(recommendSpot.getSpot().getName())
+                    .category(recommendSpot.getSpot().getCategory())
                     .address(recommendSpot.getSpot().getAddress())
                     .imageUrl(recommendSpot.getSpot().getImage())
                     .isScraped(isScrapedSpot(userPrincipal, recommendSpot.getSpot()))

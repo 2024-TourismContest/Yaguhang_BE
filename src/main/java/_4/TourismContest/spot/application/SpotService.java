@@ -203,6 +203,7 @@ public class SpotService {
                         .name(tourApiDetailCommonResponseDto.getTitle())
                         .mapX(Double.parseDouble(tourApiDetailCommonResponseDto.getMapx()))
                         .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
+                        .category(getCategory(tourApi.getSpotDetailCommon(contentId).getResponse().getBody().getItems().getItem().get(0).getContenttypeid()))
                         .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
                         .image(tourApiDetailCommonResponseDto.getFirstimage())
                         .build();
@@ -214,6 +215,27 @@ public class SpotService {
                     .build();
             spotScrapRepository.save(spotScrap);
             return "add scrap";
+        }
+    }
+
+    private SpotCategory getCategory(String contenttypeid) {
+        switch(contenttypeid){
+            case "12":
+                return SpotCategory.TOURISM_SPOT;
+            case "14":
+                return SpotCategory.CULTURE_FACILITY;
+            case "15":
+                return SpotCategory.FESTIVAL_EVENT;
+            case "28":
+                return SpotCategory.REPORTS;
+            case "32":
+                return SpotCategory.ACCOMMODATION;
+            case "38":
+                return SpotCategory.SHOPPING;
+            case "39":
+                return SpotCategory.RESTAURANT;
+            default:
+                throw new IllegalArgumentException("contenttypeId를 확인해주세요.");
         }
     }
 
