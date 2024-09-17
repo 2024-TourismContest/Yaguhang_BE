@@ -108,11 +108,10 @@ public class SpotService {
     private SpotDetailResponse getAthletePickSpotDetail(Long contentId, UserPrincipal userPrincipal, Long stadiumId) {
         Spot spot = spotRepository.findById(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("no spot"));
-        AthletePickSpot athletePickSpot = athletePickSpotRepository.findById(contentId)
+        AthletePickSpot athletePickSpot = athletePickSpotRepository.findAthletePickSpotBySpot(spot)
                 .orElseThrow(() -> new IllegalArgumentException("no athlete_pick spot"));
 
         boolean isScraped = getIsScraped(userPrincipal, contentId);
-
         return SpotAthletePickDetailResponse.makeSpotAthletePickDetailResponse(spot, athletePickSpot, isScraped, stadiumId);
     }
 
