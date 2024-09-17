@@ -1,5 +1,6 @@
 package _4.TourismContest.spot.dto.preview;
 
+import _4.TourismContest.spot.domain.SpotCategory;
 import lombok.Builder;
 
 @Builder
@@ -8,6 +9,7 @@ public record SpotGeneralPreviewDto(
         String name,
         String address,
         String imageUrl,
-        Boolean isScraped
+        Boolean isScraped,
+        SpotCategory category
 ) implements SpotBasicPreviewDto{
 }
