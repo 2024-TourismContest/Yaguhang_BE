@@ -9,11 +9,16 @@ import java.util.List;
 @Builder
 public record RecommendPreviewDto(
         Long recommendId,
+
         Long stadiumId,
         String stadiumImage,
         String stadiumName,
+
         String authorName,
         String profileImage,
+        String likeTeam,
+        String likeTeamUrl,
+
         String title,
         String createdAt,
         List<String> images,
