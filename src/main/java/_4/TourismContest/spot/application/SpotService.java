@@ -96,7 +96,7 @@ public class SpotService {
 
     public SpotDetailResponse getDetailSpot(String category, Long contentId, Long stadiumId, UserPrincipal userPrincipal) {
         SpotDetailResponse spotDetailResponse;
-        if (category.equals("선수맛집")) {
+        if (category.equals("선수PICK")) {
             spotDetailResponse = getAthletePickSpotDetail(contentId, userPrincipal, stadiumId);
         } else {
             spotDetailResponse = getTourApiSpotDetail(category, contentId, userPrincipal, stadiumId);
