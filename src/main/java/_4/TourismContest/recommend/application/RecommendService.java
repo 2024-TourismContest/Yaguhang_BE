@@ -423,34 +423,7 @@ public class RecommendService {
         }
 
     }
-    private String getTeamLogoUrl(String team) {
-        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
 
-        switch (team) {
-            case "두산":
-                return baseUrl + "Doosan.png";
-            case "LG":
-                return baseUrl + "LGTwins.png";
-            case "KT":
-                return baseUrl + "KtWizs.png";
-            case "SSG":
-                return baseUrl + "SSGLanders.png";
-            case "NC":
-                return baseUrl + "NCDinos.png";
-            case "KIA":
-                return baseUrl + "KIA.png";
-            case "롯데":
-                return baseUrl + "Lotte.png";
-            case "삼성":
-                return baseUrl + "Samsung.png";
-            case "한화":
-                return baseUrl + "Hanwha.png";
-            case "키움":
-                return baseUrl + "Kiwoom.png";
-            default:
-                throw new IllegalArgumentException("Unknown team: " + team);
-        }
-    }
     private String spotCategoryToString(SpotCategory category){
         if(category == null){
             return "";
