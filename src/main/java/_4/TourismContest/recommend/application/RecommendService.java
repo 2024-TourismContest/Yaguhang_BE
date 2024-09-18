@@ -14,6 +14,7 @@ import _4.TourismContest.recommend.repository.RecommendRepository;
 import _4.TourismContest.recommend.repository.RecommendSpotRepository;
 import _4.TourismContest.spot.application.SpotService;
 import _4.TourismContest.spot.domain.Spot;
+import _4.TourismContest.spot.domain.SpotCategory;
 import _4.TourismContest.spot.domain.SpotScrap;
 import _4.TourismContest.spot.dto.command.ScrapSpot;
 import _4.TourismContest.spot.dto.command.ScrapStadium;
@@ -250,7 +251,7 @@ public class RecommendService {
             SpotGeneralPreviewDto spotGeneralPreviewDto = SpotGeneralPreviewDto.builder()
                     .contentId(recommendSpot.getSpot().getId())
                     .name(recommendSpot.getSpot().getName())
-                    .category(recommendSpot.getSpot().getCategory())
+                    .category(spotCategoryToString(recommendSpot.getSpot().getCategory()))
                     .address(recommendSpot.getSpot().getAddress())
                     .imageUrl(recommendSpot.getSpot().getImage())
                     .isScraped(isScrapedSpot(userPrincipal, recommendSpot.getSpot()))
@@ -421,5 +422,50 @@ public class RecommendService {
                 return false;
         }
 
+    }
+    private String getTeamLogoUrl(String team) {
+        String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+
+        switch (team) {
+            case "두산":
+                return baseUrl + "Doosan.png";
+            case "LG":
+                return baseUrl + "LGTwins.png";
+            case "KT":
+                return baseUrl + "KtWizs.png";
+            case "SSG":
+                return baseUrl + "SSGLanders.png";
+            case "NC":
+                return baseUrl + "NCDinos.png";
+            case "KIA":
+                return baseUrl + "KIA.png";
+            case "롯데":
+                return baseUrl + "Lotte.png";
+            case "삼성":
+                return baseUrl + "Samsung.png";
+            case "한화":
+                return baseUrl + "Hanwha.png";
+            case "키움":
+                return baseUrl + "Kiwoom.png";
+            default:
+                throw new IllegalArgumentException("Unknown team: " + team);
+        }
+    }
+    private String spotCategoryToString(SpotCategory category){
+        if(category == null){
+            return "";
+        }
+        switch(category){
+            case SHOPPING: return "쇼핑";
+            case GENERAL: return "일반";
+            case REPORTS: return "레포츠";
+            case RESTAURANT: return "맛집";
+            case TOURISM_SPOT: return "관광지";
+            case ACCOMMODATION: return "숙소";
+            case ATHLETE_PICK: return "선수PICK";
+            case CULTURE_FACILITY: return "문화";
+            case FESTIVAL_EVENT: return "문화";
+            default: throw new BadRequestException("카테고리를 확인하세요");
+        }
     }
 }
