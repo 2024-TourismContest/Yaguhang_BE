@@ -41,12 +41,16 @@ public class User {
     @Column(name = "fanTeam")
     private String fanTeam;
 
+    @Column(name = "checkFanTeam")
+    private boolean wannaCheckFanTeam;
+
     @Builder
     public User(String email, String password, String nickname, String profileImg) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImg = profileImg;
+        this.wannaCheckFanTeam = true;
     }
 
     public static User createOAuthUser(String email, String nickname, String profileImg, AuthProvider provider, String providerId) {
@@ -57,6 +61,7 @@ public class User {
         user.provider = provider;
         user.providerId = providerId;
         user.password = "--------";
+        user.wannaCheckFanTeam = true;
         return user;
     }
 
@@ -78,5 +83,13 @@ public class User {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void noWannaCheckFanTeam() {
+        this.wannaCheckFanTeam = false;
+    }
+
+    public void wannaCheckFanTeam() {
+        this.wannaCheckFanTeam = true;
     }
 }

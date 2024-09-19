@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 @AllArgsConstructor
 @Service
 public class UserService {
@@ -53,14 +54,14 @@ public class UserService {
     }
 
     public String createUser(User user) {
-        if(userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new BadRequestException("Email address already in use.");
         }
         userRepository.save(user);
         return "success create user";
     }
 
-    public UserProfileResponse getCurrentUser(Long uid){
+    public UserProfileResponse getCurrentUser(Long uid) {
         User user = userRepository.findById(uid)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", uid));
         return UserProfileResponse.of(user);
@@ -76,7 +77,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public UserInfoDto getMypageInfo(UserPrincipal userPrincipal){
+    public UserInfoDto getMypageInfo(UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         UserInfoDto userInfoDto = UserInfoDto.builder()
@@ -89,11 +90,11 @@ public class UserService {
         return userInfoDto;
     }
 
-    public UserDdayDto getMypageDdayInfo(UserPrincipal userPrincipal){
+    public UserDdayDto getMypageDdayInfo(UserPrincipal userPrincipal) {
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         Optional<Baseball> optionalBaseball = baseballScrapRepository.findUpcomingBaseballByUser(user);
-        if(optionalBaseball.isPresent()){
+        if (optionalBaseball.isPresent()) {
             Baseball baseball = optionalBaseball.get();
             UserDdayDto userDdayDto = UserDdayDto.builder()
                     .userId(user.getId())
@@ -107,8 +108,7 @@ public class UserService {
                     .build();
 
             return userDdayDto;
-        }
-        else {
+        } else {
             Baseball baseball = baseballRepository.findFirstByTimeIsAfterOrderByTimeAsc(LocalDateTime.now())
                     .orElseThrow(() -> new ResourceNotFoundException("경기일정", "일정 없음", ""));
             UserDdayDto userDdayDto = UserDdayDto.builder()
@@ -130,15 +130,14 @@ public class UserService {
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, targetDate);
         String dDay = "";
-        if(duration.toDays() == 0){
+        if (duration.toDays() == 0) {
             return "D-Day";
-        }
-        else{
+        } else {
             return "D-" + duration.toDays();
         }
     }
 
-    public String registerFanTeam(UserPrincipal userPrincipal, String team){
+    public String registerFanTeam(UserPrincipal userPrincipal, String team) {
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
         userRepository.save(User.registerFanTeam(user, team));
@@ -148,7 +147,7 @@ public class UserService {
 
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
-        if(team == null || team.equals(""))
+        if (team == null || team.equals(""))
             return baseUrl + "BaseBall.png";
         String logoFileName = teamLogoMap.get(team);
 
@@ -166,5 +165,32 @@ public class UserService {
         user.update(request);
 
         return UserInfoDto.of(user);
+    }
+
+    @Transactional
+    public String checkFanTeam(UserPrincipal userPrincipal) {
+        if (userPrincipal == null) return "not logined";
+        User user = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+
+        if (user.getFanTeam()!=null) {
+            return user.getFanTeam();
+        } else if (user.getFanTeam() == null && !user.isWannaCheckFanTeam()) {
+            return "No Check";
+        }
+        return "Check";
+    }
+
+    @Transactional
+    public String clickWannaCheckFanTeam(UserPrincipal userPrincipal) {
+        if (userPrincipal == null) return "not logined";
+        User user = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+
+        if(user.isWannaCheckFanTeam()){
+            user.noWannaCheckFanTeam();
+            return "success spam checkFanTeam";
+        }else{
+            user.wannaCheckFanTeam();
+            return "success wanna checkFanTeam";
+        }
     }
 }
