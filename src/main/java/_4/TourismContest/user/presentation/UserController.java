@@ -39,11 +39,6 @@ public class UserController {
         return ResponseEntity.ok(currentUser);
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
-
     @PutMapping
     @Operation(summary = "사용자 프로필 수정", description = "닉네임, 이미지 수정 가능")
     public ResponseEntity<UserInfoDto> updateUser(@CurrentUser UserPrincipal user, @RequestBody UserUpdateRequest request) {
