@@ -60,13 +60,13 @@ public class User {
         return user;
     }
 
-    public static User updateExistingUser(User existingUser, String nickname, String profileImg){
+    public static User updateExistingUser(User existingUser, String nickname, String profileImg) {
 //        existingUser.nickname = nickname;   // 닉네임은 개별적으로 유지되게
         existingUser.profileImg = profileImg;
-        return  existingUser;
+        return existingUser;
     }
 
-    public static User registerFanTeam(User user, String fanTeam){
+    public static User registerFanTeam(User user, String fanTeam) {
         user.fanTeam = fanTeam;
         return user;
     }
