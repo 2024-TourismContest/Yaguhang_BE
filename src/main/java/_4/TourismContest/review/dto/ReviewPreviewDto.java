@@ -11,7 +11,8 @@ public record ReviewPreviewDto(
         int likeCount,
         String image,
         LocalDateTime createdAt,
-        String content
+        String content,
+        String spotName
 ) {
     public static ReviewPreviewDto of(Review review, String imageUrl) {
         return new ReviewPreviewDto(
@@ -21,7 +22,8 @@ public record ReviewPreviewDto(
                 review.getLikeCount(),
                 imageUrl,
                 review.getCreatedAt(),
-                review.getContent()
+                review.getContent(),
+                review.getSpot().getName()
         );
     }
 }
