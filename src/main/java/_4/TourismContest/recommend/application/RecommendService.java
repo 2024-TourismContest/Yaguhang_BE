@@ -134,7 +134,7 @@ public class RecommendService {
             case "키움":
                 return baseUrl + "Kiwoom.png";
             default:
-                throw new IllegalArgumentException("Unknown team: " + team);
+                return baseUrl + "BaseBall.png";
         }
     }
 
