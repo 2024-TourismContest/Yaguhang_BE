@@ -1,7 +1,6 @@
 package _4.TourismContest.review.application;
 
 import _4.TourismContest.oauth.application.UserPrincipal;
-import _4.TourismContest.recommend.dto.event.RecommendScrapResponse;
 import _4.TourismContest.review.domain.Review;
 import _4.TourismContest.review.domain.ReviewImage;
 import _4.TourismContest.review.domain.ReviewLike;
@@ -27,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +46,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
 
         Optional<Spot> optionalSpot = spotRepository.findById(spotId);
         Spot spot;
-        if(optionalSpot.isEmpty()){
+        if (optionalSpot.isEmpty()) {
             if (spotId > 100000000L) {
                 spot = spotRepository.findById(spotId).orElseThrow(() -> new NoSuchElementException("contentId를 다시 확인해주세요."));
             } else {
@@ -66,8 +64,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                         .build();
                 spotRepository.save(spot);
             }
-        }
-        else{
+        } else {
             spot = optionalSpot.get();
         }
 
@@ -81,33 +78,29 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
 
     public ReviewsResponse getSpotReviews(Long spotId, UserPrincipal userPrincipal, String sort) {
         Optional<Spot> optionalSpot = spotRepository.findById(spotId);
-        if(optionalSpot.isEmpty()){
+        if (optionalSpot.isEmpty()) {
             return new ReviewsResponse(new ArrayList<>());
         }
         Spot spot = optionalSpot.get();
 
         List<Review> reviews;
-        if(sort.equals("new")){
+        if (sort.equals("new")) {
             reviews = reviewRepository.findAllBySpotOrderByIdDesc(spot);
-        }
-        else if(sort.equals("like")){
+        } else if (sort.equals("like")) {
             reviews = reviewRepository.findAllBySpotOrderByLikeCountDesc(spot);
-        }
-        else if(sort.equals("old")){
+        } else if (sort.equals("old")) {
             reviews = reviewRepository.findAllBySpotOrderByIdDesc(spot);
-        }
-        else{
+        } else {
             throw new IllegalArgumentException("not accestable sort by");
         }
         List<ReviewDto> reviewDtos = new ArrayList<>();
-        for(Review review : reviews){
+        for (Review review : reviews) {
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
-            if(userPrincipal!=null){
+            if (userPrincipal != null) {
                 User user = userRepository.findById(userPrincipal.getId())
                         .orElseThrow(() -> new IllegalArgumentException("no user"));
-                reviewDtos.add(ReviewDto.of(review, reviewImages, user.getId()==review.getUser().getId(), reviewLikeRepository.findByUserAndReview(user,review).isPresent()));
-            }
-            else{
+                reviewDtos.add(ReviewDto.of(review, reviewImages, user.getId() == review.getUser().getId(), reviewLikeRepository.findByUserAndReview(user, review).isPresent()));
+            } else {
                 reviewDtos.add(ReviewDto.of(review, reviewImages, false, false));
             }
 
@@ -119,8 +112,8 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("no review"));
         User author = review.getUser();
-        
-        if(author.getId()==userId){
+
+        if (author.getId() == userId) {
             Review updatedReview = review.update(review, request);
             reviewRepository.save(updatedReview);
 
@@ -139,8 +132,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                             .build())
                     .collect(Collectors.toList());
             reviewImageRepository.saveAll(updatedReviewImages);
-        }
-        else{
+        } else {
             throw new IllegalArgumentException("not author");
         }
     }
@@ -150,14 +142,13 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                 .orElseThrow(() -> new IllegalArgumentException("no review"));
         User author = review.getUser();
 
-        if(author.getId()==userId){
+        if (author.getId() == userId) {
             List<ReviewImage> reviewImages = reviewImageRepository.findAllByReview(review);
             reviewImageRepository.deleteAll(reviewImages);
             List<ReviewLike> reviewLikes = reviewLikeRepository.findAllByReview(review);
             reviewLikeRepository.deleteAll(reviewLikes);
             reviewRepository.delete(review);
-        }
-        else{
+        } else {
             throw new IllegalArgumentException("not author");
         }
     }
@@ -170,7 +161,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                 .orElseThrow(() -> new IllegalArgumentException("no user"));
 
         Optional<ReviewLike> reviewLikeOptional = reviewLikeRepository.findByUserAndReview(user, review);
-        if(reviewLikeOptional.isPresent()){
+        if (reviewLikeOptional.isPresent()) {
             review.subLikesCount();
             reviewRepository.save(review);
 
@@ -179,8 +170,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                     .message("remove like")
                     .likeCount(review.getLikeCount())
                     .build();
-        }
-        else{
+        } else {
             review.addLikesCount();
             reviewRepository.save(review);
 
@@ -203,11 +193,15 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         List<Review> reviews = reviewRepository.findAllByUser(user);
 
         List<ReviewPreviewDto> reviewPreviewDtos = new ArrayList<>();
-        for(Review review : reviews){
+        for (Review review : reviews) {
             Optional<ReviewImage> reviewImage = reviewImageRepository.findFirstByReview(review);
 
-            if(reviewImage.isPresent()) reviewPreviewDtos.add(ReviewPreviewDto.of(review, reviewImage.get().getImageUrl()));
-            else reviewPreviewDtos.add(ReviewPreviewDto.of(review, ""));
+            Optional<ReviewLike> reviewLike = reviewLikeRepository.findByUserAndReview(user, review);
+            boolean isLiked = reviewLike.isPresent();
+
+            if (reviewImage.isPresent())
+                reviewPreviewDtos.add(ReviewPreviewDto.of(review, reviewImage.get().getImageUrl(), isLiked));
+            else reviewPreviewDtos.add(ReviewPreviewDto.of(review, "", isLiked));
         }
         return ReviewPreviewsResponse.of(reviewPreviewDtos);
     }
