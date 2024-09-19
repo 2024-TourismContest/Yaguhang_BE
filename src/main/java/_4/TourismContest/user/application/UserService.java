@@ -172,7 +172,7 @@ public class UserService {
         if (userPrincipal == null) return "not logined";
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
 
-        if (user.getFanTeam()!=null) {
+        if (user.getFanTeam() != null) {
             return user.getFanTeam();
         } else if (user.getFanTeam() == null && !user.isWannaCheckFanTeam()) {
             return "No Check";
@@ -185,10 +185,10 @@ public class UserService {
         if (userPrincipal == null) return "not logined";
         User user = userRepository.findById(userPrincipal.getId()).orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
 
-        if(user.isWannaCheckFanTeam()){
+        if (user.isWannaCheckFanTeam()) {
             user.noWannaCheckFanTeam();
             return "success spam checkFanTeam";
-        }else{
+        } else {
             user.wannaCheckFanTeam();
             return "success wanna checkFanTeam";
         }
