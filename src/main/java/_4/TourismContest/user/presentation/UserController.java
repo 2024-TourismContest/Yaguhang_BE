@@ -63,7 +63,7 @@ public class UserController {
     }
 
     @GetMapping("/check/fan-team")
-    @Operation(summary = "팬 구단이 등록되어 있는지 확인합니다.",
+    @Operation(summary = "팬 구단이 등록 확인",
             description = "등록 되어 있다면 팀 이름을 반환합니다.\n" +
                     "등록 되어 있지 않고, 등록을 요구한다면 \"Check\"을 반환합니다.\n" +
                     "이때, 다시 보지 않기로 되어 있다면 \"No Check\"을 반환합니다.")
@@ -72,7 +72,7 @@ public class UserController {
     }
 
     @PatchMapping("/click/check-fan-team")
-    @Operation(summary = "사용자가 팬 구단이 등록 요청을 띄우지 않도록 설정합니다.")
+    @Operation(summary = "팬 구단 등록 요청 설정", description = "사용자가 팬 구단이 등록 요청을 띄우지 않도록 설정합니다")
     public ResponseEntity<String> clickWannaCheckFanTeam(@CurrentUser UserPrincipal userPrincipal) {
         return new ResponseEntity<>(userService.clickWannaCheckFanTeam(userPrincipal), HttpStatus.OK);
     }
