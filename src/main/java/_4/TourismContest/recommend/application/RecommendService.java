@@ -112,6 +112,9 @@ public class RecommendService {
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
 
+        if(team == null || team.equals(""))
+            return baseUrl + "BaseBall.png";
+
         switch (team) {
             case "두산":
                 return baseUrl + "Doosan.png";
