@@ -89,7 +89,7 @@ public class RecommendService {
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(recommend.getUser().getProfileImg())
                     .likeTeam(recommend.getUser().getFanTeam())
-                    .likeTeamUrl(recommend.getUser().getFanTeam() != null ? getTeamLogoUrl(recommend.getUser().getFanTeam()) : null)
+                    .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
@@ -111,6 +111,9 @@ public class RecommendService {
 
     private String getTeamLogoUrl(String team) {
         String baseUrl = "https://yaguhang.kro.kr:8443/teamLogos/";
+
+        if(team == null || team.equals(""))
+            return baseUrl + "BaseBall.png";
 
         switch (team) {
             case "두산":
@@ -134,7 +137,7 @@ public class RecommendService {
             case "키움":
                 return baseUrl + "Kiwoom.png";
             default:
-                throw new IllegalArgumentException("Unknown team: " + team);
+                return baseUrl + "BaseBall.png";
         }
     }
 
