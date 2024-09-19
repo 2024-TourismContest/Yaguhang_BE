@@ -89,7 +89,7 @@ public class RecommendService {
                     .authorName(recommend.getUser().getNickname())
                     .profileImage(recommend.getUser().getProfileImg())
                     .likeTeam(recommend.getUser().getFanTeam())
-                    .likeTeamUrl(recommend.getUser().getFanTeam() != null ? getTeamLogoUrl(recommend.getUser().getFanTeam()) : null)
+                    .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
