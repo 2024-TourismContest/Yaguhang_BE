@@ -41,7 +41,7 @@ public class User {
     @Column(name = "fanTeam")
     private String fanTeam;
 
-    @Column(name = "checkFanTeam")
+    @Column(name = "wannaCheckFanTeam")
     private boolean wannaCheckFanTeam;
 
     @Builder
