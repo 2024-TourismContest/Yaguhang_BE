@@ -53,6 +53,8 @@ public class WebConfig implements WebMvcConfigurer {
         // SNS 로고 경로 설정
         registry.addResourceHandler("/logos/**")
                 .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/snsLogos/");
-
+        // 기본 로고 경로 설정
+        registry.addResourceHandler("/defaultLogos/**")
+                .addResourceLocations("file:/home/mschoi/Desktop/tourismContest/String-BE/defaultImgs/");
     }
 }
