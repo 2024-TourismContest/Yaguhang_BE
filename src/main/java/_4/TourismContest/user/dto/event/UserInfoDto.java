@@ -40,12 +40,21 @@ public record UserInfoDto(
             fanTeam = baseUrl + logoFileName;
         }
 
+        String baseProfileUrl = "https://yaguhang.kro.kr:8443/defaultLogos/";
+        String profileUrl;
+        if(user.getProfileImg() == null){
+            profileUrl = baseProfileUrl + "Profile.png";
+        }else{
+            profileUrl = user.getProfileImg();
+        }
+
 
         return new UserInfoDto(
                 user.getId(),
                 user.getNickname(),
-                user.getProfileImg(),
+                profileUrl,
                 fanTeam
         );
     }
 }
+
