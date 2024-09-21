@@ -1,5 +1,5 @@
 INSERT INTO users (email, password, nickname, profile_img, provider, provider_id, fan_team)
-VALUES ('example@example.com', 'encrypted_password', 'anonymous', 'profile_img_url', 'local', 'provider123', '롯데');
+VALUES ('example@example.com', 'encrypted_password', 'anonymous', 'profile_img_url', 'DEFAULT', 'provider123', '롯데');
 
 INSERT INTO spot(content_id,address,category,image,mapX,mapY,name,stadium_id) VALUES
 (100000001,'서울 송파구 백제고분로7길 8','ATHLETE_PICK','https://search.pstatic.net/common/?src=https%3A%2F%2Fpup-review-phinf.pstatic.net%2FMjAyMzA5MzBfMjYy%2FMDAxNjk2MDgzNDgzMzQx.BFaqaLkeP-v4KCAqJUeWRXfb8OguvfqQi9BBT69st3kg.cMi7Ad15bXUzSTOZ8gdUxH-2LYPuA79KVzU1zKAxqKMg.JPEG%2F20230930_133245.jpg%3Ftype%3Dw1500_60_sharpen',127.0796398,37.51029279,'잠실고박사찰떡생고기',1)
