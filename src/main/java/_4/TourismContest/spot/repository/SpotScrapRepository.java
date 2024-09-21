@@ -2,6 +2,8 @@ package _4.TourismContest.spot.repository;
 
 import _4.TourismContest.spot.domain.SpotScrap;
 import _4.TourismContest.user.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +20,12 @@ public interface SpotScrapRepository extends JpaRepository <SpotScrap,Long>{
 
     @Query("SELECT ss FROM SpotScrap ss WHERE ss.user.id=:userid AND ss.spot.stadium.name=:name")
     List<SpotScrap> findByUserIdAndName(@Param("userid")Long userid, @Param("name")String name);
+
+    @Query("SELECT ss FROM SpotScrap ss WHERE ss.user.id=:userid")
+    Page<SpotScrap> findByUserId (@Param("userid")Long userid, Pageable pageable);
+
+    @Query("SELECT ss FROM SpotScrap ss WHERE ss.user.id=:userid AND ss.spot.stadium.name=:filter")
+    Page<SpotScrap> findByUserIdAndFilter (@Param("userid")Long userid,@Param("filter")String filter ,Pageable pageable);
 
     Optional<List<SpotScrap>> findAllByUser(User user);
 }

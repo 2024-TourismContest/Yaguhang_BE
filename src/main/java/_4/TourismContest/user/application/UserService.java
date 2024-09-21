@@ -86,6 +86,7 @@ public class UserService {
                 .nickname(user.getNickname())
                 .image(user.getProfileImg())
                 .fanTeam(getTeamLogoUrl(user.getFanTeam()))
+                .fanTeamName(user.getFanTeam())
                 .build();
 
         return userInfoDto;
