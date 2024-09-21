@@ -1,6 +1,7 @@
 package _4.TourismContest.oauth.application;
 
 import _4.TourismContest.exception.ResourceNotFoundException;
+import _4.TourismContest.oauth.domain.AuthProvider;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndProvider(email, AuthProvider.DEFAULT)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found with email : " + email)
         );
