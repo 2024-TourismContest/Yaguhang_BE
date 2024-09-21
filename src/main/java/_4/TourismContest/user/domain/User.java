@@ -45,11 +45,12 @@ public class User {
     private boolean wannaCheckFanTeam;
 
     @Builder
-    public User(String email, String password, String nickname, String profileImg) {
+    public User(String email, String password, String nickname, String profileImg, AuthProvider provider) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImg = profileImg;
+        this.provider = provider;
         this.wannaCheckFanTeam = true;
     }
 

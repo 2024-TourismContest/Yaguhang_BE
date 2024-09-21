@@ -67,6 +67,7 @@ public class AuthController {
                 .email(registrationDto.email())
                 .password(passwordEncoder.encode(registrationDto.password()))
                 .nickname(registrationDto.nickname())
+                .provider(AuthProvider.DEFAULT)
                 .build();
 
         String result = userService.createUser(newUser);
