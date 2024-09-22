@@ -61,7 +61,7 @@ public class AuthController {
     @Operation(summary = "회원가입"
             ,description = "이메일 형식으로 기입 할것.\n" +
             "비밀번호는 6~20자 사이\n" +
-            "닉네임은 2~30자 사이로 입력해주세요.")
+            "닉네임은 2~30자 사이로 입력해주세요.(중복 불가)")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserResisterRequest registrationDto) {
         User newUser = User.builder()
                 .email(registrationDto.email())
@@ -84,10 +84,7 @@ public class AuthController {
     @PostMapping("/password-check")
     @Operation(summary = "비밀번호 확인" ,description = "")
     public ResponseEntity<Boolean> checkPassword(@CurrentUser UserPrincipal currentUser, @RequestBody String password) {
-        System.out.println(currentUser.getPassword());
-        System.out.println(password);
-        System.out.println(passwordEncoder.encode(password));
-        return ResponseEntity.ok(currentUser.getPassword().equals(passwordEncoder.encode(password)));
+        return ResponseEntity.ok(passwordEncoder.matches(password, currentUser.getPassword()));
     }
 
     @PutMapping("/password")
