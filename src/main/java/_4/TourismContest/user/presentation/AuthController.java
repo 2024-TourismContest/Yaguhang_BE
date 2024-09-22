@@ -84,6 +84,9 @@ public class AuthController {
     @PostMapping("/password-check")
     @Operation(summary = "비밀번호 확인" ,description = "")
     public ResponseEntity<Boolean> checkPassword(@CurrentUser UserPrincipal currentUser, @RequestBody String password) {
+        System.out.println(currentUser.getPassword());
+        System.out.println(password);
+        System.out.println(passwordEncoder.encode(password));
         return ResponseEntity.ok(currentUser.getPassword().equals(passwordEncoder.encode(password)));
     }
 
