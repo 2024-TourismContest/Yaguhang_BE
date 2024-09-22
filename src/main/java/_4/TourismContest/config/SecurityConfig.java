@@ -58,10 +58,10 @@ public class SecurityConfig {
       the authorization request. But, since our service is stateless, we can't save it in
       the session. We'll save the request in a Base64 encoded cookie instead.
     */
-    @Bean
-    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
-        return new HttpCookieOAuth2AuthorizationRequestRepository();
-    }
+//    @Bean
+//    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+//        return new HttpCookieOAuth2AuthorizationRequestRepository();
+//    }
 
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
@@ -90,7 +90,7 @@ public class SecurityConfig {
                                 .authorizationEndpoint(authorizationEndpoint ->
                                         authorizationEndpoint
                                                 .baseUri("/oauth2/authorization")
-                                                .authorizationRequestRepository(cookieAuthorizationRequestRepository())) // OAuth2 인증 요청 설정
+                                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)) // OAuth2 인증 요청 설정
                                 .redirectionEndpoint(redirectionEndpoint ->
                                         redirectionEndpoint
                                                 .baseUri("/oauth2/callback/*")) // 리디렉션 엔드포인트 설정
