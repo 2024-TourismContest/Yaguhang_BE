@@ -84,7 +84,7 @@ public class AuthController {
     @PostMapping("/password-check")
     @Operation(summary = "비밀번호 확인" ,description = "")
     public ResponseEntity<Boolean> checkPassword(@CurrentUser UserPrincipal currentUser, @RequestBody String password) {
-        return ResponseEntity.ok(currentUser.getPassword().equals(password));
+        return ResponseEntity.ok(currentUser.getPassword().equals(passwordEncoder.encode(password)));
     }
 
     @PutMapping("/password")
