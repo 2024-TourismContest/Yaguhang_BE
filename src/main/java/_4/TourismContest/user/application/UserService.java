@@ -57,7 +57,7 @@ public class UserService {
     public String createUser(User user) {
         if (userRepository.existsByEmailAndProvider(user.getEmail(), AuthProvider.DEFAULT))
             throw new BadRequestException("Email address already in use.");
-        if (userRepository.findByNickname(user.getNickname()))
+        if (userRepository.existsByNickname(user.getNickname()))
             throw new BadRequestException("Nickname already in use.");
         userRepository.save(user);
         return "success create user";
