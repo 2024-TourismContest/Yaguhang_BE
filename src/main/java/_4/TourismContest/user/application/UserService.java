@@ -6,6 +6,7 @@ import _4.TourismContest.baseball.repository.BaseballScrapRepository;
 import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.exception.ResourceNotFoundException;
 import _4.TourismContest.oauth.application.UserPrincipal;
+import _4.TourismContest.oauth.domain.AuthProvider;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.dto.UserProfileResponse;
 import _4.TourismContest.user.dto.UserUpdateRequest;
@@ -54,7 +55,7 @@ public class UserService {
     }
 
     public String createUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmailAndProvider(user.getEmail(), AuthProvider.DEFAULT)) {
             throw new BadRequestException("Email address already in use.");
         }
         userRepository.save(user);
@@ -85,6 +86,7 @@ public class UserService {
                 .nickname(user.getNickname())
                 .image(user.getProfileImg())
                 .fanTeam(getTeamLogoUrl(user.getFanTeam()))
+                .fanTeamName(user.getFanTeam())
                 .build();
 
         return userInfoDto;

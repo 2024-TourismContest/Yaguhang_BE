@@ -11,8 +11,6 @@ import _4.TourismContest.spot.domain.SpotScrap;
 import _4.TourismContest.spot.dto.*;
 import _4.TourismContest.spot.dto.command.ScrapResponseDto;
 import _4.TourismContest.spot.dto.command.ScrapSpot;
-import _4.TourismContest.spot.dto.command.ScrapStadium;
-import _4.TourismContest.spot.dto.command.ScrapStadiumSpot;
 import _4.TourismContest.spot.dto.preview.SpotAthletePickPreviewDto;
 import _4.TourismContest.spot.dto.preview.SpotBasicPreviewDto;
 import _4.TourismContest.spot.dto.spotDetailResponse.*;
@@ -20,6 +18,7 @@ import _4.TourismContest.spot.repository.AthletePickSpotRepository;
 import _4.TourismContest.spot.repository.SpotRepository;
 import _4.TourismContest.spot.repository.SpotScrapRepository;
 import _4.TourismContest.stadium.domain.Stadium;
+import _4.TourismContest.stadium.dto.StadiumInfo;
 import _4.TourismContest.stadium.repository.StadiumRepository;
 import _4.TourismContest.tour.dto.TourApiDetailCommonResponseDto;
 import _4.TourismContest.tour.dto.TourApiDetailImageResponseDto;
@@ -29,7 +28,10 @@ import _4.TourismContest.tour.infrastructure.TourApi;
 import _4.TourismContest.user.domain.User;
 import _4.TourismContest.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -239,86 +241,127 @@ public class SpotService {
         }
     }
 
-    public ScrapResponseDto getMyScrap(UserPrincipal userPrincipal) {
+
+//    public ScrapResponseDto getMyScrap(UserPrincipal userPrincipal) {
+//        User user = userRepository.findById(userPrincipal.getId())
+//                .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
+//
+//        List<ScrapStadiumSpot> scrapStadiumSpots = new ArrayList<>();
+//
+//        ScrapStadiumSpot scrapStadiumSpot;
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "잠실");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "수원");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "문학");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "창원");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "광주");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "사직");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "대구");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "대전");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//        scrapStadiumSpot = getScrapStadiumSpot(user, "고척");
+//        if (scrapStadiumSpot != null) {
+//            scrapStadiumSpots.add(scrapStadiumSpot);
+//        }
+//
+//        ScrapResponseDto scrapResponseDto = ScrapResponseDto.builder()
+//                .scrapStadiumSpots(scrapStadiumSpots)
+//                .build();
+//
+//        return scrapResponseDto;
+//    }
+
+    public ScrapResponseDto getMyScrap(Integer pageIndex, Integer pageSize, String filter, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
 
-        List<ScrapStadiumSpot> scrapStadiumSpots = new ArrayList<>();
-
-        ScrapStadiumSpot scrapStadiumSpot;
-        scrapStadiumSpot = getScrapStadiumSpot(user, "잠실");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
+        Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by("id").descending());
+        Page<SpotScrap> spotScraps;
+        if(filter.equals("전체")){
+            spotScraps = spotScrapRepository.findByUserId(user.getId(),pageable);
         }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "수원");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "문학");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "창원");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "광주");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "사직");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "대구");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "대전");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
-        }
-        scrapStadiumSpot = getScrapStadiumSpot(user, "고척");
-        if (scrapStadiumSpot != null) {
-            scrapStadiumSpots.add(scrapStadiumSpot);
+        else{
+            spotScraps = spotScrapRepository.findByUserIdAndFilter(user.getId(), filter, pageable);
         }
 
-        ScrapResponseDto scrapResponseDto = ScrapResponseDto.builder()
-                .scrapStadiumSpots(scrapStadiumSpots)
-                .build();
+        List<ScrapSpot> scrapSpots = new ArrayList<>();
+        for(SpotScrap spotScrap : spotScraps.getContent()){
+            StadiumInfo stadiumInfo = StadiumInfo.builder()
+                    .StadiumId(spotScrap.getSpot().getStadium().getId())
+                    .StadiumImage(spotScrap.getSpot().getStadium().getImage())
+                    .StadiumName(spotScrap.getSpot().getStadium().getName())
+                    .teamName(spotScrap.getSpot().getStadium().getTeam())
+                    .build();
 
-        return scrapResponseDto;
-    }
+            ScrapSpot scrapSpot = ScrapSpot.builder()
+                    .stadiumInfo(stadiumInfo)
+                    .contentId(spotScrap.getSpot().getId())
+                    .image(spotScrap.getSpot().getImage())
+                    .title(spotScrap.getSpot().getName())
+                    .build();
 
-    public ScrapStadiumSpot getScrapStadiumSpot(User user, String name) {
-        List<SpotScrap> spotScraps = spotScrapRepository.findByUserIdAndName(user.getId(), name);
-        if (spotScraps == null || spotScraps.isEmpty()) {
-            return null;
+            scrapSpots.add(scrapSpot);
         }
 
-        Stadium stadium = spotScraps.get(0).getSpot().getStadium();
-
-        ScrapStadium scrapStadium = ScrapStadium.builder()
-                .stadiumId(stadium.getId())
-                .title(stadium.getName() + " 야구장")
-                .image(stadium.getImage())
-                .build();
-
-        List<ScrapSpot> scrapSpots = spotScraps.stream()
-                .map(spotScrap -> ScrapSpot.builder()
-                        .contentId(spotScrap.getSpot().getId())
-                        .title(spotScrap.getSpot().getName())
-                        .image(spotScrap.getSpot().getImage())
-                        .build())
-                .collect(Collectors.toList());
-
-        ScrapStadiumSpot scrapStadiumSpot = ScrapStadiumSpot.builder()
-                .scrapStadium(scrapStadium)
+        return ScrapResponseDto.builder()
+                .hasNextPage(spotScraps.hasNext())
+                .pagesize(spotScraps.getSize())
+                .totalPage(spotScraps.getTotalPages())
                 .scrapSpots(scrapSpots)
                 .build();
-
-        return scrapStadiumSpot;
     }
+
+//    public ScrapStadiumSpot getScrapStadiumSpot(User user, String name) {
+//        List<SpotScrap> spotScraps = spotScrapRepository.findByUserIdAndName(user.getId(), name);
+//        if (spotScraps == null || spotScraps.isEmpty()) {
+//            return null;
+//        }
+//
+//        Stadium stadium = spotScraps.get(0).getSpot().getStadium();
+//
+//        ScrapStadium scrapStadium = ScrapStadium.builder()
+//                .stadiumId(stadium.getId())
+//                .title(stadium.getName() + " 야구장")
+//                .image(stadium.getImage())
+//                .build();
+//
+//        List<ScrapSpot> scrapSpots = spotScraps.stream()
+//                .map(spotScrap -> ScrapSpot.builder()
+//                        .contentId(spotScrap.getSpot().getId())
+//                        .title(spotScrap.getSpot().getName())
+//                        .image(spotScrap.getSpot().getImage())
+//                        .build())
+//                .collect(Collectors.toList());
+//
+//        ScrapStadiumSpot scrapStadiumSpot = ScrapStadiumSpot.builder()
+//                .scrapStadium(scrapStadium)
+//                .scrapSpots(scrapSpots)
+//                .build();
+//
+//        return scrapStadiumSpot;
+//    }
 
     public List<SpotMapResponseDto> getNearSpot(double nowX, double nowY, Long stadiumId, String category, int level, UserPrincipal userPrincipal) throws IOException {
         Stadium stadium = stadiumRepository.findById(stadiumId)

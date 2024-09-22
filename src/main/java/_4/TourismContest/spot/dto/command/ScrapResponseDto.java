@@ -5,6 +5,9 @@ import lombok.Builder;
 import java.util.List;
 @Builder
 public record ScrapResponseDto(
-        List<ScrapStadiumSpot> scrapStadiumSpots
+        Boolean hasNextPage,
+        Integer pagesize,
+        Integer totalPage,
+        List<ScrapSpot> scrapSpots
 ) {
 }

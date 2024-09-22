@@ -1,8 +1,10 @@
 package _4.TourismContest.user.presentation;
 
 import _4.TourismContest.oauth.application.CurrentUser;
+import _4.TourismContest.oauth.application.CustomUsernamePasswordAuthenticationToken;
 import _4.TourismContest.oauth.application.TokenProvider;
 import _4.TourismContest.oauth.application.UserPrincipal;
+import _4.TourismContest.oauth.domain.AuthProvider;
 import _4.TourismContest.oauth.dto.AuthResponse;
 import _4.TourismContest.oauth.dto.LoginRequest;
 import _4.TourismContest.user.application.UserService;
@@ -42,9 +44,10 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
+                new CustomUsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
-                        loginRequest.getPassword()
+                        loginRequest.getPassword(),
+                        AuthProvider.DEFAULT
                 )
         );
 
@@ -64,6 +67,7 @@ public class AuthController {
                 .email(registrationDto.email())
                 .password(passwordEncoder.encode(registrationDto.password()))
                 .nickname(registrationDto.nickname())
+                .provider(AuthProvider.DEFAULT)
                 .build();
 
         String result = userService.createUser(newUser);

@@ -10,7 +10,8 @@ public record UserInfoDto(
         Long userId,
         String nickname,
         String image,
-        String fanTeam
+        String fanTeam,
+        String fanTeamName
 ) {
 
     public static UserInfoDto of(User user) {
@@ -53,7 +54,8 @@ public record UserInfoDto(
                 user.getId(),
                 user.getNickname(),
                 profileUrl,
-                fanTeam
+                fanTeam,
+                user.getFanTeam()
         );
     }
 }
