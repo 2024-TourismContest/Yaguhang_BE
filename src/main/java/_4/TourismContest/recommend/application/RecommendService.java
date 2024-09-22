@@ -323,10 +323,19 @@ public class RecommendService {
                     .title(spotScrap.getSpot().getName())
                     .contentId(spotScrap.getSpot().getId())
                     .image(spotScrap.getSpot().getImage())
+                    .categoryLogo(getCategoryLogo(String.valueOf(spotScrap.getSpot().getCategory())))
                     .build();
             scrapAddressSpots.add(scrapAddressSpot);
         }
         return scrapAddressSpots;
+    }
+
+    public String getCategoryLogo(String category){
+        String baseUrl = "https://yaguhang.kro.kr:8443/categoryLogos/";
+        if (category == null || category.equals(""))
+            return null;
+
+        return baseUrl + category + ".svg";
     }
 
 

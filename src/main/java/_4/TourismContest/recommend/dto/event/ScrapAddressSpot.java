@@ -7,6 +7,7 @@ public record ScrapAddressSpot(
         Long contentId,
         String image,
         String title,
-        String address
+        String address,
+        String categoryLogo
 ) {
 }
