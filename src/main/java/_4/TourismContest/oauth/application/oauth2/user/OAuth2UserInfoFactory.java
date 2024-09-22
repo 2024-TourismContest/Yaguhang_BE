@@ -19,7 +19,7 @@ public class OAuth2UserInfoFactory {
 
     public static OAuth2UserInfo getOAuth2UserInfo(OAuth2UserRequest oAuth2UserRequest, Map<String, Object> attributes) {
         String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
-        if (registrationId.equalsIgnoreCase(AuthProvider.kakao.toString())) {
+        if (registrationId.equalsIgnoreCase(AuthProvider.KAKAO.toString())) {
             return makeKakaoUserInfo(attributes);
         }
         else {
