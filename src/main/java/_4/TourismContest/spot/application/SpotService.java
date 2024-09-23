@@ -335,6 +335,8 @@ public class SpotService {
     }
 
     public String getCategoryName(String category){
+        if(category==null || category.equals(""))
+            return null;
         if(category.equals("ACCOMMODATION"))
             return "숙소";
         if(category.equals("RESTAURANT"))
