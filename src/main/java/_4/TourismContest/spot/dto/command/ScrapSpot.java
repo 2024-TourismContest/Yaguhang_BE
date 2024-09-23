@@ -8,6 +8,7 @@ public record ScrapSpot(
         StadiumInfo stadiumInfo,
         Long contentId,
         String image,
-        String title
+        String title,
+        String category
 ) {
 }

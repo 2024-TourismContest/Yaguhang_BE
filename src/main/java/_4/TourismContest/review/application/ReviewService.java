@@ -200,9 +200,23 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             boolean isLiked = reviewLike.isPresent();
 
             if (reviewImage.isPresent())
-                reviewPreviewDtos.add(ReviewPreviewDto.of(review, reviewImage.get().getImageUrl(), isLiked));
-            else reviewPreviewDtos.add(ReviewPreviewDto.of(review, "", isLiked));
+                reviewPreviewDtos.add(ReviewPreviewDto.of(review, reviewImage.get().getImageUrl(), isLiked, getCategoryName(String.valueOf(review.getSpot().getCategory()))));
+            else reviewPreviewDtos.add(ReviewPreviewDto.of(review, "", isLiked, getCategoryName(String.valueOf(review.getSpot().getCategory()))));
         }
         return ReviewPreviewsResponse.of(reviewPreviewDtos);
+    }
+
+    public String getCategoryName(String category){
+        if(category.equals("ACCOMMODATION"))
+            return "숙소";
+        if(category.equals("RESTAURANT"))
+            return "맛집";
+        if(category.equals("SHOPPING"))
+            return "쇼핑";
+        if(category.equals("CULTURE_FACILITY"))
+            return "문화";
+        if(category.equals("ATHLETE_PICK"))
+            return "선수PICK";
+        return null;
     }
 }
