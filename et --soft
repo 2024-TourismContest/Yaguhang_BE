@@ -1,0 +1,263 @@
+[33mcommit 85481802ef72f50c71f57e643e243c5956a72450[m[33m ([m[1;36mHEAD -> [m[1;32mfix/#243-2[m[33m)[m
+Author: JongKyeong Kim <oo7bangjk@naver.com>
+Date:   Mon Sep 23 17:43:02 2024 +0900
+
+    fix: dto 이름 수정
+
+[33mcommit af1616d887701ebf225c4b662ca8ccc1dd60dfd4[m
+Merge: e6e652a f1c3122
+Author: JongKyeong Kim <oo7bangjk@naver.com>
+Date:   Mon Sep 23 17:42:44 2024 +0900
+
+    Merge branch 'develop' of https://github.com/2024-TourismContest/String-BE into fix/#243-2
+
+[33mcommit f1c31222c785ec3a01d767b6966179cf607b6ffe[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: 김종경 <111286262+JONG-KYEONG@users.noreply.github.com>
+Date:   Mon Sep 23 17:22:19 2024 +0900
+
+    Fix/#243 2 (#257)
+    
+    * fix: 나의 리뷰, 스크랩에 category 추가
+    
+    * fix: category nullable 잡기
+
+[33mcommit e6e652aac5e822955cd8e59e57645c1498a73f79[m[33m ([m[1;31morigin/fix/#243-2[m[33m)[m
+Author: JongKyeong Kim <oo7bangjk@naver.com>
+Date:   Mon Sep 23 17:21:41 2024 +0900
+
+    fix: category nullable 잡기
+
+[33mcommit 9f04ba055da8f134100dc08d0d7ab26f16a4269d[m
+Merge: b80c00d 50725dd
+Author: JongKyeong Kim <oo7bangjk@naver.com>
+Date:   Mon Sep 23 17:19:59 2024 +0900
+
+    Merge branch 'develop' of https://github.com/2024-TourismContest/String-BE into fix/#243-2
+
+[33mcommit 50725ddf7abe660e593d484dc2e20e9c82025880[m
+Author: 김종경 <111286262+JONG-KYEONG@users.noreply.github.com>
+Date:   Mon Sep 23 17:09:19 2024 +0900
+
+    fix: 나의 리뷰, 스크랩에 category 추가 (#256)
+
+[33mcommit b80c00d7444a8d8f4ada9f008c8d9c4a7880c4e4[m
+Author: JongKyeong Kim <oo7bangjk@naver.com>
+Date:   Mon Sep 23 17:08:46 2024 +0900
+
+    fix: 나의 리뷰, 스크랩에 category 추가
+
+[33mcommit d1e5b38aebc053dbd2945a6d3a9c5b1b20b4d21c[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Mon Sep 23 03:19:07 2024 +0900
+
+    [Fix] 비밀번호 검증 메서드 수정 (#255)
+    
+    * style : 스타일 적용
+    
+    * fix : GET -> POST
+    
+    * fix : encode한 password와 비교
+    
+    * fix : 디버깅 코드 추가
+    
+    * fix : httpCookieOauth2AuthorizationRequestRepository빈 중복 문제 제거
+    
+    * feat : 닉네임 중복 예외처리
+    
+    * feat : 닉네임 중복 예외처리위한 repository 메서드 작성
+    
+    * feat : jpa 네이밍 규칙에 맞게 수정
+    
+    * feat : jpa 네이밍 규칙에 맞게 수정
+    
+    * refact : 사용하지 않는 빈생성 메서드 제거
+    
+    * fix : 기존 비밀번호와 비교시에는 passwordEncoder.matches()를 사용해야 한다.
+
+[33mcommit 469009e9e6ea2420d5342404704837abdb01e488[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Mon Sep 23 01:52:27 2024 +0900
+
+    [Fix] 디버깅 코드 다시 추가 (#254)
+    
+    * style : 스타일 적용
+    
+    * fix : GET -> POST
+    
+    * fix : encode한 password와 비교
+    
+    * fix : 디버깅 코드 추가
+
+[33mcommit c5a732411f5f7a453b4319d6b373743a2dc7ab0d[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Mon Sep 23 01:49:46 2024 +0900
+
+    [Fix] 디버깅 코드 추가 (#253)
+    
+    * style : 스타일 적용
+    
+    * fix : GET -> POST
+    
+    * fix : encode한 password와 비교
+
+[33mcommit 23112f66641ec3915eefa01406bfad2f9f2e18f1[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Mon Sep 23 01:35:09 2024 +0900
+
+    [Fix] encode한 password와 비교해야 한다. (#252)
+    
+    * style : 스타일 적용
+    
+    * fix : GET -> POST
+    
+    * fix : encode한 password와 비교
+
+[33mcommit 19b5595c6281429ac13585eeda7415e1fd6f2e44[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Mon Sep 23 01:26:12 2024 +0900
+
+    [Fix[ 비밀번호 확인 메서드 GET -> POST (#251)
+    
+    * style : 스타일 적용
+    
+    * fix : GET -> POST
+
+[33mcommit aaacc6ebc5aadd923ea3850d55faaff9c1946ebc[m
+Author: 김종경 <111286262+JONG-KYEONG@users.noreply.github.com>
+Date:   Sun Sep 22 22:25:32 2024 +0900
+
+    Fix/#243 1 (#249)
+    
+    * fix: 추천행 작성 시 spot category 이미지 추가
+    
+    * fix: 로그인 에러, 이미지 url 경로 설정
+
+[33mcommit b94d5ab50d58796dd36009e9843feb782e46e96f[m
+Author: 김종경 <111286262+JONG-KYEONG@users.noreply.github.com>
+Date:   Sun Sep 22 21:26:42 2024 +0900
+
+    fix: 추천행 작성 시 spot category 이미지 추가 (#248)
+
+[33mcommit f878c3cae7a8eb4a396a1cb648237bd5cfe8e549[m[33m ([m[1;32mdevelop[m[33m)[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Sat Sep 21 17:03:05 2024 +0900
+
+    [Fix] 일반 회원가입시 AuthProvider 저장 (#247)
+    
+    * style : 스타일 적용
+    
+    * refact : enum 변수명 수정
+    
+    * chore : enum 변수명 수정에 따른 data.sql 수정
+    
+    * fix : 유저를 email과 provider로 중복검사
+    
+    * fix : 유저 중복검사시 email과 provider로 검사
+    
+    * fix : authenticationToken에 authProvider 정보도 함께 들어감
+    
+    * fix : oauth 로그인시 email, provider 기준으로 중복 검사
+    
+    * fix : 일반 회원가입시 provider 추가
+
+[33mcommit db56559dc4224a65a3509dc165149a2e74387a6d[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Sat Sep 21 16:53:39 2024 +0900
+
+    [Fix] 로그인시 email, provider 기준으로 유저 중복 검사 처리 (#244) (#246)
+    
+    * style : 스타일 적용
+    
+    * refact : enum 변수명 수정
+    
+    * chore : enum 변수명 수정에 따른 data.sql 수정
+    
+    * fix : 유저를 email과 provider로 중복검사
+    
+    * fix : 유저 중복검사시 email과 provider로 검사
+    
+    * fix : authenticationToken에 authProvider 정보도 함께 들어감
+    
+    * fix : oauth 로그인시 email, provider 기준으로 중복 검사
+
+[33mcommit 87bf414ffd7842e99ceae698c0b0674a59d14081[m
+Author: 김종경 <111286262+JONG-KYEONG@users.noreply.github.com>
+Date:   Sat Sep 21 16:38:53 2024 +0900
+
+    fix: 마이페이지 스크랩 api 수정 (#245)
+
+[33mcommit 06bd031a739faeff4b9cb5fd0a9827a828b47e0f[m
+Author: MinSeok_Choi <120546936+m0304s@users.noreply.github.com>
+Date:   Sat Sep 21 00:26:47 2024 +0900
+
+    Fix: 리뷰 리스트 확인시 null로 반환되는 문제 수정 (#242)
+
+[33mcommit 035d45ffb586e8daf43a84dc3d60e49b4d2975ab[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Thu Sep 19 22:08:55 2024 +0900
+
+    [Style] EOL 제거 (#240)
+    
+    * style : 스타일 적용
+    
+    * feat : 팬 구단 등록 요청 관련 기능 추가
+    
+    * chore : swagger 더 자세히
+    
+    * fix : 칼럼 이름 수정
+    
+    * style : EOL 추가
+
+[33mcommit 2d3430ed5052a9dd7d7dcdf76178a8bfcc763e79[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Thu Sep 19 22:05:23 2024 +0900
+
+    [Fix] Column이름 수정 (#239)
+    
+    * style : 스타일 적용
+    
+    * feat : 팬 구단 등록 요청 관련 기능 추가
+    
+    * chore : swagger 더 자세히
+    
+    * fix : 칼럼 이름 수정
+
+[33mcommit 5cdd9a6fd9c4178c8ae1768a2d14460e1fc62e58[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Thu Sep 19 21:49:07 2024 +0900
+
+    Feat : 팬 구단 요청 관련 기능 추가 (#238)
+    
+    * style : 스타일 적용
+    
+    * feat : 팬 구단 등록 요청 관련 기능 추가
+    
+    * chore : swagger 더 자세히
+
+[33mcommit 14f78f9422a3dec496b7a57f51c8be23c0cdc26f[m
+Author: Due_it <48638700+FhRh@users.noreply.github.com>
+Date:   Thu Sep 19 21:08:59 2024 +0900
+
+    Feat : 리뷰 미리보기에 isLiked, stadiumId 추가 (#236)
+    
+    * feat : 리뷰에 장소명 추가
+    
+    * feat : 리뷰에 isLiked 및 구장id 추가
+
+[33mcommit ccda62a3eb739794c402942e8a6248243fec6980[m
+Author: 김종경 <111286262+JONG-KYEONG@users.noreply.github.com>
+Date:   Thu Sep 19 19:39:37 2024 +0900
+
+    Fix/#208 4 (#235)
+    
+    * fix: 선수픽 맛집 상세 페이지 파라미터 수정
+    
+    * fix: 컴파일 에러 수정
+    
+    * fix: 기본 팬팀 로고 추가
+    
+    * fix: 추천행 팬팀 기본 로고 설정
+    
+    * fix: 팬팀 로고 수정
+
+[33mcommit a3a23e862e7741414d459e4b
