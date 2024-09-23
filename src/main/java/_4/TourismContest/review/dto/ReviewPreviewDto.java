@@ -14,9 +14,10 @@ public record ReviewPreviewDto(
         String image,
         LocalDateTime createdAt,
         String content,
-        boolean isLiked
+        boolean isLiked,
+        String category
 ) {
-    public static ReviewPreviewDto of(Review review, String imageUrl, boolean isLiked) {
+    public static ReviewPreviewDto of(Review review, String imageUrl, boolean isLiked, String category) {
         return new ReviewPreviewDto(
                 review.getSpot().getStadium().getId(),
                 review.getSpot().getId(),
@@ -27,7 +28,8 @@ public record ReviewPreviewDto(
                 imageUrl,
                 review.getCreatedAt(),
                 review.getContent(),
-                isLiked
+                isLiked,
+                category
         );
     }
 }

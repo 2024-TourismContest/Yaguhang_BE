@@ -320,6 +320,7 @@ public class SpotService {
                     .contentId(spotScrap.getSpot().getId())
                     .image(spotScrap.getSpot().getImage())
                     .title(spotScrap.getSpot().getName())
+                    .category(getCategoryName(String.valueOf(spotScrap.getSpot().getCategory())))
                     .build();
 
             scrapSpots.add(scrapSpot);
@@ -331,6 +332,20 @@ public class SpotService {
                 .totalPage(spotScraps.getTotalPages())
                 .scrapSpots(scrapSpots)
                 .build();
+    }
+
+    public String getCategoryName(String category){
+        if(category.equals("ACCOMMODATION"))
+            return "숙소";
+        if(category.equals("RESTAURANT"))
+            return "맛집";
+        if(category.equals("SHOPPING"))
+            return "쇼핑";
+        if(category.equals("CULTURE_FACILITY"))
+            return "문화";
+        if(category.equals("ATHLETE_PICK"))
+            return "선수PICK";
+        return null;
     }
 
 //    public ScrapStadiumSpot getScrapStadiumSpot(User user, String name) {
