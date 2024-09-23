@@ -194,30 +194,28 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
 
         List<ReviewPreviewDto> reviewPreviewDtos = new ArrayList<>();
         for (Review review : reviews) {
-            Optional<ReviewImage> reviewImage = reviewImageRepository.findFirstByReview(review);
+            List<ReviewImage> images = reviewImageRepository.findAllByReview(review);
 
             Optional<ReviewLike> reviewLike = reviewLikeRepository.findByUserAndReview(user, review);
             boolean isLiked = reviewLike.isPresent();
 
-            if (reviewImage.isPresent())
-                reviewPreviewDtos.add(ReviewPreviewDto.of(review, reviewImage.get().getImageUrl(), isLiked, getCategoryName(String.valueOf(review.getSpot().getCategory()))));
-            else reviewPreviewDtos.add(ReviewPreviewDto.of(review, "", isLiked, getCategoryName(String.valueOf(review.getSpot().getCategory()))));
+            reviewPreviewDtos.add(ReviewPreviewDto.of(review, images, isLiked, getCategoryName(String.valueOf(review.getSpot().getCategory()))));
         }
         return ReviewPreviewsResponse.of(reviewPreviewDtos);
     }
 
-    public String getCategoryName(String category){
-        if(category==null || category.equals(""))
+    public String getCategoryName(String category) {
+        if (category == null || category.equals(""))
             return null;
-        if(category.equals("ACCOMMODATION"))
+        if (category.equals("ACCOMMODATION"))
             return "숙소";
-        if(category.equals("RESTAURANT"))
+        if (category.equals("RESTAURANT"))
             return "맛집";
-        if(category.equals("SHOPPING"))
+        if (category.equals("SHOPPING"))
             return "쇼핑";
-        if(category.equals("CULTURE_FACILITY"))
+        if (category.equals("CULTURE_FACILITY"))
             return "문화";
-        if(category.equals("ATHLETE_PICK"))
+        if (category.equals("ATHLETE_PICK"))
             return "선수PICK";
         return null;
     }

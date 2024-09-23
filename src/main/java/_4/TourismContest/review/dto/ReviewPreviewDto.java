@@ -1,8 +1,11 @@
 package _4.TourismContest.review.dto;
 
 import _4.TourismContest.review.domain.Review;
+import _4.TourismContest.review.domain.ReviewImage;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public record ReviewPreviewDto(
         Long stadiumId,
@@ -11,13 +14,13 @@ public record ReviewPreviewDto(
         Long reviewId,
         float star,
         int likeCount,
-        String image,
+        List<String> image,
         LocalDateTime createdAt,
         String content,
         boolean isLiked,
         String category
 ) {
-    public static ReviewPreviewDto of(Review review, String imageUrl, boolean isLiked, String category) {
+    public static ReviewPreviewDto of(Review review, List<ReviewImage> images, boolean isLiked, String category) {
         return new ReviewPreviewDto(
                 review.getSpot().getStadium().getId(),
                 review.getSpot().getId(),
@@ -25,7 +28,7 @@ public record ReviewPreviewDto(
                 review.getId(),
                 review.getStar(),
                 review.getLikeCount(),
-                imageUrl,
+                images.stream().map(ReviewImage::getImageUrl).collect(Collectors.toList()),
                 review.getCreatedAt(),
                 review.getContent(),
                 isLiked,
