@@ -82,7 +82,7 @@ public class RecommendService {
                     .stadiumId(recommend.getStadium().getId())
                     .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(recommend.getUser().getProfileImg())
+                    .profileImage(returnProfileImg(recommend.getUser().getProfileImg()))
                     .likeTeam(recommend.getUser().getFanTeam())
                     .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
@@ -181,7 +181,7 @@ public class RecommendService {
                     .stadiumId(recommend.getStadium().getId())
                     .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(recommend.getUser().getProfileImg())
+                    .profileImage(returnProfileImg(recommend.getUser().getProfileImg()))
                     .likeTeam(recommend.getUser().getFanTeam())
                     .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
@@ -222,7 +222,7 @@ public class RecommendService {
                     .stadiumId(recommend.getStadium().getId())
                     .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(profileImg)
+                    .profileImage(returnProfileImg(profileImg))
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
@@ -263,7 +263,7 @@ public class RecommendService {
                 .title(recommend.getTitle())
                 .likes(recommend.getLikeCount())
                 .createdAt(recommend.getCreatedAt().format(formatter))
-                .profileImage(recommend.getUser().getProfileImg())
+                .profileImage(returnProfileImg(recommend.getUser().getProfileImg()))
                 .isMine(isMine(userPrincipal,recommend))
                 .isLiked(isScraped(userPrincipal,recommend))
                 .spotGeneralPreviewDtos(spotGeneralPreviewDtos)
@@ -446,6 +446,14 @@ public class RecommendService {
             case CULTURE_FACILITY: return "문화";
             case FESTIVAL_EVENT: return "문화";
             default: throw new BadRequestException("카테고리를 확인하세요");
+        }
+    }
+
+    private String returnProfileImg(String profileImg) {
+        if(profileImg != null){
+            return profileImg;
+        }else{
+            return "https://yaguhang.kro.kr:8443/defaultLogos/Profile.png";
         }
     }
 }
