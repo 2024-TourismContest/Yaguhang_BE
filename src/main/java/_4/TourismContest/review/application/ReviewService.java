@@ -207,6 +207,8 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
     }
 
     public String getCategoryName(String category){
+        if(category==null || category.equals(""))
+            return null;
         if(category.equals("ACCOMMODATION"))
             return "숙소";
         if(category.equals("RESTAURANT"))
