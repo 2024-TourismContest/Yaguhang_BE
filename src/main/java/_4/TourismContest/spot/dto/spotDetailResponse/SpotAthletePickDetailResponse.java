@@ -16,7 +16,7 @@ public record SpotAthletePickDetailResponse(
         String phoneNumber,
         String description,
         String picker,
-        String buisnessHour,
+        String buisnessHours,
         String closedDays,
         String parkingFacilities,
         List<String> images
