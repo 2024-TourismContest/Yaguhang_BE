@@ -69,7 +69,7 @@ public class TourApi {
 
             return tourApiResponseDto;
         }catch (Exception e){
-            throw new IllegalStateException("API Key를 확인해주세요.");
+            throw new IllegalStateException(e);
         }
     }
 
