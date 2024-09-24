@@ -85,12 +85,21 @@ public class UserService {
         UserInfoDto userInfoDto = UserInfoDto.builder()
                 .userId(user.getId())
                 .nickname(user.getNickname())
-                .image(user.getProfileImg())
+                .image(getProfileImg(user.getProfileImg()))
                 .fanTeam(getTeamLogoUrl(user.getFanTeam()))
                 .fanTeamName(user.getFanTeam())
                 .build();
 
         return userInfoDto;
+    }
+
+    private String getProfileImg(String profileImg) {
+        if(profileImg != null){
+            return "https://yaguhang.kro.kr:8443/defaultLogos/Profile.png";
+        }else{
+            return profileImg;
+
+        }
     }
 
     public UserDdayDto getMypageDdayInfo(UserPrincipal userPrincipal) {
