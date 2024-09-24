@@ -46,7 +46,7 @@ public class TourApi {
             Random random = new Random();
             int randomPage = 0;
             if(randomPageMax != 0){
-                randomPage = random.nextInt(randomPageMax);
+                randomPage = random.nextInt(randomPageMax-1);
             }
 
             URI uri = UriComponentsBuilder.fromHttpUrl(url)
