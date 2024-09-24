@@ -15,6 +15,7 @@ import _4.TourismContest.review.repository.ReviewImageRepository;
 import _4.TourismContest.review.repository.ReviewLikeRepository;
 import _4.TourismContest.review.repository.ReviewRepository;
 import _4.TourismContest.spot.domain.Spot;
+import _4.TourismContest.spot.domain.SpotCategory;
 import _4.TourismContest.spot.repository.SpotRepository;
 import _4.TourismContest.stadium.domain.Stadium;
 import _4.TourismContest.stadium.repository.StadiumRepository;
@@ -61,6 +62,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
                         .mapY(Double.parseDouble(tourApiDetailCommonResponseDto.getMapy()))
                         .address(tourApiDetailCommonResponseDto.getAddr1() + " " + tourApiDetailCommonResponseDto.getAddr2())
                         .image(tourApiDetailCommonResponseDto.getFirstimage())
+                        .category(getCategory(tourApi.getSpotDetailCommon(spotId).getResponse().getBody().getItems().getItem().get(0).getContenttypeid()))
                         .build();
                 spotRepository.save(spot);
             }
@@ -68,12 +70,32 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             spot = optionalSpot.get();
         }
 
-
         Review review = request.toReviewEntity(user, spot);
         reviewRepository.save(review);
 
         List<ReviewImage> reviewImages = request.toReviewImageEntities(review);
         reviewImageRepository.saveAll(reviewImages);
+    }
+
+    private SpotCategory getCategory(String contenttypeid) {
+        switch(contenttypeid){
+            case "12":
+                return SpotCategory.TOURISM_SPOT;
+            case "14":
+                return SpotCategory.CULTURE_FACILITY;
+            case "15":
+                return SpotCategory.FESTIVAL_EVENT;
+            case "28":
+                return SpotCategory.REPORTS;
+            case "32":
+                return SpotCategory.ACCOMMODATION;
+            case "38":
+                return SpotCategory.SHOPPING;
+            case "39":
+                return SpotCategory.RESTAURANT;
+            default:
+                throw new IllegalArgumentException("contenttypeId를 확인해주세요.");
+        }
     }
 
     public ReviewsResponse getSpotReviews(Long spotId, UserPrincipal userPrincipal, String sort) {
@@ -190,7 +212,7 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("no user"));
 
-        List<Review> reviews = reviewRepository.findAllByUser(user);
+        List<Review> reviews = reviewRepository.findAllByUserOrderByCreatedAtDesc(user);
 
         List<ReviewPreviewDto> reviewPreviewDtos = new ArrayList<>();
         for (Review review : reviews) {
@@ -205,8 +227,6 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
     }
 
     public String getCategoryName(String category) {
-        if (category == null || category.equals(""))
-            return null;
         if (category.equals("ACCOMMODATION"))
             return "숙소";
         if (category.equals("RESTAURANT"))
