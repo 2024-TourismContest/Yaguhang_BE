@@ -74,15 +74,15 @@ public class SpotService {
                 .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
         List<Spot> spots = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK);
 
-        int pageSize = 4;
-        int totalPages = spots.size() / pageSize;  //야구선수픽 전체 장소 개수
-        Random random = new Random();
+        List<Spot> sampleSpots;
+        if(spots.size()<4){
+            sampleSpots = spots;
+        } else{
+            Collections.shuffle(spots);
+            sampleSpots = spots.subList(0, 4);
+        }
 
-        int pageNum = random.nextInt(totalPages);
-
-        List<Spot> spotsByStadiumAndCategory = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK, PageRequest.of(pageNum, pageSize));
-
-        List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(spotsByStadiumAndCategory);
+        List<AthletePickSpot> athletePickSpotsInfo = athletePickSpotRepository.findAthletePickSpotsBySpotIn(sampleSpots);
         List<SpotBasicPreviewDto> athletePickPreviewDtoList = new ArrayList<>();
         for (AthletePickSpot info : athletePickSpotsInfo) {
             boolean isScraped = false;
