@@ -45,7 +45,7 @@ public class TourApi {
 
             Random random = new Random();
             int randomPage = 0;
-            if(randomPageMax != 0){
+            if(randomPageMax > 1){
                 randomPage = random.nextInt(randomPageMax-1);
             }
 
