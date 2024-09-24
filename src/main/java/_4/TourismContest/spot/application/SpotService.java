@@ -77,6 +77,7 @@ public class SpotService {
         int pageSize = 4;
         int totalPages = spots.size() / pageSize;  //야구선수픽 전체 장소 개수
         Random random = new Random();
+
         int pageNum = random.nextInt(totalPages);
 
         List<Spot> spotsByStadiumAndCategory = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK, PageRequest.of(pageNum, pageSize));
