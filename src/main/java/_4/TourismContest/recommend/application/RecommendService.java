@@ -335,6 +335,9 @@ public class RecommendService {
         if (category == null || category.equals(""))
             return null;
 
+        if(category.equals("ATHLETE_PICK")){
+            category = "RESTAURANT";
+        }
         return baseUrl + category + ".svg";
     }
 

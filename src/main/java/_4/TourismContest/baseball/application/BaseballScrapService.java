@@ -137,10 +137,10 @@ public class BaseballScrapService {
     }
 
     private String getWeatherUrl(WeatherForecastEnum weatherForecastDataWithGame) {
-        if(weatherForecastDataWithGame == null){
-            return null;
-        }
         String baseUrl = "https://yaguhang.kro.kr:8443/weatherImages/";
+        if(weatherForecastDataWithGame == null){
+            return baseUrl + "null.svg";
+        }
         switch (weatherForecastDataWithGame){
             case CLOUDY -> {
                 return baseUrl + "Cloudy.svg";
