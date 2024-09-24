@@ -21,6 +21,7 @@ public record RecommendPreviewDto(
 
         String title,
         String createdAt,
+        String description,
         List<String> images,
         Integer likes,
         Boolean isMine,

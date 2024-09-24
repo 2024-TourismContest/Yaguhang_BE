@@ -88,6 +88,7 @@ public class RecommendService {
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
+                    .description(recommend.getDescription())
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
                     .isLiked(isScraped(userPrincipal, recommend))
@@ -187,6 +188,7 @@ public class RecommendService {
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
+                    .description(recommend.getDescription())
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
                     .isLiked(isScraped(userPrincipal, recommend))
@@ -226,6 +228,7 @@ public class RecommendService {
                     .title(recommend.getTitle())
                     .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
+                    .description(recommend.getDescription())
                     .isMine(isMine(userPrincipal, recommend))
                     .likes(recommend.getLikeCount())
                     .isLiked(isScraped(userPrincipal, recommend))
@@ -380,6 +383,7 @@ public class RecommendService {
                 .stadium(stadium)
                 .user(user)
                 .title(recommendPostRequest.title())
+                .description(recommendPostRequest.description())
                 .build());
 
         List<RecommendImage> recommendImages = new ArrayList<>();

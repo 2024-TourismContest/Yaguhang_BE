@@ -38,6 +38,9 @@ public class Recommend {
     @Column(name = "image")
     private String image;
 
+    @Column(name = "description")
+    private String description;
+
     @OneToMany
     private List<RecommendImage> recommendImages;
 
@@ -45,10 +48,13 @@ public class Recommend {
     private LocalDateTime createdAt;
 
     @Builder
-    public Recommend (Stadium stadium, User user, String title){
+    public Recommend (Stadium stadium, User user, String title, String description){
         this.stadium = stadium;
         this.user = user;
         this.title = title;
+        if(description == null)
+            description = "";
+        this.description = description;
     }
     public Recommend setImages(Recommend recommend, List<RecommendImage> recommendImages){
         recommend.recommendImages = recommendImages;
