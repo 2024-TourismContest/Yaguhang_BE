@@ -94,11 +94,10 @@ public class UserService {
     }
 
     private String getProfileImg(String profileImg) {
-        if(profileImg != null){
+        if(profileImg == null){
             return "https://yaguhang.kro.kr:8443/defaultLogos/Profile.png";
         }else{
             return profileImg;
-
         }
     }
 
