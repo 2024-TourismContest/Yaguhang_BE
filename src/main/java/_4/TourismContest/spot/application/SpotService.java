@@ -74,7 +74,7 @@ public class SpotService {
                 .orElseThrow(() -> new BadRequestException("잘못된 구장 정보입니다"));
         List<Spot> spots = spotRepository.findSpotsByStadiumAndCategory(stadium, SpotCategory.ATHLETE_PICK);
 
-        List<Spot> sampleSpots = new ArrayList<>();
+        List<Spot> sampleSpots;
         if(spots.size()<4){
             sampleSpots = spots;
         } else{
