@@ -338,7 +338,6 @@ public class RecommendService {
         if(category.equals("ATHLETE_PICK")){
             category = "RESTAURANT";
         }
-
         return baseUrl + category + ".svg";
     }
 
