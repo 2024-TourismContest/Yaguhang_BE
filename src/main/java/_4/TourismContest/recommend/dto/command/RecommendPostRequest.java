@@ -5,6 +5,7 @@ import java.util.List;
 public record RecommendPostRequest(
         String Stadium,
         String title,
+        String description,
         List<Long> contentIdList
 ) {
 }
