@@ -98,6 +98,7 @@ public class UserService {
             return "https://yaguhang.kro.kr:8443/defaultLogos/Profile.png";
         }else{
             return profileImg;
+
         }
     }
 
