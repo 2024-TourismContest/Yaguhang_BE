@@ -70,7 +70,6 @@ public class ReviewService { //CUD와 R 서비스의 분리가 필요해 보임
             spot = optionalSpot.get();
         }
 
-
         Review review = request.toReviewEntity(user, spot);
         reviewRepository.save(review);
 
