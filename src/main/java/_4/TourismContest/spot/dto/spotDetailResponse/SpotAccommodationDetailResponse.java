@@ -42,7 +42,9 @@ public record SpotAccommodationDetailResponse (
 //            images.add(commonItem.getFirstimage2());
 //        }
         for(TourApiDetailImageResponseDto.Item item : ImageItems.getItem()){
-            images.add(item.getOriginimgurl());
+            if(!item.getOriginimgurl().equals("")){
+                images.add(item.getOriginimgurl());
+            }
         }
 
         SpotAccommodationDetailResponse spotAccommodationDetailResponse = SpotAccommodationDetailResponse.builder()
