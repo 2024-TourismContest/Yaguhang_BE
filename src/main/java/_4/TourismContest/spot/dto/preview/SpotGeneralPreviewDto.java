@@ -10,6 +10,7 @@ public record SpotGeneralPreviewDto(
         String address,
         String imageUrl,
         Boolean isScraped,
-        String category
+        String category,
+        String categoryUrl
 ) implements SpotBasicPreviewDto{
 }
