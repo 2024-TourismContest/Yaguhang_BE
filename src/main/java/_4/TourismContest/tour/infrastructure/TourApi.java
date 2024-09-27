@@ -45,8 +45,8 @@ public class TourApi {
 
             Random random = new Random();
             int randomPage = 0;
-            if(randomPageMax != 0){
-                randomPage = random.nextInt(randomPageMax);
+            if(randomPageMax > 1){
+                randomPage = random.nextInt(randomPageMax-1);
             }
 
             URI uri = UriComponentsBuilder.fromHttpUrl(url)
@@ -69,7 +69,7 @@ public class TourApi {
 
             return tourApiResponseDto;
         }catch (Exception e){
-            throw new IllegalStateException("API Key를 확인해주세요.");
+            throw new IllegalStateException(e);
         }
     }
 
