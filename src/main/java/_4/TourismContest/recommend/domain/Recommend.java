@@ -41,8 +41,8 @@ public class Recommend {
     @Column(name = "description")
     private String description;
 
-    @OneToMany
-    private List<RecommendImage> recommendImages;
+//    @OneToMany
+//    private List<RecommendImage> recommendImages;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -56,10 +56,10 @@ public class Recommend {
             description = "";
         this.description = description;
     }
-    public Recommend setImages(Recommend recommend, List<RecommendImage> recommendImages){
-        recommend.recommendImages = recommendImages;
-        return recommend;
-    }
+//    public Recommend setImages(Recommend recommend, List<RecommendImage> recommendImages){
+//        recommend.recommendImages = recommendImages;
+//        return recommend;
+//    }
     public Recommend minusLikes(Recommend recommend){
         recommend.likeCount--;
         return recommend;
