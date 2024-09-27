@@ -193,8 +193,6 @@ public class RecommendService {
     public RecommendPreviewResponse getMyRecommendList(Integer pagesize, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
-//        User user = userRepository.findById(8L)
-//                .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
         Pageable pageable = PageRequest.of(0, pagesize);
         List<Recommend> recommends = recommendRepository.findRecommendByUser(user.getId(), pageable);
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
@@ -385,17 +383,16 @@ public class RecommendService {
     public String deleteRecommend(Long recommendId, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("로그인 토큰을 다시 확인해주세요"));
-//        User user = userRepository.findById(8L).orElseThrow(() -> new BadRequestException("로그인 토큰을 다시 확인해주세요"));
         Recommend recommend =  recommendRepository.findById(recommendId)
                 .orElseThrow(() -> new BadRequestException("recommendId를 다시 확인해주세요"));
         if(user.getId() != recommend.getUser().getId()){
             throw new BadRequestException("삭제 권한이 없습니다. ");
         }
         List<RecommendSpot> recommendSpots = recommendSpotRepository.findByRecommend(recommend);
-        for(RecommendSpot recommendSpot : recommendSpots)
-            recommendSpotRepository.delete(recommendSpot);
+        recommendSpotRepository.deleteAll(recommendSpots);
+
         recommendRepository.delete(recommend);
-        return "success post recommend";
+        return "success delete recommend";
     }
 
 
