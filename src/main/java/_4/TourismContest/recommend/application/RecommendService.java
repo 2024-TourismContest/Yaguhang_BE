@@ -193,6 +193,8 @@ public class RecommendService {
     public RecommendPreviewResponse getMyRecommendList(Integer pagesize, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
+//        User user = userRepository.findById(8L)
+//                .orElseThrow(() -> new BadRequestException("유저 토큰 값을 다시 확인해주세요"));
         Pageable pageable = PageRequest.of(0, pagesize);
         List<Recommend> recommends = recommendRepository.findRecommendByUser(user.getId(), pageable);
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
@@ -231,7 +233,8 @@ public class RecommendService {
             SpotGeneralPreviewDto spotGeneralPreviewDto = SpotGeneralPreviewDto.builder()
                     .contentId(recommendSpot.getSpot().getId())
                     .name(recommendSpot.getSpot().getName())
-                    .category(getCategoryLogo(String.valueOf(recommendSpot.getSpot().getCategory())))
+                    .category(spotCategoryToString(recommendSpot.getSpot().getCategory()))
+                    .categoryUrl(getCategoryLogo(String.valueOf(recommendSpot.getSpot().getCategory())))
                     .address(recommendSpot.getSpot().getAddress())
                     .imageUrl(recommendSpot.getSpot().getImage())
                     .isScraped(isScrapedSpot(userPrincipal, recommendSpot.getSpot()))
@@ -382,10 +385,11 @@ public class RecommendService {
     public String deleteRecommend(Long recommendId, UserPrincipal userPrincipal){
         User user = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new BadRequestException("로그인 토큰을 다시 확인해주세요"));
+//        User user = userRepository.findById(8L).orElseThrow(() -> new BadRequestException("로그인 토큰을 다시 확인해주세요"));
         Recommend recommend =  recommendRepository.findById(recommendId)
                 .orElseThrow(() -> new BadRequestException("recommendId를 다시 확인해주세요"));
         if(user.getId() != recommend.getUser().getId()){
-            new BadRequestException("삭제 권한이 없습니다. ");
+            throw new BadRequestException("삭제 권한이 없습니다. ");
         }
         List<RecommendSpot> recommendSpots = recommendSpotRepository.findByRecommend(recommend);
         for(RecommendSpot recommendSpot : recommendSpots)
@@ -421,7 +425,7 @@ public class RecommendService {
             case RESTAURANT: return "맛집";
             case TOURISM_SPOT: return "관광지";
             case ACCOMMODATION: return "숙소";
-            case ATHLETE_PICK: return "선수PICK";
+            case ATHLETE_PICK: return "맛집";
             case CULTURE_FACILITY: return "문화";
             case FESTIVAL_EVENT: return "문화";
             default: throw new BadRequestException("카테고리를 확인하세요");
