@@ -252,7 +252,7 @@ public class RecommendService {
             SpotGeneralPreviewDto spotGeneralPreviewDto = SpotGeneralPreviewDto.builder()
                     .contentId(recommendSpot.getSpot().getId())
                     .name(recommendSpot.getSpot().getName())
-                    .category(spotCategoryToString(recommendSpot.getSpot().getCategory()))
+                    .category(getCategoryLogo(String.valueOf(recommendSpot.getSpot().getCategory())))
                     .address(recommendSpot.getSpot().getAddress())
                     .imageUrl(recommendSpot.getSpot().getImage())
                     .isScraped(isScrapedSpot(userPrincipal, recommendSpot.getSpot()))
