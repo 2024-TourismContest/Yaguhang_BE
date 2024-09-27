@@ -3,12 +3,10 @@ package _4.TourismContest.recommend.application;
 import _4.TourismContest.exception.BadRequestException;
 import _4.TourismContest.oauth.application.UserPrincipal;
 import _4.TourismContest.recommend.domain.Recommend;
-import _4.TourismContest.recommend.domain.RecommendImage;
 import _4.TourismContest.recommend.domain.RecommendLike;
 import _4.TourismContest.recommend.domain.RecommendSpot;
 import _4.TourismContest.recommend.dto.command.RecommendPostRequest;
 import _4.TourismContest.recommend.dto.event.*;
-import _4.TourismContest.recommend.repository.RecommendImageRepository;
 import _4.TourismContest.recommend.repository.RecommendLikeRepository;
 import _4.TourismContest.recommend.repository.RecommendRepository;
 import _4.TourismContest.recommend.repository.RecommendSpotRepository;
@@ -43,7 +41,6 @@ public class RecommendService {
     private final RecommendRepository recommendRepository;
     private final RecommendSpotRepository recommendSpotRepository;
     private final RecommendLikeRepository recommendLikeRepository;
-    private final RecommendImageRepository recommendImageRepository;
     private final SpotScrapRepository spotScrapRepository;
     private final StadiumRepository stadiumRepository;
     private final UserRepository userRepository;
@@ -71,11 +68,6 @@ public class RecommendService {
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         for (Recommend recommend : recommendsPage.getContent()) {
-            List<String> imageList = recommend.getRecommendImages().stream()
-                    .map(RecommendImage::getImage)
-                    .filter(image -> image != null && !image.isEmpty())
-                    .collect(Collectors.toList());
-
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumName(recommend.getStadium().getName())
@@ -86,7 +78,6 @@ public class RecommendService {
                     .likeTeam(recommend.getUser().getFanTeam())
                     .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
-                    .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
                     .description(recommend.getDescription())
                     .isMine(isMine(userPrincipal, recommend))
@@ -171,11 +162,6 @@ public class RecommendService {
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         for (Recommend recommend : recommendsPage.getContent()) {
-            List<String> imageList = recommend.getRecommendImages().stream()
-                    .map(RecommendImage::getImage)
-                    .filter(image -> image != null && !image.isEmpty())
-                    .collect(Collectors.toList());
-
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumName(recommend.getStadium().getName())
@@ -186,7 +172,6 @@ public class RecommendService {
                     .likeTeam(recommend.getUser().getFanTeam())
                     .likeTeamUrl(getTeamLogoUrl(recommend.getUser().getFanTeam()))
                     .title(recommend.getTitle())
-                    .images(imageList)
                     .createdAt(recommend.getCreatedAt().format(formatter))
                     .description(recommend.getDescription())
                     .isMine(isMine(userPrincipal, recommend))
@@ -213,20 +198,14 @@ public class RecommendService {
         List<RecommendPreviewDto> recommendPreviewDtos = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         for (Recommend recommend : recommends) {
-            List<String> imageList = recommend.getRecommendImages().stream()
-                    .map(RecommendImage::getImage)
-                    .filter(image -> image != null && !image.isEmpty())
-                    .collect(Collectors.toList());
             Random random = new Random();
-            String profileImg = imageList.get(random.nextInt(imageList.size()));
             RecommendPreviewDto recommendPreviewDto = RecommendPreviewDto.builder()
                     .recommendId(recommend.getId())
                     .stadiumId(recommend.getStadium().getId())
                     .stadiumImage(recommend.getStadium().getImage())
                     .authorName(recommend.getUser().getNickname())
-                    .profileImage(returnProfileImg(profileImg))
                     .title(recommend.getTitle())
-                    .images(imageList)
+                    .profileImage(returnProfileImg(recommend.getUser().getProfileImg()))
                     .createdAt(recommend.getCreatedAt().format(formatter))
                     .description(recommend.getDescription())
                     .isMine(isMine(userPrincipal, recommend))
@@ -386,7 +365,6 @@ public class RecommendService {
                 .description(recommendPostRequest.description())
                 .build());
 
-        List<RecommendImage> recommendImages = new ArrayList<>();
 
         for(Long contentId : recommendPostRequest.contentIdList()){
             SpotScrap spot = spotScrapRepository.findByUserIdAndSpotContentId(user.getId(), contentId)
@@ -396,14 +374,8 @@ public class RecommendService {
                     .spot(spot.getSpot())
                     .build();
 
-            if(spot.getSpot().getImage()!=null) {
-                recommendImages.add(recommendImageRepository.save(RecommendImage.builder()
-                        .image(spot.getSpot().getImage())
-                        .build()));
-            }
             recommendSpotRepository.save(recommendSpot);
         }
-        recommendRepository.save(recommend.setImages(recommend, recommendImages));
         return "success post recommend";
     }
     @Transactional
