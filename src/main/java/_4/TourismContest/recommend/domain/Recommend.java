@@ -26,7 +26,7 @@ public class Recommend {
     @ManyToOne(fetch = FetchType.LAZY)
     private Stadium stadium;
 
-    @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(name = "title")
