@@ -29,34 +29,16 @@
 <br/>
 
 
-## 👨‍💻 기여자 (Contributors)
+<br>
 
-<table align="center">
-  <tr>
-    <td align="center">
-       <img src="https://avatars.githubusercontent.com/u/111286262?v=4" width="120px;"/>   
-        <br />
-        <a href="https://github.com/JONG-KYEONG" title="Code"><b>JONG-KYEONG</b></a>
-    </td>
-    <td align="center">
-        <img src="https://avatars.githubusercontent.com/u/120546936?v=4" width="120px;"/> 
-        <br />
-        <a href="https://github.com/m0304s title="Code"><b>m0304s</b></a>
-    </td>
-    <td align="center">
-        <img src="https://avatars.githubusercontent.com/u/48638700?v=4" width="120px;"/> 
-        <br />
-        <a href="https://github.com/FhRh" title="Code"><b>FhRh</b></a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center"><b>김종경</b></td>
-    <td align="center"><b>최민석</b></td>
-    <td align="center"><b>양두영</b></td>
-  </tr>
-  <tr>
-    <td align="center"><b>BackEnd</b></td>
-    <td align="center"><b>BackEnd</b></td>
-    <td align="center"><b>BackEnd</b></td>
-  </tr>
-</table>
+## 팀원 구성
+
+<div align="center">
+
+| **최민석** | **김종경** | **양두영** |
+| :------: |  :------: | :------: |
+| [<img src="https://avatars.githubusercontent.com/u/106502312?v=4" height=150 width=150> <br/> @yeon1615](https://github.com/m0304s) | [<img src="https://avatars.githubusercontent.com/u/111286262?v=4" height=150 width=150> <br/> @JONG_KYEONG](https://github.com/JONG-KYEONG) | [<img src="https://avatars.githubusercontent.com/u/48638700?v=4" height=150 width=150> <br/> @FhRh](https://github.com/FhRh) |
+
+</div>
+
+<br>
