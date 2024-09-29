@@ -37,7 +37,7 @@
 
 | **최민석** | **김종경** | **양두영** |
 | :------: |  :------: | :------: |
-| [<img src="https://avatars.githubusercontent.com/u/106502312?v=4" height=150 width=150> <br/> @yeon1615](https://github.com/m0304s) | [<img src="https://avatars.githubusercontent.com/u/111286262?v=4" height=150 width=150> <br/> @JONG_KYEONG](https://github.com/JONG-KYEONG) | [<img src="https://avatars.githubusercontent.com/u/48638700?v=4" height=150 width=150> <br/> @FhRh](https://github.com/FhRh) |
+| [<img src="https://avatars.githubusercontent.com/u/120546936?v=4" height=150 width=150> <br/> @m0304s](https://github.com/m0304s) | [<img src="https://avatars.githubusercontent.com/u/111286262?v=4" height=150 width=150> <br/> @JONG_KYEONG](https://github.com/JONG-KYEONG) | [<img src="https://avatars.githubusercontent.com/u/48638700?v=4" height=150 width=150> <br/> @FhRh](https://github.com/FhRh) |
 
 </div>
 
