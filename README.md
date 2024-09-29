@@ -1,8 +1,17 @@
-# ⚾ 야구보고 ✈️ 여행도 가고!  
-야구팬들이 원하는 경기 일정과, 관광 정보를 쉽게 확인하고, 스크랩 및 추천 기능을 통해 더 나은 경기 관람 경험을 제공하는 플랫폼
-<br/>
+# 야구행 <⚾ 야구도 보고 ✈️ 여행도 가고!>
+
+<p align= center>
+<img src="https://github.com/user-attachments/assets/ddfc324d-a044-4594-ac1b-efb61cb114f2" width="700px" alt="메인-야구경기 일정">
+<img src="https://github.com/user-attachments/assets/83862d1e-8b3b-4171-9c1e-590eee012a05" width="700px" alt="메인-주변관광지 추천">
+</p>
+
+
 <br/>
 
+## 🎨 소개 (Introduction) 
+야구팬들이 원하는 경기 일정과, 주변 관광지에 대한 정보를 쉽게 확인하고, 스크랩 및 추천 기능을 통해 더 편리하고, 다채로운 여행  경험을 제공하는 플랫폼
+
+<br/>
 
 ## ✨ 기술 스택 (Tech Stack)
 <img src="https://img.shields.io/badge/java-EF5C55?style=for-the-badge"> <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"/> <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> 
