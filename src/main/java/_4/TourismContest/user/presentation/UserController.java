@@ -49,9 +49,9 @@ public class UserController {
     }
 
     @DeleteMapping
-    @Operation(summary = "유저 삭제", description = "")
-    public ResponseEntity<String> deleteUser(@CurrentUser UserPrincipal user) {
-        userService.deleteUser(user.getId());
+    @Operation(summary = "회원 탈퇴", description = "토큰만 넣어보내면 됩니다.")
+    public ResponseEntity<String> deleteUser(@CurrentUser UserPrincipal userPrincipal) {
+        userService.deleteUser(userPrincipal);
         return ResponseEntity.ok("success delete user");
     }
 

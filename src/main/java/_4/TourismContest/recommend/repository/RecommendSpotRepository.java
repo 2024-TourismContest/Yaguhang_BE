@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface RecommendSpotRepository extends JpaRepository<RecommendSpot, Long> {
     List<RecommendSpot> findByRecommend(Recommend recommend);
+    void deleteAllByRecommend(Recommend recommend);
 }

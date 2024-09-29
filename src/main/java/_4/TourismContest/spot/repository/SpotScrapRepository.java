@@ -28,4 +28,6 @@ public interface SpotScrapRepository extends JpaRepository <SpotScrap,Long>{
     Page<SpotScrap> findByUserIdAndFilter (@Param("userid")Long userid,@Param("filter")String filter ,Pageable pageable);
 
     Optional<List<SpotScrap>> findAllByUser(User user);
+
+    void deleteAllByUser(User user);
 }
