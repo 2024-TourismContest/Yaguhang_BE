@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface BaseballScrapRepository extends JpaRepository<BaseballScrap, Long>, BaseballScrapRepositoryCustom {
     Optional<BaseballScrap> findByBaseballAndUser(Baseball baseball, User user);
     Page<BaseballScrap> findByUser(User user, Pageable pageable);
+    void deleteAllByUser(User user);
 }

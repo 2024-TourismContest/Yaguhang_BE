@@ -1,6 +1,7 @@
 package _4.TourismContest.recommend.repository;
 
 import _4.TourismContest.recommend.domain.Recommend;
+import _4.TourismContest.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +30,6 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
 
     @Query("SELECT r from Recommend  r where r.title like :keyWord")
     Page<Recommend> findRecommendsByKeyWord(Pageable pageable, @Param("keyWord") String keyWord);
+
+    List<Recommend> findAllByUser(User user);
 }

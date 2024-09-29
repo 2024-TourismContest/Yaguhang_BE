@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface RecommendLikeRepository extends JpaRepository<RecommendLike, Long> {
     Optional<RecommendLike>findRecommendLikeByUserAndRecommend(User user, Recommend recommend);
+    void deleteAllByUser(User user);
 }
