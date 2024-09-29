@@ -23,6 +23,7 @@
 - 추천 여행지 목록을 제작하여 나만의 맞춤형 여행지를 다른 사용자들과 공유할 수 있습니다.
 
 <br>
+
 ## ✨ 기술 스택 (Tech Stack)
 <img src="https://img.shields.io/badge/java-EF5C55?style=for-the-badge"> <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"/> <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> 
 
@@ -38,6 +39,16 @@
 | **최민석** | **김종경** | **양두영** |
 | :------: |  :------: | :------: |
 | [<img src="https://avatars.githubusercontent.com/u/120546936?v=4" height=150 width=150> <br/> @m0304s](https://github.com/m0304s) | [<img src="https://avatars.githubusercontent.com/u/111286262?v=4" height=150 width=150> <br/> @JONG_KYEONG](https://github.com/JONG-KYEONG) | [<img src="https://avatars.githubusercontent.com/u/48638700?v=4" height=150 width=150> <br/> @FhRh](https://github.com/FhRh) |
+
+## 1. 개발 환경
+
+- Front : HTML, React, TypeScript, Axios
+- Back-end : Java, Spring Boot, MariaDB, Tour API 활용
+- 버전 및 이슈관리 : Github, Github Issues, Github Project
+- 협업 툴 : Discord, Notion
+- 서비스 배포 환경 : 셀프호스팅
+- 디자인 : [Figma](https://www.figma.com/file/fAisC2pEKzxTOzet9CfqML/README(oh-my-code)?node-id=39%3A1814)
+<br>
 
 </div>
 
