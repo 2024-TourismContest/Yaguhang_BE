@@ -422,7 +422,7 @@ public class RecommendService {
             case RESTAURANT: return "맛집";
             case TOURISM_SPOT: return "관광지";
             case ACCOMMODATION: return "숙소";
-            case ATHLETE_PICK: return "맛집";
+            case ATHLETE_PICK: return "선수PICK";
             case CULTURE_FACILITY: return "문화";
             case FESTIVAL_EVENT: return "문화";
             default: throw new BadRequestException("카테고리를 확인하세요");
