@@ -40,6 +40,11 @@
 | :------: |  :------: | :------: |
 | [<img src="https://avatars.githubusercontent.com/u/120546936?v=4" height=150 width=150> <br/> @m0304s](https://github.com/m0304s) | [<img src="https://avatars.githubusercontent.com/u/111286262?v=4" height=150 width=150> <br/> @JONG_KYEONG](https://github.com/JONG-KYEONG) | [<img src="https://avatars.githubusercontent.com/u/48638700?v=4" height=150 width=150> <br/> @FhRh](https://github.com/FhRh) |
 
+</div>
+
+
+<br>
+
 ## 1. 개발 환경
 
 - Front : HTML, React, TypeScript, Axios
@@ -48,8 +53,4 @@
 - 협업 툴 : Discord, Notion
 - 서비스 배포 환경 : 셀프호스팅
 - 디자인 : [Figma](https://www.figma.com/file/fAisC2pEKzxTOzet9CfqML/README(oh-my-code)?node-id=39%3A1814)
-<br>
-
-</div>
-
 <br>
