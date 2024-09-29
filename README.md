@@ -44,6 +44,19 @@
 
 <br>
 
+## 1. 개발 환경
+
+- Front : HTML, React, TypeScript, Axios
+- Back-end : Java, Spring Boot, MariaDB, Tour API 활용
+- 버전 및 이슈관리 : Github, Github Issues, Github Project
+- 협업 툴 : Discord, Notion
+- 서비스 배포 환경 : 셀프호스팅
+- 디자인 : [Figma](https://www.figma.com/file/fAisC2pEKzxTOzet9CfqML/README(oh-my-code)?node-id=39%3A1814)
+<br>
+
+
+<br>
+
 ## 5. 개발 기간 및 작업 관리
 
 ### 개발 기간
