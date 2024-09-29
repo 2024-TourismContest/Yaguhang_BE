@@ -42,6 +42,7 @@
 
 </div>
 
+
 <br>
 
 ## 1. 개발 환경
@@ -54,6 +55,18 @@
 - 디자인 : [Figma](https://www.figma.com/file/fAisC2pEKzxTOzet9CfqML/README(oh-my-code)?node-id=39%3A1814)
 <br>
 
+<br>
+
+## 2. 채택한 개발 기술과 브랜치 전략
+### 브랜치 전략
+
+- Git-flow 전략을 기반으로 develop, HotFix 브랜치와 feature 보조 브랜치를 운용했습니다.
+- develop, HotFix, Feat 브랜치로 나누어 개발을 하였습니다.
+    - **develop** 브랜치는 개발 단계에서 git-flow의 master 역할을 하는 브랜치입니다.
+    - **Feat** 브랜치는 기능 단위로 독립적인 개발 환경을 위하여 사용하였습니다.
+    - **HotFix** 브랜치는 develop 브랜치로 배포를 하고 나서 심각한 버그가 생겼을때 수정하기 위해 사용하였습니다.
+
+<br>
 
 <br>
 
