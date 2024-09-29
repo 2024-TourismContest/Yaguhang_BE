@@ -25,7 +25,17 @@
 <br>
 
 ## 팀원 구성
+###FrontEnd
+<div align="center">
 
+| **김예진** | **오아영** | **임성경** |
+| :------: |  :------: | :------: |
+| [<img src="(https://avatars.githubusercontent.com/u/77667199?v=4)" height=150 width=150> <br/> @dani001024]((https://github.com/dani001024)) | [<img src="([https://avatars.githubusercontent.com/u/110577667?v=4](https://avatars.githubusercontent.com/u/110577667?v=4))" height=150 width=150> <br/> @aong13]([https://github.com/JONG-KYEONG](https://github.com/aong13)) | [<img src="[https://avatars.githubusercontent.com/u/48638700?v=4](https://avatars.githubusercontent.com/u/131395142?v=4)" height=150 width=150> <br/> @5622lsk]([https://github.com/FhRh](https://github.com/5622lsk)) |
+
+</div>
+
+
+###BackEnd
 <div align="center">
 
 | **최민석** | **김종경** | **양두영** |
