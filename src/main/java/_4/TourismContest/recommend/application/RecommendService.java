@@ -390,7 +390,8 @@ public class RecommendService {
         }
         List<RecommendSpot> recommendSpots = recommendSpotRepository.findByRecommend(recommend);
         recommendSpotRepository.deleteAll(recommendSpots);
-
+        List<RecommendLike> recommendLikes = recommendLikeRepository.findByRecommend(recommend);
+        recommendLikeRepository.deleteAll(recommendLikes);
         recommendRepository.delete(recommend);
         return "success delete recommend";
     }
