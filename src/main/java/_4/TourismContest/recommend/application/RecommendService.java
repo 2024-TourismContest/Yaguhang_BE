@@ -203,6 +203,7 @@ public class RecommendService {
                     .recommendId(recommend.getId())
                     .stadiumId(recommend.getStadium().getId())
                     .stadiumImage(recommend.getStadium().getImage())
+                    .stadiumName(recommend.getStadium().getName())
                     .authorName(recommend.getUser().getNickname())
                     .title(recommend.getTitle())
                     .profileImage(returnProfileImg(recommend.getUser().getProfileImg()))
