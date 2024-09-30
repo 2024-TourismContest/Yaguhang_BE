@@ -31,6 +31,9 @@ dependencies {
 	implementation 'io.github.bonigarcia:webdrivermanager:5.3.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	// 메일
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
+
 	// Selenium
 	implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.22.0'
 	implementation 'io.github.bonigarcia:webdrivermanager:5.9.1' // Add this line
