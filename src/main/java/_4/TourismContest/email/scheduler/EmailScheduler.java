@@ -34,6 +34,7 @@ public class EmailScheduler {
     }
 
     @Scheduled(cron = "0 0 10 * * *")
+    @Scheduled(cron = "0 7 17 * * *")
     @Transactional
     public void sendEmailToday() {  // 당일 경기 알림, 10시에 전송
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN); // 오늘의 시작
@@ -56,7 +57,8 @@ public class EmailScheduler {
                 "** 경기가 " + restDay + " 진행됩니다. 잊지 않고 경기를 즐기실 수 있도록 미리 알려드립니다!\n" +
                 "\n" +
                 "경기 정보:\n" +
-                "- **경기 일시**: "+baseballScrap.getBaseball().getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))+"\n" +
+                "- **경기 일시**: "+baseballScrap.getBaseball().getTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))+ " " +
+                baseballScrap.getBaseball().getWeekDay() +"\n" +
                 "- **경기 장소**: "+baseballScrap.getBaseball().getLocation()+" 야구장\n" +
                 "\n" +
                 "미리 준비하셔서 멋진 경기 관람 되시길 바랍니다. 즐거운 하루 보내세요!\n" +
