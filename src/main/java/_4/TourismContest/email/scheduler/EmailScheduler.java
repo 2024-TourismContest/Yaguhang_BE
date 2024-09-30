@@ -21,14 +21,14 @@ public class EmailScheduler {
 
     @Scheduled(cron = "0 0 12 * * *")
     @Transactional
-    public void sendEmail3DaysAgo() { // 3일 전 메일 알림, 12시에 전송
-        LocalDateTime startOfThreeDaysLater = LocalDateTime.now().plusDays(3).with(LocalTime.MIN);
-        LocalDateTime endOfThreeDaysLater = LocalDateTime.now().plusDays(3).with(LocalTime.MAX);
+    public void sendEmail3DaysAgo() { // 하루 전 메일 알림, 12시에 전송
+        LocalDateTime startOfThreeDaysLater = LocalDateTime.now().plusDays(1).with(LocalTime.MIN);
+        LocalDateTime endOfThreeDaysLater = LocalDateTime.now().plusDays(1).with(LocalTime.MAX);
         List<BaseballScrap> baseballScraps = baseballScrapRepository.findBaseballByDate(startOfThreeDaysLater, endOfThreeDaysLater);
         for(BaseballScrap baseballScrap: baseballScraps){
             String toSend = baseballScrap.getUser().getEmail();
-            String title = makeTitle(baseballScrap, "3일 뒤에");
-            String message = makeMessage(baseballScrap, "3일 뒤에");
+            String title = makeTitle(baseballScrap, "내일");
+            String message = makeMessage(baseballScrap, "**내일**");
             emailService.sendEmail(toSend, title, message);
         }
     }
@@ -42,7 +42,7 @@ public class EmailScheduler {
         for(BaseballScrap baseballScrap: baseballScraps){
             String toSend = baseballScrap.getUser().getEmail();
             String title = makeTitle(baseballScrap, "오늘");
-            String message = makeMessage(baseballScrap, "오늘");
+            String message = makeMessage(baseballScrap, "**오늘**");
             emailService.sendEmail(toSend, title, message);
             System.out.println(baseballScrap.getUser().getEmail() + " 로 전송 완료");
         }
@@ -62,7 +62,7 @@ public class EmailScheduler {
                 "미리 준비하셔서 멋진 경기 관람 되시길 바랍니다. 즐거운 하루 보내세요!\n" +
                 "\n" +
                 "감사합니다.\n" +
-                "야구행";
+                "-야구행-";
     }
 
     private String makeTitle(BaseballScrap baseballScrap, String restDay){ // restDay : 3일 뒤에, 오늘
