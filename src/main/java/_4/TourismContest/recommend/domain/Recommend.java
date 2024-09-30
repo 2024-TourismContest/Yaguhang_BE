@@ -38,7 +38,7 @@ public class Recommend {
     @Column(name = "image")
     private String image;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 500)
     private String description;
 
 //    @OneToMany
