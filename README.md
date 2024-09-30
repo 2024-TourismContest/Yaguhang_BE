@@ -26,7 +26,7 @@
 <br>
 
 ## 팀원 구성
-<br>FrontEnd<br>
+### FrontEnd
 <div align="center">
 
 | **김예진** | **오아영** | **임성경** |
@@ -36,7 +36,7 @@
 </div>
 
 
-<br>BackEnd<br>
+### BackEnd
 <div align="center">
 
 | **최민석** | **김종경** | **양두영** |
