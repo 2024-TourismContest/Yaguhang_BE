@@ -26,6 +26,7 @@ public record SpotStadiumPreviewResponse(
                             .address(item.getAddr1() + item.getAddr2())
                             .imageUrl(item.getFirstimage())
                             .isScraped(scraped.get(idx))
+                            .category(category)
                             .build();
                 })
                 .collect(Collectors.toList());
