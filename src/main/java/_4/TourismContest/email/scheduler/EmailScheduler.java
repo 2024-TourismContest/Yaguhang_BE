@@ -34,7 +34,6 @@ public class EmailScheduler {
     }
 
     @Scheduled(cron = "0 0 10 * * *")
-    @Scheduled(cron = "0 7 17 * * *")
     @Transactional
     public void sendEmailToday() {  // 당일 경기 알림, 10시에 전송
         LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIN); // 오늘의 시작
