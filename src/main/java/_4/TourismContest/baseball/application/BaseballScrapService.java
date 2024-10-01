@@ -104,9 +104,8 @@ public class BaseballScrapService {
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new BadRequestException("JWT 토큰값을 다시 확인해주세요"));
 
-            LocalDateTime now = LocalDateTime.now();
-
-//            LocalDateTime now = LocalDateTime.of(2024, 9, 20, 0, 0);
+           LocalDateTime now = LocalDateTime.now();
+//             LocalDateTime now = LocalDateTime.of(2024, 9, 20, 0, 0);
             List<BaseBallDTO> baseBallDTOList = baseballScrapRepository.findByUser(user, PageRequest.of(page, size))
                     .getContent().stream()
                     .filter(baseballScrap -> baseballScrap.getBaseball().getTime().isAfter(now))
