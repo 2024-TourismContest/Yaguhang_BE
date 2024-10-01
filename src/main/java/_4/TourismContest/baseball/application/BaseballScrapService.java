@@ -14,6 +14,7 @@ import _4.TourismContest.user.repository.UserRepository;
 import _4.TourismContest.weather.application.WeatherForecastService;
 import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
 import lombok.RequiredArgsConstructor;
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,8 +104,9 @@ public class BaseballScrapService {
             User user = userRepository.findById(userPrincipal.getId())
                     .orElseThrow(() -> new BadRequestException("JWT 토큰값을 다시 확인해주세요"));
 
-            LocalDateTime now = LocalDateTime.now();
+//            LocalDateTime now = LocalDateTime.now();
 
+            LocalDateTime.of(2024, 9, 20, 0, 0)
             List<BaseBallDTO> baseBallDTOList = baseballScrapRepository.findByUser(user, PageRequest.of(page, size))
                     .getContent().stream()
                     .filter(baseballScrap -> baseballScrap.getBaseball().getTime().isAfter(now))
