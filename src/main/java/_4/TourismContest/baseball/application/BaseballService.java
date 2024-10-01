@@ -551,8 +551,8 @@ public class BaseballService {
      * @param size (데이터 요청 크기)
      */
     public BaseballScheduleDTO getGamesByTeamAndDate(UserPrincipal userPrincipal, String team, LocalDate gameDate, int page, int size) {
-//        LocalDate today = (gameDate != null) ? gameDate : LocalDate.now();
-        LocalDate today = (gameDate != null) ? gameDate : LocalDate.of(2024, 9, 20);
+        LocalDate today = (gameDate != null) ? gameDate : LocalDate.now();
+//        LocalDate today = (gameDate != null) ? gameDate : LocalDate.of(2024, 9, 20);
         LocalDateTime startOfDay = LocalDateTime.of(today, LocalTime.MIDNIGHT);
 
         Page<Baseball> baseballPage;
