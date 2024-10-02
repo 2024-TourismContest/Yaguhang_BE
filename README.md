@@ -2,7 +2,7 @@
 ### **야구팬들을 위한 특별한 웹서비스, 야구행**
 
 
-![mockup2](https://yaguhang.kro.kr:8443/defaultLogos/ServiceInfo.jpg)
+![ServiceInfo](https://github.com/user-attachments/assets/3589ee2f-1e58-4de5-a78c-75a67a085273)
 
 
 - 배포 URL : https://yaguhang.kro.kr:7443
