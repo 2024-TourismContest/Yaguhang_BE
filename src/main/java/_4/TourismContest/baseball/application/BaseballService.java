@@ -557,9 +557,9 @@ public class BaseballService {
 
         Page<Baseball> baseballPage;
         if ("전체".equals(team)) {
-            baseballPage = baseballRepository.findByTimeIsAfter(startOfDay, PageRequest.of(page, size));
+            baseballPage = baseballRepository.findByStatusNotAndTimeIsAfter("취소",startOfDay, PageRequest.of(page, size));
         } else {
-            baseballPage = baseballRepository.findByTimeIsAfterAndHomeOrAway(startOfDay, team, PageRequest.of(page, size));
+            baseballPage = baseballRepository.findByStatusNotAndTimeIsAfterAndHomeOrAway("취소", startOfDay, team, PageRequest.of(page, size));
         }
 
         List<BaseBallDTO> baseballSchedules = baseballPage.getContent().stream()

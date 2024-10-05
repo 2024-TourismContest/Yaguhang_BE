@@ -2,7 +2,8 @@
 ### **야구팬들을 위한 특별한 웹서비스, 야구행**
 
 
-![_mockup2](https://private-user-images.githubusercontent.com/48638700/371865993-ddfc324d-a044-4594-ac1b-efb61cb114f2.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3Mjc2MjQ1MzMsIm5iZiI6MTcyNzYyNDIzMywicGF0aCI6Ii80ODYzODcwMC8zNzE4NjU5OTMtZGRmYzMyNGQtYTA0NC00NTk0LWFjMWItZWZiNjFjYjExNGYyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MjklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTI5VDE1MzcxM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTA2NWU2M2ZhMTc0MDJiMGEwMjE5ZjYzZWViMDE4YzRjNGY4Yzc4NDgyNjgzYjUyMWE5Y2ZjNGU1YjU2Y2Y3ODMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0._7wLA5QbkPF8bhUSd5RgF-kQrpBeTx4RLZf99JII_h0)
+![ServiceInfo](https://github.com/user-attachments/assets/3589ee2f-1e58-4de5-a78c-75a67a085273)
+
 
 - 배포 URL : https://yaguhang.kro.kr:7443
 - Test ID : yaguhang@test.com

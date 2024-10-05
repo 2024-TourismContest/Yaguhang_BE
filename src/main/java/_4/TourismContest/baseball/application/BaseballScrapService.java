@@ -107,9 +107,11 @@ public class BaseballScrapService {
             LocalDateTime now = LocalDateTime.now();
 
 //            LocalDateTime now = LocalDateTime.of(2024, 9, 20, 0, 0);
+
             List<BaseBallDTO> baseBallDTOList = baseballScrapRepository.findByUser(user, PageRequest.of(page, size))
                     .getContent().stream()
                     .filter(baseballScrap -> baseballScrap.getBaseball().getTime().isAfter(now))
+                    .filter(baseballScrap -> !baseballScrap.getBaseball().getStatus().equals("취소"))
                     .sorted(Comparator.comparing(baseballScrap -> baseballScrap.getBaseball().getTime()))
                     .map(baseballScrap -> {
                         Baseball baseball = baseballScrap.getBaseball();
