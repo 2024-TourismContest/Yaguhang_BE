@@ -55,8 +55,8 @@ public record SpotCultureDetailResponse(
                 .businessHours(introItem.getUsetimeculture().replace("<br>", "\n"))
                 .closedDays(introItem.getRestdateculture())
                 .description(commonItem.getOverview().replace("<br>", "\n"))
-                .parkingFacilities(introItem.getParkingculture())
-                .animalZone(introItem.getParkingculture())
+                .parkingFacilities(introItem.getParkingculture().replace("<br>", "\n"))
+                .animalZone(introItem.getChkpetculture().replace("<br>", "\n"))
                 .usefee(introItem.getUsefee())
                 .images(images)
                 .build();
