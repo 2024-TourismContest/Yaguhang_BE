@@ -36,4 +36,10 @@ public class BaseballScheduler {
         System.out.println("BaseballScheduler.scrapeGames");
         baseballService.scrapeTodayGame();
     }
+
+    @Scheduled(cron = "0 0 0 * * *") // 매일 00시 정각에 실행
+    public void scrapeAllGames() {
+        System.out.println("BaseballScheduler.scrapeAllGames");
+        baseballService.scrapeAllSchedule();
+    }
 }
