@@ -57,7 +57,7 @@ public record SpotCultureDetailResponse(
                 .description(commonItem.getOverview().replace("<br>", "\n"))
                 .parkingFacilities(introItem.getParkingculture().replace("<br>", "\n"))
                 .animalZone(introItem.getChkpetculture().replace("<br>", "\n"))
-                .usefee(introItem.getUsefee())
+                .usefee(introItem.getUsefee().replace("<br>", "\n"))
                 .images(images)
                 .build();
         return spotCultureDetailResponse;
