@@ -7,7 +7,7 @@
 
 - 배포 URL : https://yaguhang.kro.kr:7443
 - Test ID : yaguhang@test.com
-- Test PW : yaguhangTest!
+- Test PW : yaguhang123
 
 <br>
 
