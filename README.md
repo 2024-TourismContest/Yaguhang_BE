@@ -110,7 +110,7 @@
 
 | 카카오 로그인 |
 |----------|
-|<img src="https://github.com/user-attachments/assets/14ccc1ef-a831-453b-b0e8-7fd759f9a92f" alt="login" width="840">|
+|<img src="https://github.com/user-attachments/assets/14ccc1ef-a831-453b-b0e8-7fd759f9a92f" alt="login" width="750">|
 
 <br>
 
@@ -122,7 +122,7 @@
 
 | 경기일정별 조회 및 스크랩 |
 |----------|
-|<img src="https://github.com/user-attachments/assets/aaafee34-a9db-41d6-9e54-d8d95e62c398" alt="login" width="840">|
+|<img src="https://github.com/user-attachments/assets/aaafee34-a9db-41d6-9e54-d8d95e62c398" alt="login" width="750">|
 
 <br>
 
@@ -132,7 +132,7 @@
 
 | 경기일정별 구단 날씨 조회 |
 |----------|
-|<img src="https://github.com/user-attachments/assets/7a1b311f-b4bd-4570-a718-d7adb3f92019" alt="login" width="840">|
+|<img src="https://github.com/user-attachments/assets/7a1b311f-b4bd-4570-a718-d7adb3f92019" alt="login" width="750">|
 
 <br>
 
@@ -142,7 +142,7 @@
 
 | 구장행 |
 |----------|
-|<img src="https://github.com/user-attachments/assets/569a77f3-3d82-44b5-9d4d-36006871b5f6" alt="login" width="840">|
+|<img src="https://github.com/user-attachments/assets/569a77f3-3d82-44b5-9d4d-36006871b5f6" alt="login" width="750">|
 
 <br>
 
@@ -153,7 +153,7 @@
 
 | 추천행 |
 |----------|
-|<img src="https://github.com/user-attachments/assets/860db4a2-ffae-4307-a9cb-ddc14d68aacb" alt="login" width="840">|
+|<img src="https://github.com/user-attachments/assets/860db4a2-ffae-4307-a9cb-ddc14d68aacb" alt="login" width="750">|
 
 <br>
 
