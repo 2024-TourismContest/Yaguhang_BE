@@ -12,5 +12,6 @@ public interface StadiumRepository extends JpaRepository<Stadium, Long> {
     Optional<Stadium> findTopByNameContaining(@Param("name") String name);
 
 
+
     Optional<Stadium> findTopById(Long id);
 }
