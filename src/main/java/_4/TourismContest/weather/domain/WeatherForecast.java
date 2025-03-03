@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @ToString
-@EqualsAndHashCode(of = {"fcstDate", "fcstTime"})
+//@EqualsAndHashCode(of = {"fcstDate", "fcstTime"})
+@EqualsAndHashCode(of = {"fcstTime"})
 @Table(name = "Weather",
         uniqueConstraints= {
                 @UniqueConstraint(
