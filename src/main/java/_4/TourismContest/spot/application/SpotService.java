@@ -56,7 +56,7 @@ public class SpotService {
 
     public SpotCategoryResponse getMainSpot(String stadiumName, String category, UserPrincipal userPrincipal) {
         TourApiResponseDto tourApiResponseDto = tourApi.getMainSpot(getCoordinate(stadiumName), 10000, category); // radius 10km
-        Stadium stadium = stadiumRepository.findTopByNameContaining(stadiumName)
+        Stadium stadium = stadiumRepository.findTopByNameLike(stadiumName)
                 .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
         return tourApiToSpotCategoryResponse(tourApiResponseDto, category, stadium,getIsScrapedList(userPrincipal, tourApiResponseDto));
     }
@@ -178,7 +178,7 @@ public class SpotService {
 
     public MapXY getCoordinate(String stadiumName) {
         // 경기장 좌표값 가져오기
-        Stadium stadium = stadiumRepository.findTopByNameContaining(stadiumName)
+        Stadium stadium = stadiumRepository.findTopByNameLike(stadiumName)
                 .orElseThrow(() -> new BadRequestException("경기장 이름을 다시 확인해주세요"));
         return new MapXY(stadium.getX(), stadium.getY());
     }
@@ -541,7 +541,7 @@ public class SpotService {
     }
 
     private Spot createAndSaveSpot(Long contentId, String stadiumName, TourApiDetailCommonResponseDto.Item item) {
-        Stadium stadium = stadiumRepository.findTopByNameContaining(stadiumName)
+        Stadium stadium = stadiumRepository.findTopByNameLike(stadiumName)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 구장명입니다."));
         Spot spot = Spot.builder()
                 .contentId(contentId)
@@ -563,7 +563,7 @@ public class SpotService {
     }
 
     private SpotDetailInfoDto buildSpotDetailInfoDto(String stadium, Long contentId, TourApiDetailCommonResponseDto.Item item, int reviewCount, boolean isScrapped) {
-        Stadium stadium1 = stadiumRepository.findTopByNameContaining(stadium)
+        Stadium stadium1 = stadiumRepository.findTopByNameLike(stadium)
                 .orElseThrow(() -> new BadRequestException("구장 이름이 잘못 되어있습니다."));
         return SpotDetailInfoDto.builder()
                 .contentId(contentId)

@@ -8,8 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface StadiumRepository extends JpaRepository<Stadium, Long> {
-    @Query("SELECT s FROM Stadium s WHERE s.name LIKE %:name%")
-    Optional<Stadium> findTopByNameContaining(@Param("name") String name);
+//    Optional<Stadium> findByName(String name);
+    Optional<Stadium> findTopByNameLike(String name);
+//    Optional<Stadium> findTopByNameContaining(String name);
 
 
 
