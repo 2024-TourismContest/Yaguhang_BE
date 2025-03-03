@@ -54,7 +54,7 @@ public class WeatherForecastService {
      * @return
      */
     public Page<WeatherForecast> findWeatherForecastDataPerHour(String stadium, int page, int size) {
-        Stadium stadiumEntity = stadiumRepository.findTopByName(stadium)
+        Stadium stadiumEntity = stadiumRepository.findTopByNameContaining(stadium)
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         LocalDateTime now = LocalDateTime.now().minusHours(1L);
@@ -80,7 +80,7 @@ public class WeatherForecastService {
         LocalDateTime gameTime = game.getTime().minusHours(1L);
         LocalDateTime endOfDay = game.getTime().toLocalDate().atTime(LocalTime.MAX);
 
-        Stadium stadium = stadiumRepository.findTopByName(game.getLocation())
+        Stadium stadium = stadiumRepository.findTopByNameContaining(game.getLocation())
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         Pageable pageable = PageRequest.of(page, size);
@@ -204,7 +204,7 @@ public class WeatherForecastService {
     }
 
     private Stadium getStadiumByName(String location) {
-        return stadiumRepository.findTopByName(location)
+        return stadiumRepository.findTopByNameContaining(location)
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
     }
 
@@ -287,7 +287,7 @@ public class WeatherForecastService {
      * @return
      */
     public WeatherForecastEnum getWeatherForecastDataWithGame(Baseball game) {
-        Stadium stadium = stadiumRepository.findTopByName(game.getLocation())
+        Stadium stadium = stadiumRepository.findTopByNameContaining(game.getLocation())
                 .orElseThrow(() -> new IllegalArgumentException("Illegal Stadium Name"));
 
         LocalDateTime gameTime = game.getTime();
