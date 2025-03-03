@@ -11,5 +11,6 @@ public interface StadiumRepository extends JpaRepository<Stadium, Long> {
     @Query("SELECT s FROM Stadium s WHERE s.name LIKE %:name%")
     Optional<Stadium> findTopByNameContaining(@Param("name") String name);
 
+
     Optional<Stadium> findTopById(Long id);
 }
