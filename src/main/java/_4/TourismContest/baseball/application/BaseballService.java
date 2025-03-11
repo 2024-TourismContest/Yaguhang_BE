@@ -114,8 +114,10 @@ public class BaseballService {
 
                                 String homeTeam = homeEle.select(".MatchBoxTeamArea_team__3aB4O").text();
                                 String awayTeam = awayEle.select(".MatchBoxTeamArea_team__3aB4O").text();
-                                String location = game.select(".MatchBox_stadium__13gft").text().replace("경기장", "").trim();
-
+                                String location = game.select(".MatchBox_stadium__13gft").text()
+                                        .replace("경기장", "")
+                                        .replace("(신)", "")
+                                        .trim();
                                 // 중복된 경기가 있는지 확인
                                 if (baseballRepository.findByTimeAndHomeAndAwayAndLocation(gameTime, homeTeam, awayTeam, location).isPresent()) {
                                     System.out.println("이미 등록된 경기: " + homeTeam + " vs " + awayTeam + " at " + gameTime);
@@ -289,7 +291,10 @@ public class BaseballService {
                         Element awayEle = game.select(".MatchBoxTeamArea_team_item__3w5mq").first();
                         String homeTeam = homeEle.select(".MatchBoxTeamArea_team__3aB4O").text();
                         String awayTeam = awayEle.select(".MatchBoxTeamArea_team__3aB4O").text();
-                        String location = game.select(".MatchBox_stadium__13gft").text().replace("경기장", "").trim();
+                        String location = game.select(".MatchBox_stadium__13gft").text()
+                                .replace("경기장", "")
+                                .replace("(신)", "")
+                                .trim();
 
                         Optional<Baseball> findByTimeAndHomeAndAwayAndLocation = baseballRepository.findByTimeAndHomeAndAwayAndLocation(gameTime,homeTeam, awayTeam, location);
                         if(!findByTimeAndHomeAndAwayAndLocation.isPresent()){
