@@ -25,11 +25,9 @@ import java.util.Random;
 @Service
 public class TourApi {
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
 
     TourApi(RestTemplate restTemplate, ObjectMapper objectMapper){
         this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
     }
     private static final String TOUR_API_BASE_URL = "http://apis.data.go.kr/B551011/KorService1";
 
