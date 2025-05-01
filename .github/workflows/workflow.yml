@@ -70,20 +70,20 @@ jobs:
         with:
           languages: java
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-
       - name: Convert line endings for gradlew
         run: dos2unix gradlew
 
       - name: Ensure gradlew has execute permission
         run: chmod +x gradlew
 
+      - name: Build with Gradle (for CodeQL)
+        run: ./gradlew build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
       - name: Copy application.yml
         run: cp /home/mschoi/Desktop/tourismContest/String-BE/application.yml ./src/main/resources/application.yml
-
-      - name: Build with Gradle
-        run: ./gradlew build
 
       - name: Copy JAR file to target directory
         run: |
