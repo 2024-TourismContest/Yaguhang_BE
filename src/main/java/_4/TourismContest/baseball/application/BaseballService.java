@@ -96,7 +96,6 @@ public class BaseballService {
                         if (month != i) {
                             continue;
                         }
-
                         Elements games = day.select("ul > li");
 
                         for (Element game : games) {
