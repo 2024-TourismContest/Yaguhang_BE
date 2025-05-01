@@ -78,7 +78,6 @@ public class BaseballService {
                 String formattedDate = firstDayOfMonth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 String url = "https://m.sports.naver.com/kbaseball/schedule/index?category=kbo&date=" + formattedDate + "&postSeason=Y";
 
-
                 driver.get(url);
                 Thread.sleep(2000); // 페이지 로드를 위한 대기 시간
 
