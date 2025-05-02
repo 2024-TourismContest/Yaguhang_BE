@@ -5,6 +5,8 @@ on:
     types: [closed]
     branches:
       - develop
+permissions:
+  contents: read
 
 jobs:
   deploy:
