@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -63,7 +64,9 @@ public class SecurityConfig {
                 .cors(withDefaults()) // 기본 CORS 설정
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션을 무상태로 설정
-                .csrf(csrf -> csrf.disable()) // [주의] 이 API는 JWT 기반으로 동작하며, 세션 상태를 저장하지 않으므로 CSRF를 비활성화
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/**"))
                 .formLogin(formLogin -> formLogin.disable()) // 폼 로그인 비활성화
                 .httpBasic(httpBasic -> httpBasic.disable()) // HTTP Basic 인증 비활성화
                 .exceptionHandling(exceptionHandling ->
