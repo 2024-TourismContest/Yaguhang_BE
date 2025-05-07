@@ -5,6 +5,7 @@ on:
     types: [closed]
     branches:
       - develop
+
 permissions:
   contents: read
 
@@ -29,23 +30,23 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Copy JAR file to target directory
+      - name: Copy JAR file to server
         run: |
-          if [ -f /home/mschoi/Desktop/tourismContest/String-BE/app.jar ]; then
-            rm /home/mschoi/Desktop/tourismContest/String-BE/app.jar
-          fi
-          cp build/libs/$(ls build/libs | grep '\.jar$') /home/mschoi/Desktop/tourismContest/String-BE/app.jar
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" scp -P 30022 build/libs/*.jar \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/home/mschoi/Desktop/tourismContest/String-BE/app.jar
 
-      - name: Execute remote commands
+      - name: Run deploy.sh remotely
         run: |
-          echo "Stopping any running instance on port 8080"
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 "fuser -k 8080/tcp" || echo "Failed to stop existing application"
-          echo "Starting the new application"
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 "nohup java -jar /home/mschoi/Desktop/tourismContest/String-BE/app.jar > /home/mschoi/Desktop/tourismContest/String-BE/app.log 2>&1 &" || echo "Failed to start new application"
-          echo "Waiting for the application to start"
-          sleep 10
-          echo "Checking application logs"
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 "cat /home/mschoi/Desktop/tourismContest/String-BE/app.log" || echo "Failed to retrieve application logs"
+          echo "Running Blue/Green deploy script..."
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 \
+            "bash /home/mschoi/Desktop/tourismContest/String-BE/deploy.sh"
 
-      - name: Clean up unused Docker images
+      - name: Show latest backend logs
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} -p 30022 \
+            "tail -n 100 /home/mschoi/Desktop/tourismContest/String-BE/logs/app_*.log"
+
+      - name: Clean up unused Docker images (optional)
         run: docker image prune -f
