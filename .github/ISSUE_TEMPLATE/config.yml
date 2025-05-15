@@ -1,0 +1,45 @@
+name: "✨ 이슈 템플릿"
+description: "기능(feat) 개발을 위한 이슈 템플릿"
+labels: ["feat"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        <!--
+        feat : ~
+        -->
+  # 이슈 설명
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "💥 이슈 설명"
+      description: "이슈의 목적과 배경을 상세히 작성해주세요."
+      placeholder: "예: 사용자 로그인 API 추가 요청"
+      required: true
+  # 할 일 목록
+  - type: checkboxes
+    id: todo_list
+    attributes:
+      label: "📚 할 일 목록"
+      description: "이슈 해결을 위해 수행할 작업을 선택하세요."
+      options:
+        - label: "할 일 1"
+          name: todo_1
+        - label: "할 일 2"
+          name: todo_2
+  # 참고 사항
+  - type: textarea
+    id: references
+    attributes:
+      label: "👀 참고 사항"
+      description: "관련 문서, 링크, 스크린샷 등을 첨부해주세요."
+      placeholder: "예: API 명세서 링크, 디자인 목업 등"
+      required: false
+  # 기한
+  - type: input
+    id: due_date
+    attributes:
+      label: "⌛ 기한"
+      description: "yyyy-mm-dd 형식으로 입력"
+      placeholder: "2025-05-31"
+      required: false
