@@ -1,0 +1,42 @@
+name: "✨ Feature"
+description: "새로운 기능 추가 신청용 이슈 템플릿"
+labels: ["feature"]
+body:
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: "📄 설명"
+      description: "새로운 기능에 대한 설명을 작성해 주세요."
+      placeholder: "자세히 적을수록 좋습니다!"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature_tasks
+    attributes:
+      label: "✅ 작업할 내용"
+      description: "할 일을 체크박스 형태로 작성해주세요."
+      placeholder: |
+        - [ ] 작업 1
+        - [ ] 작업 2
+      render: checkboxes
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature_references
+    attributes:
+      label: "🙋🏻 참고 자료"
+      description: "관련 문서, 링크, 스크린샷 등이 있으면 작성해 주세요."
+      placeholder: "예) API 명세서 링크, 디자인 목업 URL"
+    validations:
+      required: false
+
+  - type: input
+    id: feature_deadline
+    attributes:
+      label: "⌛ 기한"
+      description: "yyyy-mm-dd 형식으로 입력"
+      placeholder: "2025-05-31"
+    validations:
+      required: false
