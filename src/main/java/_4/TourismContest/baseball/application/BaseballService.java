@@ -4,6 +4,8 @@ import _4.TourismContest.baseball.domain.Baseball;
 import _4.TourismContest.baseball.dto.BaseBallDTO;
 import _4.TourismContest.baseball.dto.BaseBallSchedulePerMonthDTO;
 import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
+import _4.TourismContest.baseball.dto.ScheduleDateInfo;
+import _4.TourismContest.baseball.dto.ScheduleMeta;
 import _4.TourismContest.baseball.repository.BaseballRepository;
 import _4.TourismContest.baseball.repository.BaseballScrapRepository;
 import _4.TourismContest.exception.BadRequestException;
@@ -45,6 +47,7 @@ public class BaseballService {
     private final BaseballRepository baseballRepository;
     private final BaseballScrapService baseballScrapService;
     private final WeatherForecastService weatherForecastService;
+    private static final long PAGE_LOAD_WAIT_MS = 2000;
 
     private final Map<String, String> teamLogoMap = Map.of(
             "두산 베어스", "Doosan.png",
@@ -61,175 +64,17 @@ public class BaseballService {
 
     @Transactional
     public List<Baseball> scrapeAllSchedule() {
-        setUpWebDriver();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--window-size=1920,1080");
-        WebDriverManager.chromedriver().setup();
-        WebDriver driver = new ChromeDriver(options);
+        WebDriver driver = createWebDriver();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        ArrayList<Baseball> schedules = new ArrayList<>();
+        List<Baseball> schedules = new ArrayList<>();
         try {
-            LocalDate today = LocalDate.now();
-            for (int i = 1; i <= 12; i++) {
-                LocalDate firstDayOfMonth = LocalDate.of(today.getYear(), i, 1);
-                String formattedDate = firstDayOfMonth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                String url = "https://m.sports.naver.com/kbaseball/schedule/index?category=kbo&date=" + formattedDate + "&postSeason=Y";
-
-                driver.get(url);
-                Thread.sleep(2000); // 페이지 로드를 위한 대기 시간
-
-                Document doc = Jsoup.parse(driver.getPageSource());
-                Elements days = doc.select(".ScheduleLeagueType_match_list_container__1v4b0 > div");
-
-                for (Element day : days) {
-                    // 날짜 가져오기
-                    Element dateElement = day.selectFirst(".ScheduleLeagueType_group_title__S2Z_g .ScheduleLeagueType_title_area__3v4qt .ScheduleLeagueType_title__2Kalm");
-                    if (dateElement != null) {
-                        String dateText = dateElement.text();
-                        String[] parts = dateText.split(" ");
-                        int month = Integer.parseInt(parts[0].replace("월", ""));
-                        int dayOfMonth = Integer.parseInt(parts[1].replace("일", ""));
-                        String weekday = parts[2].replace("(", "").replace(")", "");
-                        if (month != i) {
-                            continue;
-                        }
-                        Elements games = day.select("ul > li");
-
-                        for (Element game : games) {
-                            try {
-                                String time = game.select(".MatchBox_time__nIEfd").text().replace("경기 시간", "").trim();
-                                String status = game.select(".MatchBox_status__2pbzi").text();
-
-                                String[] timeParts = time.split(":");
-                                int hour = Integer.parseInt(timeParts[0]);
-                                int minute = Integer.parseInt(timeParts[1]);
-                                LocalDateTime gameTime = LocalDateTime.of(firstDayOfMonth.getYear(), month, dayOfMonth, hour, minute);
-                                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".MatchBoxTeamArea_team_item__3w5mq")));
-                                Element homeEle = game.select(".MatchBoxTeamArea_team_item__3w5mq").last();
-                                Element awayEle = game.select(".MatchBoxTeamArea_team_item__3w5mq").first();
-
-                                String homeTeam = homeEle.select(".MatchBoxTeamArea_team__3aB4O").text();
-                                String awayTeam = awayEle.select(".MatchBoxTeamArea_team__3aB4O").text();
-                                String location = game.select(".MatchBox_stadium__13gft").text()
-                                        .replace("경기장", "")
-                                        .replace("(신)", "")
-                                        .trim();
-                                // 중복된 경기가 있는지 확인
-                                if (baseballRepository.findByTimeAndHomeAndAwayAndLocation(gameTime, homeTeam, awayTeam, location).isPresent()) {
-                                    System.out.println("이미 등록된 경기: " + homeTeam + " vs " + awayTeam + " at " + gameTime);
-                                    continue; // 중복된 경기가 있으면 continue로 다음 게임으로 넘어감
-                                }
-
-                                String homeScore = null;
-                                String awayScore = null;
-                                String homePitcher = null;
-                                String awayPitcher = null;
-                                Baseball schedule = null;
-
-                                boolean checkTieGame = false;
-                                boolean isPitcherNull = false;
-
-                                // 경기 상태에 따라 다른 처리
-                                if (status.equals("종료")) {
-                                    // 종료된 경기의 점수 및 승패 처리
-                                    boolean isHomeTeamWinner = false;
-                                    if (homeEle.className().contains("winner")) {
-                                        isHomeTeamWinner = true;
-                                    } else if (homeEle.className().contains("loser")) {
-                                        isHomeTeamWinner = false;
-                                    } else {
-                                        checkTieGame = true;
-                                    }
-                                    // 무승부 처리
-                                    if (checkTieGame && !isHomeTeamWinner) {
-                                        Elements scoreDivs = game.select(".MatchBoxTeamArea_score_wrap__3eSae");
-                                        if (!scoreDivs.isEmpty()) {
-                                            List<Element> scoreElements = scoreDivs.select(".MatchBoxTeamArea_score__1_YFB");
-                                            homeScore = scoreElements.get(0).text();
-                                        }
-                                        awayScore = homeScore;
-                                        awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                                .select(".MatchBoxTeamArea_item__11GUB").text();
-                                        homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                                .select(".MatchBoxTeamArea_item__11GUB").text();
-                                    } else {
-                                        // 승패가 있는 경우 처리
-                                        if (isHomeTeamWinner) {
-                                            homeScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                    .select(".MatchBoxTeamArea_score__1_YFB")
-                                                    .text();
-                                            awayScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                    .select(".MatchBoxTeamArea_score__1_YFB")
-                                                    .text();
-                                            homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                    .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                    .last()
-                                                    .text();
-                                            awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                    .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                    .last()
-                                                    .text();
-                                        } else {
-                                            awayScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                    .select(".MatchBoxTeamArea_score__1_YFB")
-                                                    .text();
-                                            homeScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                    .select(".MatchBoxTeamArea_score__1_YFB")
-                                                    .text();
-                                            awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                    .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                    .last()
-                                                    .text();
-                                            homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                    .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                    .last()
-                                                    .text();
-                                        }
-                                    }
-                                } else if (status.equals("예정")) {
-                                    // 예정된 경기 처리
-                                    awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                            .select(".MatchBoxTeamArea_item__11GUB").text();
-                                    homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                            .select(".MatchBoxTeamArea_item__11GUB").text();
-                                    if (awayPitcher.equals("") && homePitcher.equals("")) {
-                                        isPitcherNull = true;
-                                    }
-                                }
-
-                                Integer homeScoreValue = (homeScore != null && !homeScore.isEmpty()) ? Integer.parseInt(homeScore) : 0;
-                                Integer awayScoreValue = (awayScore != null && !awayScore.isEmpty()) ? Integer.parseInt(awayScore) : 0;
-
-                                // 경기 객체 생성 및 저장
-                                schedule = Baseball.builder()
-                                        .time(gameTime)
-                                        .weekDay(weekday)
-                                        .home(homeTeam)
-                                        .away(awayTeam)
-                                        .location(location)
-                                        .status(status)
-                                        .homeScore(homeScoreValue)
-                                        .awayScore(awayScoreValue)
-                                        .homePitcher(homePitcher)
-                                        .awayPitcher(awayPitcher)
-                                        .build();
-
-                                // Save the schedule
-                                baseballRepository.save(schedule);
-                            } catch (Exception gameException) {
-                                System.err.println("Failed to process game element: " + game);
-                                gameException.printStackTrace();
-                                // Continue with the next game
-                            }
-                        }
-                    }
-                }
+            for (int month = 3; month <= 11; month++) {
+                Document doc = fetchMonthlyDocument(driver, month);
+                schedules.addAll(parseMonthlySchedules(doc, month, wait));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted while fetching schedules", e);
         } finally {
             driver.quit();
         }
@@ -237,305 +82,219 @@ public class BaseballService {
     }
 
     @Transactional
-    public void scrapeTodayGame() {
-        setUpWebDriver();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--window-size=1920,1080");
-        WebDriverManager.chromedriver().setup();
-        WebDriver driver = new ChromeDriver(options);
+    public List<Baseball> scrapeTodayGame() {
+        WebDriver driver = createWebDriver();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        ArrayList<Baseball> schedules = new ArrayList<>();
+        List<Baseball> todaySchedules = new ArrayList<>();
         try {
             LocalDate today = LocalDate.now();
-            String formattedDate = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String url = "https://m.sports.naver.com/kbaseball/schedule/index?category=kbo&date=" + formattedDate + "&postSeason=Y";
-
-            driver.get(url);
-            Thread.sleep(2000);
-
-            Document doc = Jsoup.parse(driver.getPageSource());
+            Document doc = fetchMonthlyDocument(driver, today.getMonthValue());
             Elements days = doc.select(".ScheduleLeagueType_match_list_container__1v4b0 > div");
-
             for (Element day : days) {
-                // 날짜 가져오기
-                Element dateElement = day.selectFirst(".ScheduleLeagueType_group_title__S2Z_g .ScheduleLeagueType_title_area__3v4qt .ScheduleLeagueType_title__2Kalm");
-                if (dateElement != null) {
-                    String dateText = dateElement.text();
-                    String[] parts = dateText.split(" ");
-                    int month = Integer.parseInt(parts[0].replace("월", ""));
-                    int dayOfMonth = Integer.parseInt(parts[1].replace("일", ""));
-                    String weekday = parts[2].replace("(", "").replace(")", "");
-
-                    if (dayOfMonth != today.getDayOfMonth()) {
-                        continue;
-                    }
-
-                    Elements games = day.select("ul > li");
-                    for (Element game : games) {
-                        String time = game.select(".MatchBox_time__nIEfd").text().replace("경기 시간", "").trim();
-                        String status = game.select(".MatchBox_status__2pbzi").text();
-
-                        String[] timeParts = time.split(":");
-                        int hour = Integer.parseInt(timeParts[0]);
-                        int minute = Integer.parseInt(timeParts[1]);
-                        LocalDateTime gameTime = LocalDateTime.of(today.getYear(),month,dayOfMonth,hour,minute);
-
-                        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".MatchBoxTeamArea_team__3aB4O")));
-                        Thread.sleep(2000);
-
-                        Element homeEle = game.select(".MatchBoxTeamArea_team_item__3w5mq").last();
-                        Element awayEle = game.select(".MatchBoxTeamArea_team_item__3w5mq").first();
-                        String homeTeam = homeEle.select(".MatchBoxTeamArea_team__3aB4O").text();
-                        String awayTeam = awayEle.select(".MatchBoxTeamArea_team__3aB4O").text();
-                        String location = game.select(".MatchBox_stadium__13gft").text()
-                                .replace("경기장", "")
-                                .replace("(신)", "")
-                                .trim();
-
-                        Optional<Baseball> findByTimeAndHomeAndAwayAndLocation = baseballRepository.findByTimeAndHomeAndAwayAndLocation(gameTime,homeTeam, awayTeam, location);
-                        if(!findByTimeAndHomeAndAwayAndLocation.isPresent()){
-                            //기존 DB에 없는 경기가 추가될 경우
-                            //새로운 경기 일정 추가
-                            Baseball schedule = null;
-                            String homeScore = null;
-                            String awayScore = null;
-                            String homePitcher = null;
-                            String awayPitcher = null;
-
-                            boolean checkTieGame = false;
-                            boolean isPitcherNull = false;
-                            if (status.equals("종료")) {
-                                boolean isHomeTeamWinner= false;    //홈팀이 이겼는지, 졌는지, 무승부인지
-                                if(homeEle.className().contains("winner")){
-                                    isHomeTeamWinner = true;
-                                }else if(homeEle.className().contains("loser")){
-                                    isHomeTeamWinner = false;
-                                }else{
-                                    checkTieGame = true;
-                                }
-                                if(checkTieGame && !isHomeTeamWinner){   //무승부일 경우
-                                    Elements scoreDivs = game.select(".MatchBoxTeamArea_score_wrap__3eSae");
-                                    if (!scoreDivs.isEmpty()) {
-                                        List<Element> scoreElements = scoreDivs.select(".MatchBoxTeamArea_score__1_YFB");
-                                        homeScore = scoreElements.get(0).text();
-                                    }
-                                    awayScore = homeScore;
-                                    awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                            .select(".MatchBoxTeamArea_item__11GUB").text();
-                                    homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                            .select(".MatchBoxTeamArea_item__11GUB").text();
-                                }else{  //승,패가 정해진 경우
-                                    if(isHomeTeamWinner){   //홈팀이 이겼을 경우
-                                        homeScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_score__1_YFB")
-                                                .text();
-                                        awayScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_score__1_YFB")
-                                                .text();
-                                        homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last()
-                                                .text();
-                                        awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last()
-                                                .text();
-                                    }else { //홈팀이 졌을 경우
-                                        awayScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_score__1_YFB")
-                                                .text();
-                                        homeScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_score__1_YFB")
-                                                .text();
-                                        awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last()
-                                                .text();
-                                        homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last()
-                                                .text();
-                                    }
-                                }
-                            }else if(status.equals("취소")){
-
-                            }else if(status.equals("예정")){
-                                awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                        .select(".MatchBoxTeamArea_item__11GUB").text();
-                                homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                        .select(".MatchBoxTeamArea_item__11GUB").text();
-                                if(awayPitcher.equals("") && homePitcher.equals("")){
-                                    isPitcherNull = true;
-                                }
-                            }else{  //경기가 진행중일 경우
-                                awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                        .select(".MatchBoxTeamArea_item__11GUB").text();
-                                homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                        .select(".MatchBoxTeamArea_item__11GUB").text();
-                                Elements scoreDivs = game.select(".MatchBoxTeamArea_score_wrap__3eSae");
-                                awayScore = scoreDivs.first().text();
-                                homeScore = scoreDivs.last().text();
-                                awayScore = awayScore.replaceAll("[^0-9]", "");
-                                homeScore = homeScore.replaceAll("[^0-9]", "");
-                            }
-                            if (status.equals("취소")) {    //경기가 취소될 경우
-                                schedule = Baseball.builder()
-                                        .weekDay(weekday)
-                                        .time(gameTime)
-                                        .home(homeTeam)
-                                        .away(awayTeam)
-                                        .location(location)
-                                        .status(status)
-                                        .build();
-                            } else if(status.equals("종료")){    //경기가 종룓될 경우
-                                schedule = Baseball.builder()
-                                        .weekDay(weekday)
-                                        .time(gameTime)
-                                        .home(homeTeam)
-                                        .away(awayTeam)
-                                        .homeScore(Integer.parseInt(homeScore))
-                                        .awayScore(Integer.parseInt(awayScore))
-                                        .homePitcher(homePitcher)
-                                        .awayPitcher(awayPitcher)
-                                        .location(location)
-                                        .status(status)
-                                        .build();
-                            }else if(status.equals("예정")){
-                                if(!isPitcherNull){
-                                    schedule = Baseball.builder()
-                                            .weekDay(weekday)
-                                            .time(gameTime)
-                                            .home(homeTeam)
-                                            .away(awayTeam)
-                                            .location(location)
-                                            .status(status)
-                                            .homePitcher(homePitcher)
-                                            .awayPitcher(awayPitcher)
-                                            .build();
-                                }else{
-                                    schedule = Baseball.builder()
-                                            .weekDay(weekday)
-                                            .time(gameTime)
-                                            .home(homeTeam)
-                                            .away(awayTeam)
-                                            .location(location)
-                                            .status(status)
-                                            .build();
-                                }
-                            }else{  //경기가 진행중일 경우
-                                schedule = Baseball.builder()
-                                        .weekDay(weekday)
-                                        .time(gameTime)
-                                        .home(homeTeam)
-                                        .away(awayTeam)
-                                        .homeScore(Integer.parseInt(homeScore))
-                                        .awayScore(Integer.parseInt(awayScore))
-                                        .homePitcher(homePitcher)
-                                        .awayPitcher(awayPitcher)
-                                        .location(location)
-                                        .status(status)
-                                        .build();
-                            }
-                            schedules.add(schedule);
-                        }else{
-                            //기존에 DB에 데이터가 있는 경우
-                            Baseball baseball = findByTimeAndHomeAndAwayAndLocation.get();
-                            String homeScore = null;
-                            String awayScore = null;
-                            String homePitcher = null;
-                            String awayPitcher = null;
-
-                            boolean checkTieGame = false;
-                            if (status.equals("종료")) {
-                                boolean isHomeTeamWinner = false;
-                                if (homeEle.className().contains("winner")) {
-                                    isHomeTeamWinner = true;
-                                } else if (homeEle.className().contains("loser")) {
-                                    isHomeTeamWinner = false;
-                                } else {
-                                    checkTieGame = true;
-                                }
-
-                                if (checkTieGame) { // Tie game
-                                    Elements scoreDivs = game.select(".MatchBoxTeamArea_score_wrap__3eSae");
-                                    if (!scoreDivs.isEmpty()) {
-                                        List<Element> scoreElements = scoreDivs.select(".MatchBoxTeamArea_score__1_YFB");
-                                        homeScore = scoreElements.get(0).text();
-                                    }
-                                    awayScore = homeScore;
-                                    awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                            .select(".MatchBoxTeamArea_item__11GUB").text();
-                                    homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                            .select(".MatchBoxTeamArea_item__11GUB").text();
-                                } else { // Winner and loser identified
-                                    if (isHomeTeamWinner) { // Home team won
-                                        homeScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_score__1_YFB").text();
-                                        awayScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_score__1_YFB").text();
-                                        homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last().text();
-                                        awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last().text();
-                                    } else { // Home team lost
-                                        awayScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_score__1_YFB").text();
-                                        homeScore = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_score__1_YFB").text();
-                                        awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_winner__2o1Hm")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last().text();
-                                        homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq.MatchBoxTeamArea_type_loser__2ym2q")
-                                                .select(".MatchBoxTeamArea_sub_info__3O3LO .MatchBoxTeamArea_item__11GUB")
-                                                .last().text();
-                                    }
-                                }
-                            } else if (status.equals("취소")) {
-                                // Handle canceled games if needed
-                            } else if (status.equals("예정")) {
-                                // Handle scheduled games if needed
-                            } else { // Game in progress
-                                awayPitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").first()
-                                        .select(".MatchBoxTeamArea_item__11GUB").text();
-                                homePitcher = game.select(".MatchBoxTeamArea_team_item__3w5mq").last()
-                                        .select(".MatchBoxTeamArea_item__11GUB").text();
-                                Elements scoreDivs = game.select(".MatchBoxTeamArea_score_wrap__3eSae");
-                                awayScore = scoreDivs.first().text();
-                                homeScore = scoreDivs.last().text();
-                                awayScore = awayScore.replaceAll("[^0-9]", "");
-                                homeScore = homeScore.replaceAll("[^0-9]", "");
-                            }
-
-                            Integer homeScoreValue = (homeScore != null && !homeScore.isEmpty()) ? Integer.parseInt(homeScore) : 0;
-                            Integer awayScoreValue = (awayScore != null && !awayScore.isEmpty()) ? Integer.parseInt(awayScore) : 0;
-                            // Update baseball object
-                            if(awayScore!= null || homeScore != null){
-                                baseball.setAwayScore(awayScoreValue);
-                                baseball.setHomeScore(homeScoreValue);
-                            }
-                            baseball.setAwayPitcher(awayPitcher);
-                            baseball.setHomePitcher(homePitcher);
-                            baseball.setStatus(status);
-                            baseballRepository.save(baseball);
-                            schedules.add(baseball);
-                        }
-                    }
-                    break;
+                Element dateEl = day.selectFirst(
+                        ".ScheduleLeagueType_group_title__S2Z_g .ScheduleLeagueType_title_area__3v4qt .ScheduleLeagueType_title__2Kalm"
+                );
+                if (dateEl == null) continue;
+                ScheduleDateInfo dateInfo = parseDateInfo(dateEl.text());
+                if (dateInfo.getMonth() != today.getMonthValue() || dateInfo.getDay() != today.getDayOfMonth()) {
+                    continue;
                 }
+                // 오늘 날짜 컨테이너 처리
+                for (Element gameEl : day.select("ul > li")) {
+                    Optional<Baseball> saved = updateOrInsertGame(gameEl, dateInfo, wait);
+                    saved.ifPresent(todaySchedules::add);
+                }
+                break;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted while scraping today games", e);
         } finally {
             driver.quit();
         }
+        return todaySchedules;
     }
 
+    private Document fetchMonthlyDocument(WebDriver driver, int month) throws InterruptedException {
+        LocalDate firstOfMonth = LocalDate.of(LocalDate.now().getYear(), month, 1);
+        String dateParam = firstOfMonth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String url = String.format(
+                "https://m.sports.naver.com/kbaseball/schedule/index?category=kbo&date=%s&postSeason=Y",
+                dateParam);
+        driver.get(url);
+        Thread.sleep(PAGE_LOAD_WAIT_MS);
+        return Jsoup.parse(Objects.requireNonNull(driver.getPageSource()));
+    }
 
+    private List<Baseball> parseMonthlySchedules(Document doc, int targetMonth, WebDriverWait wait) {
+        List<Baseball> list = new ArrayList<>();
+        Elements days = doc.select(".ScheduleLeagueType_match_list_container__1v4b0 > div");
+        for (Element day : days) {
+            Element dateEl = day.selectFirst(
+                    ".ScheduleLeagueType_group_title__S2Z_g .ScheduleLeagueType_title__2Kalm");
+            if (dateEl == null) continue;
+
+            ScheduleDateInfo dateInfo = parseDateInfo(dateEl.text());
+            if (dateInfo.getMonth() != targetMonth) continue;
+
+            for (Element gameEl : day.select("ul > li")) {
+                list.addAll(processGameElement(gameEl, dateInfo, wait));
+            }
+        }
+        return list;
+    }
+
+    private List<Baseball> processGameElement(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
+        List<Baseball> results = new ArrayList<>();
+        try {
+            ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
+            Optional<Baseball> existing = baseballRepository
+                    .findByTimeAndHomeAndAwayAndLocation(
+                            meta.getGameTime(), meta.getHomeTeam(), meta.getAwayTeam(), meta.getLocation());
+            if (existing.isPresent()) return results;
+
+            System.out.println("meta = " + meta);
+            Baseball schedule = Baseball.builder()
+                    .time(meta.getGameTime())
+                    .weekDay(dateInfo.getWeekday())
+                    .home(meta.getHomeTeam())
+                    .away(meta.getAwayTeam())
+                    .location(meta.getLocation())
+                    .status(meta.getStatus())
+                    .homeScore(meta.getHomeScore())
+                    .awayScore(meta.getAwayScore())
+                    .homePitcher(meta.getHomePitcher())
+                    .awayPitcher(meta.getAwayPitcher())
+                    .build();
+
+            baseballRepository.save(schedule);
+            results.add(schedule);
+        } catch (Exception ex) {
+            System.err.println("Failed to process game: " + ex.getMessage());
+        }
+        return results;
+    }
+
+    private ScheduleMeta extractMeta(Element game, ScheduleDateInfo dateInfo, WebDriverWait wait) {
+        Element timeEl = game.selectFirst(".MatchBox_time__nIEfd");
+        if (timeEl == null) throw new IllegalStateException("Time element not found");
+        String timeText = timeEl.text().replace("경기 시간", "").trim();
+
+        Element statusEl = game.selectFirst(".MatchBox_status__2pbzi");
+        String status = statusEl != null ? statusEl.text() : "";
+
+        String[] hm = timeText.split(":");
+        LocalDateTime gameTime = LocalDateTime.of(
+                LocalDate.now().getYear(), dateInfo.getMonth(), dateInfo.getDay(),
+                Integer.parseInt(hm[0]), Integer.parseInt(hm[1]));
+
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.cssSelector(".MatchBoxHeadToHeadArea_team_item__25jg6")
+        ));
+
+        //팀 정보
+        Elements teamEls = game.select(".MatchBoxHeadToHeadArea_team_item__25jg6");
+        if (teamEls.size() < 2) return null;
+        Element awayEl = teamEls.first();
+        Element homeEl = teamEls.last();
+
+        String awayTeam = Optional.ofNullable(
+                awayEl.selectFirst(".MatchBoxHeadToHeadArea_team__40JQL")
+        ).map(Element::text).orElse("");
+        String homeTeam = Optional.ofNullable(
+                homeEl.selectFirst(".MatchBoxHeadToHeadArea_team__40JQL")
+        ).map(Element::text).orElse("");
+
+        // 점수
+        int awayScore = parseScore(awayEl, ".MatchBoxHeadToHeadArea_score__e2D7k");
+        int homeScore = parseScore(homeEl, ".MatchBoxHeadToHeadArea_score__e2D7k");
+
+        // 투수
+        String awayPitcher = parsePitcher(awayEl, ".MatchBoxHeadToHeadArea_item__1IPbQ:last-child");
+        String homePitcher = parsePitcher(homeEl, ".MatchBoxHeadToHeadArea_item__1IPbQ:last-child");
+
+        // 위치
+        String location = Optional.ofNullable(
+                        game.selectFirst(".MatchBox_stadium__13gft")
+                ).map(Element::text)
+                .orElse("")
+                .replace("경기장", "").replace("(신)", "").trim();
+
+        return new ScheduleMeta(
+                gameTime, homeTeam, awayTeam,
+                location, status,
+                homeScore, awayScore,
+                homePitcher, awayPitcher
+        );
+    }
+
+    private ScheduleDateInfo parseDateInfo(String text) {
+        // "5월 12일 (화)" 형식 처리
+        String[] parts = text.split(" ");
+        int month = Integer.parseInt(parts[0].replace("월", ""));
+        int day = Integer.parseInt(parts[1].replace("일", ""));
+        String weekday = parts[2].replace("(", "").replace(")", "");
+        return new ScheduleDateInfo(month, day, weekday);
+    }
+
+    private int parseScore(Element teamEl, String selector) {
+        return Optional.ofNullable(teamEl.selectFirst(selector))
+                .map(Element::text)
+                .map(t -> t.replaceAll("\\D", ""))
+                .filter(s -> !s.isEmpty())
+                .map(Integer::parseInt)
+                .orElse(0);
+    }
+
+    private String parsePitcher(Element teamEl, String selector) {
+        return Optional.ofNullable(teamEl.selectFirst(selector))
+                .map(Element::text)
+                .orElse("");
+    }
+
+    /**
+     * 신규 경기면 저장, 기존이면 업데이트 후 반환
+     */
+    private Optional<Baseball> updateOrInsertGame(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
+        ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
+        if (meta == null) return Optional.empty();
+        Optional<Baseball> existingOpt = baseballRepository
+                .findByTimeAndHomeAndAwayAndLocation(
+                        meta.getGameTime(), meta.getHomeTeam(), meta.getAwayTeam(), meta.getLocation()
+                );
+        Baseball entity;
+        if (existingOpt.isPresent()) {
+            entity = existingOpt.get();
+            entity.setStatus(meta.getStatus());
+            entity.setHomeScore(meta.getHomeScore());
+            entity.setAwayScore(meta.getAwayScore());
+            entity.setHomePitcher(meta.getHomePitcher());
+            entity.setAwayPitcher(meta.getAwayPitcher());
+        } else {
+            entity = Baseball.builder()
+                    .time(meta.getGameTime())
+                    .weekDay(dateInfo.getWeekday())
+                    .home(meta.getHomeTeam())
+                    .away(meta.getAwayTeam())
+                    .location(meta.getLocation())
+                    .status(meta.getStatus())
+                    .homeScore(meta.getHomeScore())
+                    .awayScore(meta.getAwayScore())
+                    .homePitcher(meta.getHomePitcher())
+                    .awayPitcher(meta.getAwayPitcher())
+                    .build();
+        }
+        Baseball saved = baseballRepository.save(entity);
+        return Optional.of(saved);
+    }
+
+    private WebDriver createWebDriver() {
+        setUpWebDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage", "--window-size=1920,1080");
+        WebDriverManager.chromedriver().setup();
+        return new ChromeDriver(options);
+    }
 
     //크롬 드라이버 셋업
     private void setUpWebDriver() {
