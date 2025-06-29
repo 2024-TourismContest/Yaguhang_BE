@@ -68,13 +68,21 @@ public class BaseballService {
 
     @Transactional
     public List<Baseball> scrapeAllSchedule() {
+        long startTime = System.currentTimeMillis(); // 전체 스크랩 시작 시간 기록
+
         WebDriver driver = createWebDriver();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        List<Baseball> schedules = new ArrayList<>();
+        List<Baseball> allSchedulesToUpsert = new ArrayList<>(); // 모든 스크랩된 경기를 담을 리스트
+
         try {
             for (int month = 3; month <= 11; month++) {
                 Document doc = fetchMonthlyDocument(driver, month);
-                schedules.addAll(parseMonthlySchedules(doc, month, wait));
+                allSchedulesToUpsert.addAll(parseMonthlySchedulesForBulk(doc, month, wait));
+            }
+
+            // 모든 월의 스크랩이 완료된 후, 한 번에 Bulk UPSERT 수행
+            if (!allSchedulesToUpsert.isEmpty()) {
+                bulkUpsertBaseballGames(allSchedulesToUpsert);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -82,7 +90,12 @@ public class BaseballService {
         } finally {
             driver.quit();
         }
-        return schedules;
+
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        System.out.println("scrapeAllSchedule (Bulk Upsert) execution time: " + duration + " ms");
+
+        return allSchedulesToUpsert;
     }
 
     @Transactional
@@ -120,7 +133,6 @@ public class BaseballService {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
 
-        // 4. 콘솔에 실행 시간 출력
         System.out.println("Without Bulk : Execution time: " + duration + " ms");
         return todaySchedules;
     }
@@ -151,7 +163,6 @@ public class BaseballService {
                 }
                 break; // 오늘 날짜만 처리하고 종료
             }
-            // 스크랩된 오늘 경기를 한 번에 DB에 업데이트 또는 삽입
             if (!todayGamesToSave.isEmpty()) {
                 bulkUpsertBaseballGames(todayGamesToSave);
             }
@@ -164,7 +175,6 @@ public class BaseballService {
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
 
-        // 4. 콘솔에 실행 시간 출력
         System.out.println("Bulk Update : Execution time: " + duration + " ms");
         return todayGamesToSave;
     }
@@ -174,8 +184,8 @@ public class BaseballService {
             return;
         }
 
-        // Baseball 엔티티의 uniqueConstraints를 활용하여 중복 여부를 판단합니다.
-        // home, away, time, location 조합이 유일해야 합니다.
+        // Baseball 엔티티의 uniqueConstraints를 활용하여 중복 여부를 판단
+        // home, away, time, location 조합이 유일해야 함
         String sql = "INSERT INTO baseball (time, week_day, home, away, location, status, home_pitcher, away_pitcher, home_score, away_score) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                 "ON DUPLICATE KEY UPDATE " +
@@ -200,10 +210,46 @@ public class BaseballService {
         System.out.println("Bulk upserted " + games.size() + " baseball games.");
     }
 
+    private List<Baseball> parseMonthlySchedulesForBulk(Document doc, int targetMonth, WebDriverWait wait) {
+        List<Baseball> monthSchedules = new ArrayList<>();
+        Elements days = doc.select(".ScheduleLeagueType_match_list_container__1v4b0 > div");
+        for (Element day : days) {
+            Element dateEl = day.selectFirst(
+                    ".ScheduleLeagueType_group_title__S2Z_g .ScheduleLeagueType_title__2Kalm");
+            if (dateEl == null) continue;
+
+            ScheduleDateInfo dateInfo = parseDateInfo(dateEl.text());
+            if (dateInfo.getMonth() != targetMonth) continue;
+
+            for (Element gameEl : day.select("ul > li")) {
+                ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
+                if (meta == null) {
+                    System.err.println("Failed to extract meta for game element in monthly scrape: " + gameEl.html());
+                    continue;
+                }
+
+                Baseball baseball = Baseball.builder()
+                        .time(meta.getGameTime())
+                        .weekDay(dateInfo.getWeekday())
+                        .home(meta.getHomeTeam())
+                        .away(meta.getAwayTeam())
+                        .location(meta.getLocation())
+                        .status(meta.getStatus())
+                        .homeScore(meta.getHomeScore())
+                        .awayScore(meta.getAwayScore())
+                        .homePitcher(meta.getHomePitcher())
+                        .awayPitcher(meta.getAwayPitcher())
+                        .build();
+                monthSchedules.add(baseball);
+            }
+        }
+        return monthSchedules;
+    }
+
     private Optional<Baseball> processTodayGameElement(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
         ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
         if (meta == null) {
-            return Optional.empty(); // 메타데이터 추출 실패 시 빈 Optional 반환
+            return Optional.empty();
         }
 
         Baseball baseball = Baseball.builder()
@@ -230,55 +276,6 @@ public class BaseballService {
         driver.get(url);
         Thread.sleep(PAGE_LOAD_WAIT_MS);
         return Jsoup.parse(Objects.requireNonNull(driver.getPageSource()));
-    }
-
-    private List<Baseball> parseMonthlySchedules(Document doc, int targetMonth, WebDriverWait wait) {
-        List<Baseball> list = new ArrayList<>();
-        Elements days = doc.select(".ScheduleLeagueType_match_list_container__1v4b0 > div");
-        for (Element day : days) {
-            Element dateEl = day.selectFirst(
-                    ".ScheduleLeagueType_group_title__S2Z_g .ScheduleLeagueType_title__2Kalm");
-            if (dateEl == null) continue;
-
-            ScheduleDateInfo dateInfo = parseDateInfo(dateEl.text());
-            if (dateInfo.getMonth() != targetMonth) continue;
-
-            for (Element gameEl : day.select("ul > li")) {
-                list.addAll(processGameElement(gameEl, dateInfo, wait));
-            }
-        }
-        return list;
-    }
-
-    private List<Baseball> processGameElement(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
-        List<Baseball> results = new ArrayList<>();
-        try {
-            ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
-            Optional<Baseball> existing = baseballRepository
-                    .findByTimeAndHomeAndAwayAndLocation(
-                            meta.getGameTime(), meta.getHomeTeam(), meta.getAwayTeam(), meta.getLocation());
-            if (existing.isPresent()) return results;
-
-            System.out.println("meta = " + meta);
-            Baseball schedule = Baseball.builder()
-                    .time(meta.getGameTime())
-                    .weekDay(dateInfo.getWeekday())
-                    .home(meta.getHomeTeam())
-                    .away(meta.getAwayTeam())
-                    .location(meta.getLocation())
-                    .status(meta.getStatus())
-                    .homeScore(meta.getHomeScore())
-                    .awayScore(meta.getAwayScore())
-                    .homePitcher(meta.getHomePitcher())
-                    .awayPitcher(meta.getAwayPitcher())
-                    .build();
-
-            baseballRepository.save(schedule);
-            results.add(schedule);
-        } catch (Exception ex) {
-            System.err.println("Failed to process game: " + ex.getMessage());
-        }
-        return results;
     }
 
     private ScheduleMeta extractMeta(Element game, ScheduleDateInfo dateInfo, WebDriverWait wait) {
