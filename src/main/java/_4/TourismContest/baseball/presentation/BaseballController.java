@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,5 +54,14 @@ public class BaseballController {
     @Operation(summary = "경기 크롤링 기능 API 형태로 해놓은 것...사용X")
     public List<Baseball> getSchedule() {
         return baseballService.scrapeAllSchedule();
+    }
+
+    @PostMapping("/scrape-today-game")
+    public ResponseEntity<List<Baseball>> scrapeTodayGame() {
+        List<Baseball> scrapedGames = baseballService.scrapeTodayGame();
+        if (scrapedGames.isEmpty()) {
+            return ResponseEntity.ok().body(scrapedGames); // 스크랩된 경기가 없어도 200 OK 반환
+        }
+        return ResponseEntity.ok(scrapedGames);
     }
 }
