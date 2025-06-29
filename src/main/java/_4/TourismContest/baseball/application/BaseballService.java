@@ -7,16 +7,16 @@ import _4.TourismContest.baseball.dto.BaseballScheduleDTO;
 import _4.TourismContest.baseball.dto.ScheduleDateInfo;
 import _4.TourismContest.baseball.dto.ScheduleMeta;
 import _4.TourismContest.baseball.repository.BaseballRepository;
-import _4.TourismContest.baseball.repository.BaseballScrapRepository;
-import _4.TourismContest.exception.BadRequestException;
+import _4.TourismContest.baseball.repository.BaseballScrapRepository; // 사용되지 않는 import 제거 가능성
+import _4.TourismContest.exception.BadRequestException; // 사용되지 않는 import 제거 가능성
 import _4.TourismContest.oauth.application.UserPrincipal;
-import _4.TourismContest.stadium.repository.StadiumRepository;
-import _4.TourismContest.user.domain.User;
-import _4.TourismContest.user.repository.UserRepository;
+import _4.TourismContest.stadium.repository.StadiumRepository; // 사용되지 않는 import 제거 가능성
+import _4.TourismContest.user.domain.User; // 사용되지 않는 import 제거 가능성
+import _4.TourismContest.user.repository.UserRepository; // 사용되지 않는 import 제거 가능성
 import _4.TourismContest.weather.application.WeatherForecastService;
-import _4.TourismContest.weather.domain.WeatherForecast;
+import _4.TourismContest.weather.domain.WeatherForecast; // 사용되지 않는 import 제거 가능성
 import _4.TourismContest.weather.domain.enums.WeatherForecastEnum;
-import _4.TourismContest.weather.repository.WeatherForecastRepository;
+import _4.TourismContest.weather.repository.WeatherForecastRepository; // 사용되지 않는 import 제거 가능성
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -32,6 +32,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate; // JDBC Template 임포트
+import java.sql.Timestamp; // Timestamp 임포트
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,6 +49,7 @@ public class BaseballService {
     private final BaseballRepository baseballRepository;
     private final BaseballScrapService baseballScrapService;
     private final WeatherForecastService weatherForecastService;
+    private final JdbcTemplate jdbcTemplate; // JdbcTemplate 주입
     private static final long PAGE_LOAD_WAIT_MS = 2000;
 
     private final Map<String, String> teamLogoMap = Map.of(
@@ -85,7 +88,7 @@ public class BaseballService {
     public List<Baseball> scrapeTodayGame() {
         WebDriver driver = createWebDriver();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        List<Baseball> todaySchedules = new ArrayList<>();
+        List<Baseball> todayGamesToSave = new ArrayList<>(); // 오늘 스크랩된 게임을 저장할 리스트
         try {
             LocalDate today = LocalDate.now();
             Document doc = fetchMonthlyDocument(driver, today.getMonthValue());
@@ -101,10 +104,14 @@ public class BaseballService {
                 }
                 // 오늘 날짜 컨테이너 처리
                 for (Element gameEl : day.select("ul > li")) {
-                    Optional<Baseball> saved = updateOrInsertGame(gameEl, dateInfo, wait);
-                    saved.ifPresent(todaySchedules::add);
+                    Optional<Baseball> game = processTodayGameElement(gameEl, dateInfo, wait); // 변경된 메소드 호출
+                    game.ifPresent(todayGamesToSave::add);
                 }
-                break;
+                break; // 오늘 날짜만 처리하고 종료
+            }
+            // 스크랩된 오늘 경기를 한 번에 DB에 업데이트 또는 삽입
+            if (!todayGamesToSave.isEmpty()) {
+                bulkUpsertBaseballGames(todayGamesToSave);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -112,7 +119,7 @@ public class BaseballService {
         } finally {
             driver.quit();
         }
-        return todaySchedules;
+        return todayGamesToSave;
     }
 
     private Document fetchMonthlyDocument(WebDriver driver, int month) throws InterruptedException {
@@ -144,10 +151,13 @@ public class BaseballService {
         return list;
     }
 
+    // 이 메소드는 그대로 유지 (scrapeAllSchedule에서 사용)
     private List<Baseball> processGameElement(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
         List<Baseball> results = new ArrayList<>();
         try {
             ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
+            if (meta == null) return results; // meta가 null인 경우 처리
+
             Optional<Baseball> existing = baseballRepository
                     .findByTimeAndHomeAndAwayAndLocation(
                             meta.getGameTime(), meta.getHomeTeam(), meta.getAwayTeam(), meta.getLocation());
@@ -167,7 +177,7 @@ public class BaseballService {
                     .awayPitcher(meta.getAwayPitcher())
                     .build();
 
-            baseballRepository.save(schedule);
+            baseballRepository.save(schedule); // JPA save 사용
             results.add(schedule);
         } catch (Exception ex) {
             System.err.println("Failed to process game: " + ex.getMessage());
@@ -188,13 +198,22 @@ public class BaseballService {
                 LocalDate.now().getYear(), dateInfo.getMonth(), dateInfo.getDay(),
                 Integer.parseInt(hm[0]), Integer.parseInt(hm[1]));
 
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
-                By.cssSelector(".MatchBoxHeadToHeadArea_team_item__25jg6")
-        ));
+        try {
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                    By.cssSelector(".MatchBoxHeadToHeadArea_team_item__25jg6")
+            ));
+        } catch (TimeoutException e) {
+            System.err.println("Timeout waiting for team elements: " + e.getMessage());
+            return null; // 요소를 찾지 못하면 null 반환하여 이 게임을 건너뜁니다.
+        }
+
 
         //팀 정보
         Elements teamEls = game.select(".MatchBoxHeadToHeadArea_team_item__25jg6");
-        if (teamEls.size() < 2) return null;
+        if (teamEls.size() < 2) {
+            System.err.println("Not enough team elements found. Size: " + teamEls.size());
+            return null; // 팀 정보가 불완전하면 null 반환
+        }
         Element awayEl = teamEls.first();
         Element homeEl = teamEls.last();
 
@@ -253,40 +272,65 @@ public class BaseballService {
     }
 
     /**
-     * 신규 경기면 저장, 기존이면 업데이트 후 반환
+     * 신규 경기면 Baseball 객체 반환, 기존이면 업데이트된 Baseball 객체 반환
+     * (JdbcTemplate을 이용한 bulk upsert를 위해 Optional<Baseball>로 변경)
      */
-    private Optional<Baseball> updateOrInsertGame(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
+    private Optional<Baseball> processTodayGameElement(Element gameEl, ScheduleDateInfo dateInfo, WebDriverWait wait) {
         ScheduleMeta meta = extractMeta(gameEl, dateInfo, wait);
-        if (meta == null) return Optional.empty();
-        Optional<Baseball> existingOpt = baseballRepository
-                .findByTimeAndHomeAndAwayAndLocation(
-                        meta.getGameTime(), meta.getHomeTeam(), meta.getAwayTeam(), meta.getLocation()
-                );
-        Baseball entity;
-        if (existingOpt.isPresent()) {
-            entity = existingOpt.get();
-            entity.setStatus(meta.getStatus());
-            entity.setHomeScore(meta.getHomeScore());
-            entity.setAwayScore(meta.getAwayScore());
-            entity.setHomePitcher(meta.getHomePitcher());
-            entity.setAwayPitcher(meta.getAwayPitcher());
-        } else {
-            entity = Baseball.builder()
-                    .time(meta.getGameTime())
-                    .weekDay(dateInfo.getWeekday())
-                    .home(meta.getHomeTeam())
-                    .away(meta.getAwayTeam())
-                    .location(meta.getLocation())
-                    .status(meta.getStatus())
-                    .homeScore(meta.getHomeScore())
-                    .awayScore(meta.getAwayScore())
-                    .homePitcher(meta.getHomePitcher())
-                    .awayPitcher(meta.getAwayPitcher())
-                    .build();
+        if (meta == null) {
+            return Optional.empty(); // 메타데이터 추출 실패 시 빈 Optional 반환
         }
-        Baseball saved = baseballRepository.save(entity);
-        return Optional.of(saved);
+
+        Baseball baseball = Baseball.builder()
+                .time(meta.getGameTime())
+                .weekDay(dateInfo.getWeekday())
+                .home(meta.getHomeTeam())
+                .away(meta.getAwayTeam())
+                .location(meta.getLocation())
+                .status(meta.getStatus())
+                .homeScore(meta.getHomeScore())
+                .awayScore(meta.getAwayScore())
+                .homePitcher(meta.getHomePitcher())
+                .awayPitcher(meta.getAwayPitcher())
+                .build();
+        return Optional.of(baseball);
     }
+
+    /**
+     * 스크랩된 오늘 경기를 Bulk Insert 또는 Update (UPSERT)
+     * JDBC Template을 사용합니다.
+     */
+    private void bulkUpsertBaseballGames(List<Baseball> games) {
+        if (games.isEmpty()) {
+            return;
+        }
+
+        // Baseball 엔티티의 uniqueConstraints를 활용하여 중복 여부를 판단합니다.
+        // home, away, time, location 조합이 유일해야 합니다.
+        String sql = "INSERT INTO baseball (time, week_day, home, away, location, status, home_pitcher, away_pitcher, home_score, away_score) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE " +
+                "status = VALUES(status), " +
+                "home_pitcher = VALUES(home_pitcher), " +
+                "away_pitcher = VALUES(away_pitcher), " +
+                "home_score = VALUES(home_score), " +
+                "away_score = VALUES(away_score)";
+
+        jdbcTemplate.batchUpdate(sql, games, games.size(), (ps, game) -> {
+            ps.setTimestamp(1, Timestamp.valueOf(game.getTime()));
+            ps.setString(2, game.getWeekDay());
+            ps.setString(3, game.getHome());
+            ps.setString(4, game.getAway());
+            ps.setString(5, game.getLocation());
+            ps.setString(6, game.getStatus());
+            ps.setString(7, game.getHomePitcher());
+            ps.setString(8, game.getAwayPitcher());
+            ps.setInt(9, game.getHomeScore());
+            ps.setInt(10, game.getAwayScore());
+        });
+        System.out.println("Bulk upserted " + games.size() + " baseball games.");
+    }
+
 
     private WebDriver createWebDriver() {
         setUpWebDriver();

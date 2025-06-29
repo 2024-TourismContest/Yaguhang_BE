@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 @EqualsAndHashCode(of = {"home", "away", "time"})
-@Table(name = "Baseball",
+@Table(name = "baseball",
         uniqueConstraints= {
                 @UniqueConstraint(
                         name = "home, away, time, location 조합은 단일이어야함",
