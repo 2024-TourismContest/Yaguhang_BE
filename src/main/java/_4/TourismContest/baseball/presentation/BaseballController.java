@@ -64,4 +64,13 @@ public class BaseballController {
         }
         return ResponseEntity.ok(scrapedGames);
     }
+
+    @PostMapping("/scrape-today-game-bulk")
+    public ResponseEntity<List<Baseball>> scrapeTodayGameWithBulkUpdate() {
+        List<Baseball> scrapedGames = baseballService.scrapeTodayGameWithBulkUpdate();
+        if (scrapedGames.isEmpty()) {
+            return ResponseEntity.ok().body(scrapedGames); // 스크랩된 경기가 없어도 200 OK 반환
+        }
+        return ResponseEntity.ok(scrapedGames);
+    }
 }
